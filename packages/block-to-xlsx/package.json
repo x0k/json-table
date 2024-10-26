@@ -39,6 +39,7 @@
     "@json-table/core": "workspace:^0.0.0"
   },
   "devDependencies": {
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@json-table/core": "workspace:^0.0.0"
   }
 }

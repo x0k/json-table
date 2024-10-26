@@ -132,13 +132,13 @@ importers:
 
   packages/block-to-xlsx:
     dependencies:
-      '@json-table/core':
-        specifier: workspace:^0.0.0
-        version: link:../core
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
     devDependencies:
+      '@json-table/core':
+        specifier: workspace:^0.0.0
+        version: link:../core
       vitest:
         specifier: 'catalog:'
         version: 2.1.3
