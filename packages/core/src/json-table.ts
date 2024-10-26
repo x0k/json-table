@@ -1,4 +1,4 @@
-import type { JSONPrimitiveOrNull } from "../lib/json.js";
+import type { JSONPrimitive } from "./lib/json.js";
 
 export interface Height {
   height: number;
@@ -17,28 +17,28 @@ export enum CellType {
   Corner = "corner",
 }
 
-export interface Cell<V = JSONPrimitiveOrNull> extends Sized {
+export interface Cell<V = JSONPrimitive> extends Sized {
   value: V;
   type: CellType;
 }
 
-export interface Cells<V = JSONPrimitiveOrNull> {
+export interface Cells<V = JSONPrimitive> {
   cells: Cell<V>[];
   /** Absolute position in row for each cell */
   columns: number[];
 }
 
-export interface Rows<V = JSONPrimitiveOrNull> {
+export interface Rows<V = JSONPrimitive> {
   rows: Cells<V>[];
   /** Absolute position in column for each row */
   indexes: number[];
 }
 
-export interface Block<V = JSONPrimitiveOrNull> extends Sized {
+export interface Block<V = JSONPrimitive> extends Sized {
   data: Rows<V>;
 }
 
-export interface Table<V = JSONPrimitiveOrNull> {
+export interface Table<V = JSONPrimitive> {
   head: Block<V> | null;
   indexes: Block<V> | null;
   body: Block<V>;
@@ -60,7 +60,7 @@ export type BlockTransform<V> = (block: Block<V>) => Block<V>;
 
 export type BlockCompositor<V> = (blocks: Block<V>[]) => Block<V>;
 
-export interface ComposedTable<V = JSONPrimitiveOrNull> extends Table<V> {
+export interface ComposedTable<V = JSONPrimitive> extends Table<V> {
   baked: Block<V>[];
 }
 
@@ -90,30 +90,3 @@ export const TABLE_COMPONENT_OPPOSITES: Record<TableComponent, TableComponent> =
     head: "indexes",
     indexes: "head",
   };
-
-export function makeTableFromValue<V>(value: V): Table<V> {
-  return {
-    head: null,
-    indexes: null,
-    body: {
-      height: 1,
-      width: 1,
-      data: {
-        rows: [
-          {
-            cells: [{ height: 1, width: 1, value, type: CellType.Value }],
-            columns: [0],
-          },
-        ],
-        indexes: [0],
-      },
-    },
-  };
-}
-
-export function makeProportionalResizeGuard(
-  threshold: number
-): ProportionalResizeGuard {
-  return (lcmValue: number, maxValue: number) =>
-    (lcmValue - maxValue) / maxValue <= threshold;
-}

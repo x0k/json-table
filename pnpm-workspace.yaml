@@ -1,6 +1,6 @@
 packages:
   - "web"
-  - "legacy"
+  - "packages/*"
 
 catalog:
   vite: ^5.4.9

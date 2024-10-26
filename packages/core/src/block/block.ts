@@ -11,7 +11,8 @@ import type {
   RowsScaler,
   Rows,
   BlockTransformInPlace,
-} from "./core.js";
+} from "../json-table.js";
+
 import {
   scaleRowsHorizontallyInPlace,
   scaleRowsVerticallyInPlace,

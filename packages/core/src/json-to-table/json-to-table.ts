@@ -1,24 +1,24 @@
 import {
-  type JSONPrimitiveOrNull,
+  type JSONPrimitive,
   type JSONRecord,
   type JSONValue,
-  isJsonPrimitiveOrNull,
-} from "./lib/json.js";
+  isJsonPrimitive,
+} from "../lib/json.js";
+import { array } from "../lib/array.js";
+import { isRecord } from '../lib/object.js';
+
 import {
-  type Table,
-  type Cells,
-  makeTableFromValue,
-  makeProportionalResizeGuard,
   type ComposedTable,
+  type Cells,
   CellType,
-  shiftPositionsInPlace,
-  makeTableInPlaceStacker,
-  mergeBlocksHorizontally,
   type Block,
-} from "./model/index.js";
-import { isRecord } from "./lib/guards.js";
-import { array } from "./lib/array.js";
-import { makeObjectPropertiesStabilizer } from "./lib/object.js";
+  type Table,
+} from "../json-table.js";
+
+import { mergeBlocksHorizontally, shiftPositionsInPlace } from "../block/index.js";
+import { makeTableFromValue, makeTableInPlaceStacker } from "./table.js";
+import { makeObjectPropertiesStabilizer } from './properties-stabilizer.js';
+import { makeProportionalResizeGuard } from './proportional-resize-guard.js';
 
 export interface TableFactoryOptions<V> {
   joinPrimitiveArrayValues?: boolean;
@@ -38,7 +38,7 @@ export function makeTableFactory({
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
   cornerCellValue,
   collapseIndexes,
-}: TableFactoryOptions<JSONPrimitiveOrNull>) {
+}: TableFactoryOptions<JSONPrimitive>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold
   );
@@ -172,7 +172,7 @@ export function makeTableFactory({
     return stackTablesVertical(titles, tables);
   }
   function transformValue(value: JSONValue): Table {
-    if (isJsonPrimitiveOrNull(value)) {
+    if (isJsonPrimitive(value)) {
       return makeTableFromValue(value);
     }
     if (Array.isArray(value)) {
@@ -182,8 +182,8 @@ export function makeTableFactory({
       let isPrimitives = true;
       let isRecords = true;
       let i = 0;
-      while (i < value.length && (isPrimitives || isRecord)) {
-        isPrimitives = isPrimitives && isJsonPrimitiveOrNull(value[i]!);
+      while (i < value.length && (isPrimitives || isRecords)) {
+        isPrimitives = isPrimitives && isJsonPrimitive(value[i]!);
         isRecords = isRecords && isRecord(value[i]);
         i++;
       }

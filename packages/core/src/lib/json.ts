@@ -1,10 +1,10 @@
 import type { CompareResult } from "./ord.js";
 
-export type JSONPrimitive = string | number | boolean;
+export type JSONPrimitiveExceptNull = string | number | boolean;
 
-export type JSONPrimitiveOrNull = JSONPrimitive | null;
+export type JSONPrimitive = JSONPrimitiveExceptNull | null;
 
-export type JSONPrimitiveLiterals = "string" | "number" | "boolean";
+export type JSONPrimitiveExceptNullLiterals = "string" | "number" | "boolean";
 
 export type JSONRecord = { [k: string]: JSONValue };
 
@@ -12,16 +12,17 @@ export type JSONArray = JSONValue[];
 
 export type JSONObject = JSONRecord | JSONArray;
 
-export type JSONValue = JSONPrimitive | null | JSONObject;
+export type JSONValue = JSONPrimitive | JSONObject;
 
-export const isJsonPrimitive = (value: JSONValue): value is JSONPrimitive =>
-  typeof value !== "object";
-
-export const isJsonPrimitiveOrNull = (
+export const isJsonPrimitiveExceptNull = (
   value: JSONValue
-): value is JSONPrimitive | null => value === null || typeof value !== "object";
+): value is JSONPrimitiveExceptNull => typeof value !== "object";
 
-const primitiveTypeOrder: Record<JSONPrimitiveLiterals, 0 | 1 | 2> = {
+export const isJsonPrimitive = (
+  value: JSONValue
+): value is JSONPrimitive => value === null || typeof value !== "object";
+
+const primitiveTypeOrder: Record<JSONPrimitiveExceptNullLiterals, 0 | 1 | 2> = {
   boolean: 0,
   number: 1,
   string: 2,
@@ -35,7 +36,7 @@ const cmpTable: [CmpRow, CmpRow, CmpRow] = [
   [1, 1, 0],
 ];
 
-export function compareSameTypeJsonPrimitive<T extends JSONPrimitive>(
+export function compareSameTypeJsonPrimitive<T extends JSONPrimitiveExceptNull>(
   a: T,
   b: T
 ): CompareResult {
@@ -43,14 +44,14 @@ export function compareSameTypeJsonPrimitive<T extends JSONPrimitive>(
 }
 
 export function compareJsonPrimitive(
-  a: JSONPrimitive,
-  b: JSONPrimitive
+  a: JSONPrimitiveExceptNull,
+  b: JSONPrimitiveExceptNull
 ): CompareResult {
   if (a === b) {
     return 0;
   }
-  const ta = typeof a as JSONPrimitiveLiterals;
-  const tb = typeof b as JSONPrimitiveLiterals;
+  const ta = typeof a as JSONPrimitiveExceptNullLiterals;
+  const tb = typeof b as JSONPrimitiveExceptNullLiterals;
   return ta === tb
     ? compareSameTypeJsonPrimitive(a, b)
     : cmpTable[primitiveTypeOrder[ta]][primitiveTypeOrder[tb]];
@@ -135,8 +136,8 @@ export function compareJsonValue(a: JSONValue, b: JSONValue): CompareResult {
   if (b === null) {
     return 1;
   }
-  if (isJsonPrimitive(a)) {
-    return isJsonPrimitive(b) ? compareJsonPrimitive(a, b) : -1;
+  if (isJsonPrimitiveExceptNull(a)) {
+    return isJsonPrimitiveExceptNull(b) ? compareJsonPrimitive(a, b) : -1;
   }
-  return isJsonPrimitive(b) ? 1 : compareJsonObjects(a, b);
+  return isJsonPrimitiveExceptNull(b) ? 1 : compareJsonObjects(a, b);
 }

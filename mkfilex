@@ -1,9 +1,13 @@
 #!/usr/bin/bash -xe
 
-# t/:
-#   table:
-#     bun test src/lib/json-to-table.test.ts
-#   bun test
+t:
+  pnpm run test
+
+b:
+  pnpm run build
+
+d:
+  pnpm run dev
 
 w/:
   pushd web
@@ -15,6 +19,14 @@ w/:
 
 c/:
   pushd packages/core
+  b:
+    pnpm run build
+  t:
+    pnpm run test
+  popd
+
+x/:
+  pushd packages/block-to-xlsx
   b:
     pnpm run build
   t:

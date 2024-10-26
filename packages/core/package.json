@@ -5,7 +5,9 @@
   "license": "MIT",
   "keywords": [
     "json",
-    "table"
+    "table",
+    "ascii",
+    "html-table"
   ],
   "type": "module",
   "files": [
@@ -27,16 +29,34 @@
     "build": "tsc",
     "test": "vitest --run"
   },
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
     "./lib/*": {
       "types": "./dist/lib/*.d.ts",
       "import": "./dist/lib/*.js"
+    },
+    ".": {
+      "types": "./dist/json-table.d.ts",
+      "import": "./dist/json-table.js"
+    },
+    "./block": {
+      "types": "./dist/block/index.d.ts",
+      "import": "./dist/block/index.js"
+    },
+    "./block-matrix": {
+      "types": "./dist/block-matrix.d.ts",
+      "import": "./dist/block-matrix.js"
+    },
+    "./block-to-ascii": {
+      "types": "./dist/block-to-ascii/index.d.ts",
+      "import": "./dist/block-to-ascii/index.js"
+    },
+    "./block-to-html": {
+      "types": "./dist/block-to-html.d.ts",
+      "import": "./dist/block-to-html.js"
+    },
+    "./json-to-table": {
+      "types": "./dist/json-to-table/index.d.ts",
+      "import": "./dist/json-to-table/index.js"
     }
   },
   "devDependencies": {

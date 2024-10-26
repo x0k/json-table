@@ -1,0 +1,44 @@
+{
+  "name": "@json-table/block-to-xlsx",
+  "version": "0.0.0",
+  "description": "Library for creating tables from JSON",
+  "license": "MIT",
+  "keywords": [
+    "json",
+    "table",
+    "xlsx"
+  ],
+  "type": "module",
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "publishConfig": {
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/x0k/json-table.git",
+    "directory": "packages/block-to-xlsx"
+  },
+  "bugs": "https://github.com/x0k/json-table/issues",
+  "homepage": "https://x0k.github.io/json-table/",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --run"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/block-to-xlsx.d.ts",
+      "import": "./dist/block-to-xlsx.js"
+    }
+  },
+  "peerDependencies": {
+    "exceljs": "^4.4.0",
+    "@json-table/core": "workspace:^0.0.0"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

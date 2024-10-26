@@ -4,23 +4,44 @@ import {
   type Block,
   type BlockCompositor,
   CellType,
-  type ProportionalResizeGuard,
   TABLE_COMPONENT_SIZE_ASPECTS,
   TABLE_COMPONENT_OPPOSITES,
   type Table,
   type TableComponent,
   type TableCompositor,
   type ComposedTable,
-} from "./core.js";
-import { shiftPositionsInPlace } from "./row.js";
+  type ProportionalResizeGuard,
+} from "../json-table.js";
+
 import {
+  shiftPositionsInPlace,
   areBlocksEqual,
   makeBlockInPlaceScaler,
   makeHorizontalBlockInPlaceStacker,
   makeVerticalBlockInPlaceStacker,
   mergeBlocksHorizontally,
   mergeBlocksVertically,
-} from "./block.js";
+} from "../block/index.js";
+
+export function makeTableFromValue<V>(value: V): Table<V> {
+  return {
+    head: null,
+    indexes: null,
+    body: {
+      height: 1,
+      width: 1,
+      data: {
+        rows: [
+          {
+            cells: [{ height: 1, width: 1, value, type: CellType.Value }],
+            columns: [0],
+          },
+        ],
+        indexes: [0],
+      },
+    },
+  };
+}
 
 export interface BakeOptions<V> {
   head?: boolean;

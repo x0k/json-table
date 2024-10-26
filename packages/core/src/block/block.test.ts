@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { type Block, CellType } from "./core.js";
+import { type Block, CellType } from "../json-table.js";
 import {
   stretchCellsToBottomInPlace,
   stretchCellsToRightInPlace,

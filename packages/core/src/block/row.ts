@@ -1,4 +1,4 @@
-import type { Rows } from "./core.js";
+import type { Rows } from "../json-table.js";
 
 export function shiftPositionsInPlace(columns: number[], offset: number): void {
   for (let i = 0; i < columns.length; i++) {
