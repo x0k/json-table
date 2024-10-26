@@ -1,5 +1,8 @@
 #!/usr/bin/bash -xe
 
+cs:
+  pnpm changeset
+
 t:
   pnpm run test
 

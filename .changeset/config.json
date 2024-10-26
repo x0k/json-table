@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.3/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "x0k/json-table"
+    }
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "@json-table/*"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
+}
