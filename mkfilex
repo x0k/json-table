@@ -9,6 +9,26 @@ b:
 d:
   pnpm run dev
 
+docs/:
+  pushd apps/docs
+  d:
+    pnpm run dev
+  c:
+    pnpm run check
+  b:
+    pnpm run build
+  popd
+
+app/:
+  pushd apps/web
+  d:
+    pnpm run dev
+  c:
+    pnpm run check
+  b:
+    pnpm run build
+  popd
+
 w/:
   pushd web
   d:

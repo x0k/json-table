@@ -30,5 +30,5 @@ export function makeHTMLPageContent(tables: Entry<Block>[]) {
     ? tables
         .map(([title, table]) => `<h2>${title}</h2>${blockToHTML(table)}`)
         .join("<br />")
-    : blockToHTML(tables[0][1]);
+    : blockToHTML(tables[0]![1]);
 }

@@ -1,15 +1,30 @@
-# JSON Table
+---
+title: JSON Table
+# description: Main page
+template: splash
+hero:
+  tagline: Set of tools for converting JSON data into tables (HTML, XLSX, ASCII).
+  actions:
+    # - text: Get Started
+    #   link: guides/quickstart/
+    #   icon: right-arrow
+    - text: Web App
+      link: https://x0k.github.io/json-table/
+      icon: external
+      # variant: minimal
+    - text: View on GitHub
+      link: https://github.com/x0k/json-table/
+      icon: external
+      variant: minimal
+---
 
-Set of tools for converting JSON data into tables (HTML, XLSX, ASCII).
+import { Code, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-- [Web App](https://x0k.github.io/json-table/)
-- [Documentation](https://x0k.github.io/json-table/docs/)
+import Npm from '@/components/npm.astro';
 
-## Install
+## Installation
 
-```shell
-npm install @json-table/core
-```
+<Npm pkg='@json-table/core' />
 
 ## Usage
 
@@ -69,8 +84,3 @@ Output:
 ## License
 
 MIT
-
-## See also
-
-- Use this app to render JSON responses as tables in your browser by [WebMaid](https://github.com/x0k/web-maid/tree/main/examples/json-to-table)
-- Simple build automation tool [mk](https://github.com/x0k/mk)
