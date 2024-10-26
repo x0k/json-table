@@ -5,7 +5,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/json-to-table/",
+  base: "/json-table/",
   plugins: [svelte()],
   resolve: {
     alias: {

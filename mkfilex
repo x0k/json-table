@@ -8,7 +8,15 @@
 w/:
   pushd web
   d:
-    npm run dev
+    pnpm run dev
   c:
-    npm run check
+    pnpm run check
+  popd
+
+c/:
+  pushd packages/core
+  b:
+    pnpm run build
+  t:
+    pnpm run test
   popd
