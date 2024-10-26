@@ -1,0 +1,65 @@
+{
+  "name": "@json-table/core",
+  "version": "0.0.0",
+  "description": "Library for creating tables from JSON data",
+  "license": "MIT",
+  "keywords": [
+    "json",
+    "table",
+    "ascii",
+    "html-table"
+  ],
+  "type": "module",
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "publishConfig": {
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/x0k/json-table.git",
+    "directory": "packages/core"
+  },
+  "bugs": "https://github.com/x0k/json-table/issues",
+  "homepage": "https://x0k.github.io/json-table/",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --run"
+  },
+  "exports": {
+    "./lib/*": {
+      "types": "./dist/lib/*.d.ts",
+      "import": "./dist/lib/*.js"
+    },
+    ".": {
+      "types": "./dist/json-table.d.ts",
+      "import": "./dist/json-table.js"
+    },
+    "./block": {
+      "types": "./dist/block/index.d.ts",
+      "import": "./dist/block/index.js"
+    },
+    "./block-matrix": {
+      "types": "./dist/block-matrix.d.ts",
+      "import": "./dist/block-matrix.js"
+    },
+    "./block-to-ascii": {
+      "types": "./dist/block-to-ascii/index.d.ts",
+      "import": "./dist/block-to-ascii/index.js"
+    },
+    "./block-to-html": {
+      "types": "./dist/block-to-html.d.ts",
+      "import": "./dist/block-to-html.js"
+    },
+    "./json-to-table": {
+      "types": "./dist/json-to-table/index.d.ts",
+      "import": "./dist/json-to-table/index.js"
+    }
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

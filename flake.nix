@@ -19,6 +19,7 @@
           buildInputs = [
             mk.packages.${system}.default
             pkgs.nodejs_22
+            pkgs.pnpm
           ];
           shellHook = ''
             source <(COMPLETE=bash mk)

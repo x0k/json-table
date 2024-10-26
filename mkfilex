@@ -1,14 +1,54 @@
 #!/usr/bin/bash -xe
 
-# t/:
-#   table:
-#     bun test src/lib/json-to-table.test.ts
-#   bun test
+t:
+  pnpm run test
+
+b:
+  pnpm run build
+
+d:
+  pnpm run dev
+
+docs/:
+  pushd apps/docs
+  d:
+    pnpm run dev
+  c:
+    pnpm run check
+  b:
+    pnpm run build
+  popd
+
+app/:
+  pushd apps/web
+  d:
+    pnpm run dev
+  c:
+    pnpm run check
+  b:
+    pnpm run build
+  popd
 
 w/:
   pushd web
   d:
-    npm run dev
+    pnpm run dev
   c:
-    npm run check
+    pnpm run check
+  popd
+
+c/:
+  pushd packages/core
+  b:
+    pnpm run build
+  t:
+    pnpm run test
+  popd
+
+x/:
+  pushd packages/block-to-xlsx
+  b:
+    pnpm run build
+  t:
+    pnpm run test
   popd
