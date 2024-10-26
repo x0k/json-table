@@ -100,7 +100,7 @@
     <a
       class="btn btn-circle btn-ghost"
       aria-label="docs"
-      href="https://github.com/x0k/json-table/docs/"
+      href="https://x0k.github.io/json-table/docs/"
       target="_blank"
     >
       <svg viewBox="0 0 48 48" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
