@@ -1,4 +1,4 @@
-# JSON Table
+# @json-table/core
 
 Set of tools for converting JSON data to table (HTML, XLSX, ASCII).
 
@@ -49,7 +49,6 @@ Input data:
     }
   ]
 }
-
 ```
 
 Output:
@@ -69,8 +68,3 @@ Output:
 ## License
 
 MIT
-
-## See also
-
-- Use this app to render JSON responses as tables in your browser by [WebMaid](https://github.com/x0k/web-maid/tree/main/examples/json-to-table)
-- Simple build automation tool [mk](https://github.com/x0k/mk)

@@ -1,7 +1,7 @@
 {
   "name": "@json-table/core",
   "version": "0.0.0",
-  "description": "Library for creating tables from JSON",
+  "description": "Library for creating tables from JSON data",
   "license": "MIT",
   "keywords": [
     "json",

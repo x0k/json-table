@@ -1,7 +1,7 @@
 {
   "name": "@json-table/block-to-xlsx",
   "version": "0.0.0",
-  "description": "Library for creating tables from JSON",
+  "description": "Library for rendering JSON Table to XLSX",
   "license": "MIT",
   "keywords": [
     "json",
