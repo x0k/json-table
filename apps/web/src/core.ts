@@ -1,6 +1,9 @@
 import type { Schema, UiSchemaRoot } from "@sjsf/form";
 
-import { ASCIITableFormat, ASCII_TABLE_FORMATS } from "@json-table/core/block-to-ascii";
+import {
+  ASCIITableFormat,
+  ASCII_TABLE_FORMATS,
+} from "@json-table/core/block-to-ascii";
 
 import { OutputFormat, TransformPreset } from "./app-worker";
 
@@ -107,6 +110,12 @@ export const TRANSFORM_SCHEMA: Schema = {
           properties: {
             preset: {
               const: TransformPreset.Manual,
+            },
+            enforceDeduplication: {
+              title: "Enforce deduplication",
+              description: "Enforces headers and indexes deduplication",
+              type: "boolean",
+              default: false,
             },
             collapseIndexes: {
               title: "Combine nested indexes",
@@ -225,6 +234,7 @@ export const TRANSFORMED_UI_SCHEMA: UiSchemaRoot = {
   "ui:options": {
     order: [
       "preset",
+      "enforceDeduplication",
       "collapseIndexes",
       "joinPrimitiveArrayValues",
       "combineArraysOfObjects",

@@ -49,6 +49,7 @@ export interface BakeOptions<V> {
   cornerCellValue: V;
 }
 
+// TODO: combine into one function `makeComponentSelector(aspect: BlockSizeAspect)`
 function bestHead<V>(a: Block<V>, b: Block<V>) {
   if (a.width === b.width) {
     return a.height < b.height ? a : b;

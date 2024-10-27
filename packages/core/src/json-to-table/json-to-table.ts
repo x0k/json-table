@@ -5,7 +5,7 @@ import {
   isJsonPrimitive,
 } from "../lib/json.js";
 import { array } from "../lib/array.js";
-import { isRecord } from '../lib/object.js';
+import { isRecord } from "../lib/object.js";
 
 import {
   type ComposedTable,
@@ -15,10 +15,13 @@ import {
   type Table,
 } from "../json-table.js";
 
-import { mergeBlocksHorizontally, shiftPositionsInPlace } from "../block/index.js";
+import {
+  mergeBlocksHorizontally,
+  shiftPositionsInPlace,
+} from "../block/index.js";
 import { makeTableFromValue, makeTableInPlaceStacker } from "./table.js";
-import { makeObjectPropertiesStabilizer } from './properties-stabilizer.js';
-import { makeProportionalResizeGuard } from './proportional-resize-guard.js';
+import { makeObjectPropertiesStabilizer } from "./properties-stabilizer.js";
+import { makeProportionalResizeGuard } from "./proportional-resize-guard.js";
 
 export interface TableFactoryOptions<V> {
   joinPrimitiveArrayValues?: boolean;
@@ -29,6 +32,7 @@ export interface TableFactoryOptions<V> {
   collapseIndexes?: boolean;
   cornerCellValue: V;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
+  enforceDeduplication?: boolean;
 }
 
 export function makeTableFactory({
@@ -38,6 +42,7 @@ export function makeTableFactory({
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
   cornerCellValue,
   collapseIndexes,
+  enforceDeduplication,
 }: TableFactoryOptions<JSONPrimitive>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold
@@ -104,7 +109,7 @@ export function makeTableFactory({
       : newIndexes;
   }
 
-  function addHeaders(table: ComposedTable, titles: string[]): void {
+  function addHeadersInPlace(table: ComposedTable, titles: string[]): void {
     const { baked, head } = table;
     const hasHeaders = head !== null;
     const newHead: Cells = {
@@ -138,14 +143,14 @@ export function makeTableFactory({
   function stackTablesVertical(titles: string[], tables: Table[]): Table {
     const stacked = verticalTableInPlaceStacker(tables);
     addIndexesInPlace(stacked, titles);
-    // @ts-expect-error transform to regular table
+    // @ts-expect-error transform into regular table
     delete stacked.baked;
     return stacked;
   }
   function stackTablesHorizontal(titles: string[], tables: Table[]): Table {
     const stacked = horizontalTableInPlaceStacker(tables);
-    addHeaders(stacked, titles);
-    // @ts-expect-error transform to regular table
+    addHeadersInPlace(stacked, titles);
+    // @ts-expect-error transform into regular table
     delete stacked.baked;
     return stacked;
   }

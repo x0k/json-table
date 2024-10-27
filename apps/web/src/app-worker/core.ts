@@ -61,6 +61,7 @@ export function extractTableFactoryOptions(
         proportionalSizeAdjustmentThreshold: 1,
         stabilizeOrderOfPropertiesInArraysOfObjects: true,
         cornerCellValue: "№",
+        enforceDeduplication: false,
       };
     case TransformPreset.Manual: {
       const {
@@ -70,6 +71,7 @@ export function extractTableFactoryOptions(
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue,
+        enforceDeduplication,
       } = config;
       return {
         collapseIndexes,
@@ -78,6 +80,7 @@ export function extractTableFactoryOptions(
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue: cornerCellValue ?? "",
+        enforceDeduplication,
       };
     }
     default: {
