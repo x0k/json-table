@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 
 import { blockToASCII } from "../block-to-ascii/index.js";
 import type { JSONPrimitive } from "../lib/json.js";
 
 import { makeTableFactory } from "./json-to-table.js";
-import { makeTableInPlaceBaker } from './table';
+import { makeTableInPlaceBaker } from "./table";
 
 import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
 import simpleIndexesDeduplication from "./__fixtures__/simple-indexes-deduplication.json";
@@ -12,7 +12,7 @@ import parsingError from "./__fixtures__/parsing-error.json";
 import differentHeaders from "./__fixtures__/different-headers.json";
 import uniqueHeaders from "./__fixtures__/uniq-headers.json";
 import wrongSizes from "./__fixtures__/wrong-sizes.json";
-import emptyArrays from "./__fixtures__/empty-arrays.json"
+import emptyArrays from "./__fixtures__/empty-arrays.json";
 
 describe("makeTableFactory", () => {
   const cornerCellValue = "№";
@@ -207,11 +207,11 @@ describe("makeTableFactory", () => {
 `);
   });
 
-  it('Should deduplicate equal headers with different sizes', () => {
+  it("Should deduplicate equal headers with different sizes", () => {
     const data = [
-      {a:1, b:2, c: 3},
-      {a:1, b:2, c: {d: 4, e: 5}}
-    ]
+      { a: 1, b: 2, c: 3 },
+      { a: 1, b: 2, c: { d: 4, e: 5 } },
+    ];
     const table = factory(data);
     const ascii = blockToASCII(bake(table));
     expect(`\n${ascii}\n`).toBe(`
@@ -225,9 +225,9 @@ describe("makeTableFactory", () => {
 |   |   |   | 4 | 5 |
 +---+---+---+---+---+
 `);
-  })
+  });
   // The original problem was in the modification of global `EMPTY` table
-  it('Should handle empty arrays', () => {
+  it("Should handle empty arrays", () => {
     const table = factory(emptyArrays as any);
     const ascii = blockToASCII(bake(table));
     expect(`\n${ascii}\n`).toBe(`
@@ -241,5 +241,40 @@ describe("makeTableFactory", () => {
 | 2 |   |                       | 1 | gwT5xfbxgkPCq_VDyoBO3                        |
 +---+---+-----------------------+---+----------------------------------------------+
 `);
-  })
+  });
+
+  it("Should respect enforceDeduplication option", () => {
+    const data = [
+      {
+        a: 1,
+        b: {
+          c: 1,
+        },
+      },
+      {
+        a: 2,
+        b: {
+          c: 2,
+        },
+      },
+    ];
+    const factory = makeTableFactory({
+      cornerCellValue,
+      enforceDeduplication: true,
+    });
+    const table = factory(data);
+    const ascii = blockToASCII(bake(table));
+    console.log(ascii);
+    expect(`\n${ascii}\n`).toBe(`
++---+---+---+
+|   |   | b |
+| № | a +---+
+|   |   | c |
++---+---+---+
+| 1 | 1 | 1 |
++---+---+---+
+| 2 | 2 | 2 |
++---+---+---+
+`);
+  });
 });

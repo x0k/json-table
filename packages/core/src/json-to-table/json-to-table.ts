@@ -36,6 +36,7 @@ export interface TableFactoryOptions<V> {
   proportionalSizeAdjustmentThreshold?: number;
   collapseIndexes?: boolean;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
+  enforceDeduplication?: boolean;
 }
 
 export function makeTableFactory({
@@ -45,6 +46,7 @@ export function makeTableFactory({
   proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
+  enforceDeduplication,
 }: TableFactoryOptions<JSONPrimitive>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold
@@ -111,7 +113,7 @@ export function makeTableFactory({
       : newIndexes;
   }
 
-  function addHeaders(table: ComposedTable, titles: string[]): void {
+  function addHeadersInPlace(table: ComposedTable, titles: string[]): void {
     const { baked, head } = table;
     const hasHeaders = head !== null;
     const newHead: Cells = {
@@ -145,14 +147,14 @@ export function makeTableFactory({
   function stackTablesVertical(titles: string[], tables: Table[]): Table {
     const stacked = verticalTableInPlaceStacker(tables);
     addIndexesInPlace(stacked, titles);
-    // @ts-expect-error transform to regular table
+    // @ts-expect-error transform into regular table
     delete stacked.baked;
     return stacked;
   }
   function stackTablesHorizontal(titles: string[], tables: Table[]): Table {
     const stacked = horizontalTableInPlaceStacker(tables);
-    addHeaders(stacked, titles);
-    // @ts-expect-error transform to regular table
+    addHeadersInPlace(stacked, titles);
+    // @ts-expect-error transform into regular table
     delete stacked.baked;
     return stacked;
   }
