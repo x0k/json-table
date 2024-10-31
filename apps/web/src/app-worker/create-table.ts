@@ -3,10 +3,7 @@ import { type JSONValue, isJsonPrimitive } from "@json-table/core/lib/json";
 import { max, sum } from "@json-table/core/lib/math";
 import type { Block } from "@json-table/core";
 import { blockToASCII } from "@json-table/core/block-to-ascii";
-import {
-  makeTableInPlaceBaker,
-  makeTableFactory,
-} from "@json-table/core/json-to-table";
+import { makeBlockFactory } from "@json-table/core/json-to-table";
 
 import { type Entry, transformValue } from "@/lib/entry";
 import { createFileURL, createXLSBlob } from "@/lib/file";
@@ -36,13 +33,8 @@ export async function createTable(
   transformConfig: TransformConfig
 ) {
   const options = extractTableFactoryOptions(transformConfig);
-  const tableTransformer = makeTableFactory(options);
+  const makeBlock = makeBlockFactory(options);
   const transformApplicator = makeTransformApplicator(transformConfig);
-  const bakeTable = makeTableInPlaceBaker({
-    cornerCellValue: options.cornerCellValue,
-    head: true,
-    indexes: true,
-  });
   const tableData = parseTableData(data);
   const pagesData: Entry<JSONValue>[] =
     isJsonPrimitive(tableData) || !transformConfig.paginate
@@ -53,8 +45,7 @@ export async function createTable(
           (key) => [key, tableData[key]] as Entry<JSONValue>
         );
   const pagesTables = pagesData
-    .map(transformValue(tableTransformer))
-    .map(transformValue(bakeTable))
+    .map(transformValue(makeBlock))
     .map(transformValue(transformApplicator));
   switch (transformConfig.format) {
     case OutputFormat.HTML: {
