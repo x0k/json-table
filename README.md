@@ -14,13 +14,14 @@ npm install @json-table/core
 ## Usage
 
 ```typescript
-import { makeTableInPlaceBaker, makeTableFactory } from "@json-table/core/json-to-table";
+import { makeBlockFactory } from "@json-table/core/json-to-table";
 import { blockToASCII } from "@json-table/core/block-to-ascii";
 
-const cornerCellValue = "№";
-const factory = makeTableFactory({ cornerCellValue });
-const bake = makeTableInPlaceBaker({ cornerCellValue, head: true, indexes: true });
-const asciiTable = blockToASCII(bake(factory(data)));
+const block = makeBlockFactory({
+  cornerCellValue: "№",
+  joinPrimitiveArrayValues: true,
+});
+const asciiTable = blockToASCII(block(data));
 ```
 
 Input data:

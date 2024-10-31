@@ -55,12 +55,12 @@ export function extractTableFactoryOptions(
   switch (config.preset) {
     case TransformPreset.Default:
       return {
-        collapseIndexes: true,
+        cornerCellValue: "№",
         joinPrimitiveArrayValues: true,
         combineArraysOfObjects: false,
         proportionalSizeAdjustmentThreshold: 1,
+        collapseIndexes: true,
         stabilizeOrderOfPropertiesInArraysOfObjects: true,
-        cornerCellValue: "№",
       };
     case TransformPreset.Manual: {
       const {

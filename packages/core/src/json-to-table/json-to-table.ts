@@ -5,7 +5,7 @@ import {
   isJsonPrimitive,
 } from "../lib/json.js";
 import { array } from "../lib/array.js";
-import { isRecord } from '../lib/object.js';
+import { isRecord } from "../lib/object.js";
 
 import {
   type ComposedTable,
@@ -15,29 +15,36 @@ import {
   type Table,
 } from "../json-table.js";
 
-import { mergeBlocksHorizontally, shiftPositionsInPlace } from "../block/index.js";
-import { makeTableFromValue, makeTableInPlaceStacker } from "./table.js";
-import { makeObjectPropertiesStabilizer } from './properties-stabilizer.js';
-import { makeProportionalResizeGuard } from './proportional-resize-guard.js';
+import {
+  mergeBlocksHorizontally,
+  shiftPositionsInPlace,
+} from "../block/index.js";
+import {
+  makeTableFromValue,
+  makeTableInPlaceBaker,
+  makeTableInPlaceStacker,
+} from "./table.js";
+import { makeObjectPropertiesStabilizer } from "./properties-stabilizer.js";
+import { makeProportionalResizeGuard } from "./proportional-resize-guard.js";
 
 export interface TableFactoryOptions<V> {
+  cornerCellValue: V;
   joinPrimitiveArrayValues?: boolean;
   /** combine arrays of objects into a single object */
   combineArraysOfObjects?: boolean;
   /** proportional size adjustment threshold */
   proportionalSizeAdjustmentThreshold?: number;
   collapseIndexes?: boolean;
-  cornerCellValue: V;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
 }
 
 export function makeTableFactory({
-  combineArraysOfObjects,
-  joinPrimitiveArrayValues,
-  proportionalSizeAdjustmentThreshold = 1,
-  stabilizeOrderOfPropertiesInArraysOfObjects = true,
   cornerCellValue,
+  joinPrimitiveArrayValues,
+  combineArraysOfObjects,
+  proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
+  stabilizeOrderOfPropertiesInArraysOfObjects = true,
 }: TableFactoryOptions<JSONPrimitive>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold
@@ -208,4 +215,14 @@ export function makeTableFactory({
     return transformRecord(value);
   }
   return transformValue;
+}
+
+export function makeBlockFactory(options: TableFactoryOptions<JSONPrimitive>) {
+  const makeTable = makeTableFactory(options);
+  const bake = makeTableInPlaceBaker({
+    cornerCellValue: options.cornerCellValue,
+    head: true,
+    indexes: true,
+  });
+  return (value: JSONValue) => bake(makeTable(value));
 }
