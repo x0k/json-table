@@ -20,6 +20,16 @@ export default defineConfig({
       social: {
         github: "https://github.com/x0k/json-table",
       },
+      head: [
+        {
+          tag: "script",
+          attrs: {
+            "data-goatcounter": "https://json-table-docs-counter.x0k.online/count",
+            async: true,
+            src: "https://json-table-docs-counter.x0k.online/count.js",
+          }
+        },
+      ],
       sidebar: [
         // {
         //   label: "Guides",
