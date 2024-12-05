@@ -24,9 +24,9 @@ export default defineConfig({
         {
           tag: "script",
           attrs: {
-            "data-goatcounter": "https://json-table-docs-counter.x0k.online/count",
+            "data-goatcounter": "https://json-table.counter.x0k.online/count",
             async: true,
-            src: "https://json-table-docs-counter.x0k.online/count.js",
+            src: "https://json-table.counter.x0k.online/count.js",
           }
         },
       ],
