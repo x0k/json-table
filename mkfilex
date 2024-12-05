@@ -55,3 +55,6 @@ x/:
   t:
     pnpm run test
   popd
+
+h:
+  mk -P targets "*"
