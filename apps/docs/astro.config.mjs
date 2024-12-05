@@ -1,5 +1,5 @@
 // @ts-check
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import svelte from "@astrojs/svelte";
@@ -27,14 +27,23 @@ export default defineConfig({
             "data-goatcounter": "https://json-table.counter.x0k.online/count",
             async: true,
             src: "https://json-table.counter.x0k.online/count.js",
-          }
+          },
         },
       ],
       sidebar: [
-        // {
-        //   label: "Guides",
-        //   autogenerate: { directory: "guides" },
-        // },
+        {
+          label: "Packages",
+          items: [
+            {
+              label: "@json-table/core",
+              link: "/",
+            },
+            {
+              label: "@json-table/block-to-xlsx",
+              link: "/block-to-xlsx/",
+            },
+          ],
+        },
       ],
       components: {
         Head: "./src/components/custom-head.astro",

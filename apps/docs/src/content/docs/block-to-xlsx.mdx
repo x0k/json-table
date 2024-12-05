@@ -1,0 +1,49 @@
+---
+title: Block to XLSX
+---
+
+import { Code, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+import Npm from '@/components/npm.astro';
+
+Library for converting blocks to XLSX.
+
+## Installation
+
+<Npm pkg='@json-table/block-to-xlsx exceljs' />
+
+## Usage
+
+```typescript
+import { Workbook } from "exceljs";
+import { max, sum } from "@json-table/core/lib/math";
+import { makeBlockFactory } from "@json-table/core/json-to-table";
+import { renderBlockOnWorksheet } from "@json-table/block-to-xlsx";
+
+const block = makeBlockFactory({
+  cornerCellValue: "№",
+  joinPrimitiveArrayValues: true,
+});
+
+const wb = new Workbook();
+
+/* Render table on the `Table` sheet */
+renderBlockOnWorksheet(wb.addWorksheet("Table"), block(data), {
+  columnWidth: (column, i, m, table) => {
+    const counts = column.map((cell) => cell.count);
+    return Math.max(
+      Math.ceil(
+        (counts.reduce(sum) / table.height +
+          (counts.reduce(max) * column.length) / table.height) /
+          2
+      ),
+      10
+    );
+  },
+});
+
+```
+
+## License
+
+MIT
