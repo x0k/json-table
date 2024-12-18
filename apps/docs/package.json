@@ -11,12 +11,12 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.29.2",
+    "@astrojs/starlight": "^0.30.2",
     "@astrojs/svelte": "^7.0.1",
-    "astro": "^5.0.3",
+    "astro": "^5.0.9",
     "astro-vtbot": "^1.10.7",
     "sharp": "^0.33.5",
-    "starlight-package-managers": "^0.8.0",
-    "svelte": "^5.7.1"
+    "starlight-package-managers": "^0.8.1",
+    "svelte": "^5.14.4"
   }
 }
