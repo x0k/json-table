@@ -3,5 +3,5 @@ packages:
   - "packages/*"
 
 catalog:
-  vite: ^6.0.3
-  vitest: ^3.0.0-beta.2
+  vite: ^6.0.11
+  vitest: ^3.0.3
