@@ -20,6 +20,7 @@
     fetchAsText,
     makeSource,
     resolveSource,
+    ShareBehavior,
     SourceType,
     TRANSFORM_SCHEMA,
     TRANSFORM_UI_SCHEMA,
@@ -42,6 +43,8 @@
     data: initialData,
   });
 
+  let shareBehavior = $state(ShareBehavior.CreateOnOpen);
+
   function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
@@ -58,10 +61,13 @@
     }
     const url = new URL(window.location.href);
     const { data } = source;
-    if (data) {
-      url.searchParams.set("data", data && compressor.compress(data));
+    if (shareBehavior === ShareBehavior.CreateOnOpen) {
+      url.searchParams.set("createOnOpen", "true");
+    } else {
+      url.searchParams.delete("createOnOpen");
     }
     url.searchParams.set("options", compressor.compress(JSON.stringify(value)));
+    url.searchParams.set("data", data && compressor.compress(data));
     const urlStr = url.toString();
     copyTextToClipboard(urlStr)
       .then(() => {
@@ -193,9 +199,18 @@
         </label>
       </div>
     {/each}
-    <button class="btn btn-secondary btn-outline ml-auto" onclick={shareTable}>
-      Share
-    </button>
+    <div class="ml-auto join">
+      <select bind:value={shareBehavior} class="select select-accent join-item">
+        <option value={ShareBehavior.CreateOnOpen}>Create on open</option>
+        <option value={ShareBehavior.OpenEditor}>Open editor</option>
+      </select>
+      <button
+        class="btn btn-accent join-item"
+        onclick={shareTable}
+      >
+        Share
+      </button>
+    </div>
   </div>
   {#if source.type === SourceType.Text}
     <textarea

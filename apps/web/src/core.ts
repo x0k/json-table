@@ -7,6 +7,11 @@ import {
 
 import { OutputFormat, TransformPreset } from "./app-worker";
 
+export enum ShareBehavior {
+  CreateOnOpen = "createOnOpen",
+  OpenEditor = "openEditor",
+}
+
 export enum SourceType {
   Text = "text",
   File = "file",
