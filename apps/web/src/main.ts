@@ -23,7 +23,6 @@ function page() {
     transform: false,
     format: OutputFormat.HTML,
     paginate: false,
-    createOnOpen: true,
   };
   const searchParams = new URLSearchParams(window.location.search);
   if (searchParams.has("data")) {

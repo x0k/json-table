@@ -1,6 +1,9 @@
 import type { Schema, UiSchemaRoot } from "@sjsf/form";
 
-import { ASCIITableFormat, ASCII_TABLE_FORMATS } from "@json-table/core/block-to-ascii";
+import {
+  ASCIITableFormat,
+  ASCII_TABLE_FORMATS,
+} from "@json-table/core/block-to-ascii";
 
 import { OutputFormat, TransformPreset } from "./app-worker";
 
@@ -84,12 +87,6 @@ export const TRANSFORM_SCHEMA: Schema = {
         "Partitioning the input data (object or array) into pages by their keys",
       type: "boolean",
       default: false,
-    },
-    createOnOpen: {
-      type: "boolean",
-      title: "Create on open",
-      description: "Creating a table when opening a share link",
-      default: true,
     },
   },
   required: ["preset", "format"],
@@ -221,7 +218,12 @@ export const TRANSFORM_SCHEMA: Schema = {
   },
 };
 
-export const TRANSFORMED_UI_SCHEMA: UiSchemaRoot = {
+export const TRANSFORM_UI_SCHEMA: UiSchemaRoot = {
+  "ui:submitButton": {
+    "ui:options": {
+      title: "Create table",
+    },
+  },
   "ui:options": {
     order: [
       "preset",
@@ -238,7 +240,6 @@ export const TRANSFORMED_UI_SCHEMA: UiSchemaRoot = {
       "format",
       "asciiFormat",
       "paginate",
-      "createOnOpen",
     ],
   },
 };

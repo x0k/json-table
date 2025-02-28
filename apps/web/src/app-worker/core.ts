@@ -1,7 +1,11 @@
-import { horizontalMirror, transpose, verticalMirror } from '@json-table/core/lib/matrix';
+import {
+  horizontalMirror,
+  transpose,
+  verticalMirror,
+} from "@json-table/core/lib/matrix";
 import type { JSONPrimitive } from "@json-table/core/lib/json";
-import type { Block } from '@json-table/core';
-import { createMatrix, fromMatrix } from '@json-table/core/block-matrix';
+import type { Block } from "@json-table/core";
+import { createMatrix, fromMatrix } from "@json-table/core/block-matrix";
 import { ASCIITableFormat } from "@json-table/core/block-to-ascii";
 import type { TableFactoryOptions } from "@json-table/core/json-to-table";
 
@@ -17,7 +21,6 @@ export enum OutputFormat {
 }
 export type TransformConfig = {
   paginate: boolean;
-  createOnOpen: boolean;
 } & (
   | {
       format: OutputFormat.ASCII;
@@ -47,7 +50,6 @@ export type TransformConfig = {
   );
 
 export const APP_WORKER_ID = "app-worker";
-
 
 export function extractTableFactoryOptions(
   config: TransformConfig

@@ -34,14 +34,6 @@ app/:
     pnpm run build
   popd
 
-w/:
-  pushd web
-  d:
-    pnpm run dev
-  c:
-    pnpm run check
-  popd
-
 c/:
   pushd packages/core
   b:
