@@ -1,14 +1,17 @@
 <script lang="ts">
   import { fileOpen } from "browser-fs-access";
+  import { overrideByRecord } from '@sjsf/form/lib/resolver'
   import {
-    createForm3,
+    createForm,
     Content,
-    FormElement,
+    FormTag,
     setFromContext,
     SubmitButton,
   } from "@sjsf/form";
-  import { createValidator2 } from "@sjsf/ajv8-validator";
-  import { theme as daisyTheme } from "@sjsf/daisyui-theme";
+  import { resolver } from "@sjsf/form/resolvers/compat";
+  import "@sjsf/form/fields/extra-fields/enum-include";
+  import { createFormValidator } from "@sjsf/ajv8-validator";
+  import { theme as daisyTheme } from "@sjsf/daisyui5-theme";
   import { translation } from "@sjsf/form/translations/en";
 
   import { isValidUrl } from "./lib/url";
@@ -36,7 +39,7 @@
     initialOptions,
   }: { initialData: string; initialOptions: TransformConfig } = $props();
 
-  const validator = createValidator2();
+  const validator = createFormValidator();
 
   let source: Source = $state({
     type: isValidUrl(initialData) ? SourceType.URL : SourceType.Text,
@@ -101,13 +104,16 @@
     localStorage.theme ?? "system"
   );
 
-  const form = createForm3({
-    ...daisyTheme,
+  const form = createForm({
+    resolver,
+    theme: daisyTheme,
     initialValue: initialOptions,
     schema: TRANSFORM_SCHEMA,
     uiSchema: TRANSFORM_UI_SCHEMA,
     validator,
-    translation,
+    translation: overrideByRecord(translation, {
+      submit: "Create table"
+    }),
     onSubmit: (formData) => {
       const cfg = formData as TransformConfig;
       resolveSource(source)
@@ -204,20 +210,17 @@
         <option value={ShareBehavior.CreateOnOpen}>Create on open</option>
         <option value={ShareBehavior.OpenEditor}>Open editor</option>
       </select>
-      <button
-        class="btn btn-accent join-item"
-        onclick={shareTable}
-      >
+      <button class="btn btn-accent join-item" onclick={shareTable}>
         Share
       </button>
     </div>
   </div>
   {#if source.type === SourceType.Text}
     <textarea
-      class="textarea textarea-bordered font-mono"
+      class="textarea textarea-bordered font-mono w-full"
       placeholder="Paste JSON here"
       bind:value={source.data}
-      rows="20"
+      rows="25"
     ></textarea>
     <div class="flex gap-2 items-center">
       <p>Examples:</p>
@@ -243,12 +246,12 @@
     <input
       placeholder="File URL"
       bind:value={source.data}
-      class="input input-bordered"
+      class="input input-bordered w-full"
       type="url"
     />
   {/if}
-  <FormElement {form}>
+  <FormTag>
     <SubmitButton />
-    <Content {form} />
-  </FormElement>
+    <Content />
+  </FormTag>
 </Layout>

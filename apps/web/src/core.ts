@@ -224,11 +224,6 @@ export const TRANSFORM_SCHEMA: Schema = {
 };
 
 export const TRANSFORM_UI_SCHEMA: UiSchemaRoot = {
-  "ui:submitButton": {
-    "ui:options": {
-      title: "Create table",
-    },
-  },
   "ui:options": {
     order: [
       "preset",
