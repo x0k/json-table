@@ -187,7 +187,7 @@
     </a>
     <ThemePicker bind:theme />
   {/snippet}
-  <div class="flex gap-2 items-center">
+  <div class="flex items-center gap-2">
     <p>Source type:</p>
     {#each Object.values(SourceType) as type}
       <div class="form-control">
@@ -205,7 +205,7 @@
         </label>
       </div>
     {/each}
-    <div class="ml-auto join">
+    <div class="ml-auto join hidden sm:inline-flex">
       <select bind:value={shareBehavior} class="select select-accent join-item">
         <option value={ShareBehavior.CreateOnOpen}>Create on open</option>
         <option value={ShareBehavior.OpenEditor}>Open editor</option>
@@ -222,7 +222,7 @@
       bind:value={source.data}
       rows="25"
     ></textarea>
-    <div class="flex gap-2 items-center">
+    <div class="gap-2 items-center flex flex-wrap">
       <p>Examples:</p>
       <button class="btn" onclick={() => sample("test")}>Basic</button>
       <button class="btn" onclick={() => sample("deduplication")}>
