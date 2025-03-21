@@ -9,9 +9,9 @@ import {
   OutputFormat,
   type TransformConfig,
   TransformPreset,
-} from "./app-worker";
+} from "./core";
 import { compressor, appWorker } from "./init";
-import { fetchAsText } from "./core";
+import { fetchAsText } from "./model";
 import "./app.css";
 
 const target = document.getElementById("app")!;
@@ -44,9 +44,12 @@ function page() {
   if (searchParams.get("createOnOpen") === "true") {
     const table = isValidUrl(initialData)
       ? fetchAsText(initialData).then((data) =>
-          appWorker.createTable(data, initialOptions)
+          appWorker.createTable({ data, config: initialOptions })
         )
-      : appWorker.createTable(initialData, initialOptions);
+      : appWorker.createTable({
+          data: initialData,
+          config: initialOptions,
+        });
     switch (initialOptions.format) {
       case OutputFormat.XLSX:
         return mount(DownloadTablePage, {

@@ -3,6 +3,10 @@
   "compilerOptions": {
     "moduleResolution": "Bundler",
     "rootDir": "src",
+    "lib": [
+      "ES2022",
+      "ESNext.Disposable"
+    ],
     "types": [
       "vite/client",
     ],

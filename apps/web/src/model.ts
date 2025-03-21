@@ -5,7 +5,7 @@ import {
   ASCII_TABLE_FORMATS,
 } from "@json-table/core/block-to-ascii";
 
-import { OutputFormat, TransformPreset } from "./app-worker";
+import { OutputFormat, TransformPreset } from "./core";
 
 export enum ShareBehavior {
   CreateOnOpen = "createOnOpen",

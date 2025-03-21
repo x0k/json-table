@@ -28,8 +28,8 @@
     TRANSFORM_SCHEMA,
     TRANSFORM_UI_SCHEMA,
     type Source,
-  } from "./core";
-  import { OutputFormat, type TransformConfig } from "./app-worker";
+  } from "./model";
+  import { OutputFormat, type TransformConfig } from "./core";
   import { appWorker, compressor } from "./init";
   import Layout from "./layout.svelte";
   import ThemePicker from "./theme-picker.svelte";
@@ -117,7 +117,7 @@
     onSubmit: (formData) => {
       const cfg = formData as TransformConfig;
       resolveSource(source)
-        .then((data) => appWorker.createTable(data, cfg))
+        .then((data) => appWorker.createTable({ data, config: cfg }))
         .then((content) => {
           switch (cfg.format) {
             case OutputFormat.XLSX:

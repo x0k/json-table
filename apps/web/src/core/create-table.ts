@@ -17,7 +17,7 @@ import {
   type TransformConfig,
   extractTableFactoryOptions,
   makeTransformApplicator,
-} from "./core";
+} from "./model";
 
 function parseTableData(data: string): JSONValue {
   const dataParseResult = jsonTryParse<JSONValue>(data);

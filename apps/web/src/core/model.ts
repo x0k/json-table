@@ -49,8 +49,6 @@ export type TransformConfig = {
       }
   );
 
-export const APP_WORKER_ID = "app-worker";
-
 export function extractTableFactoryOptions(
   config: TransformConfig
 ): TableFactoryOptions<JSONPrimitive> {
