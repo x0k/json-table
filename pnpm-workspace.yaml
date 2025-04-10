@@ -1,7 +1,8 @@
 packages:
-  - "apps/*"
-  - "packages/*"
-
+  - apps/*
+  - packages/*
 catalog:
-  vite: ^6.2.2
-  vitest: ^3.0.9
+  vite: ^6.2.5
+  vitest: ^3.1.1
+onlyBuiltDependencies:
+  - sharp

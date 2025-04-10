@@ -1,5 +1,5 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light --default, night --prefersdark;
+  themes: light --default, dim --prefersdark;
 }
 @source "../node_modules/@sjsf/daisyui5-theme/dist";

@@ -17,9 +17,13 @@ export default defineConfig({
     svelte(),
     starlight({
       title: "JSON Table",
-      social: {
-        github: "https://github.com/x0k/json-table",
-      },
+      social: [
+        {
+          icon: "github",
+          href: "https://github.com/x0k/json-table",
+          label: "GitHub",
+        },
+      ],
       head: [
         {
           tag: "script",
