@@ -1,5 +1,5 @@
 ---
-"web": major
+"web": minor
 ---
 
 Use hash to share data
