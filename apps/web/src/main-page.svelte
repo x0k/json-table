@@ -1,11 +1,11 @@
 <script lang="ts">
   import { fileOpen } from "browser-fs-access";
-  import { overrideByRecord } from '@sjsf/form/lib/resolver'
+  import { overrideByRecord } from "@sjsf/form/lib/resolver";
   import {
     createForm,
     Content,
-    FormTag,
-    setFromContext,
+    Form,
+    setFormContext,
     SubmitButton,
   } from "@sjsf/form";
   import { resolver } from "@sjsf/form/resolvers/compat";
@@ -112,10 +112,9 @@
     uiSchema: TRANSFORM_UI_SCHEMA,
     validator,
     translation: overrideByRecord(translation, {
-      submit: "Create table"
+      submit: "Create table",
     }),
-    onSubmit: (formData) => {
-      const cfg = formData as TransformConfig;
+    onSubmit: (cfg: TransformConfig) => {
       resolveSource(source)
         .then((data) => appWorker.createTable({ data, config: cfg }))
         .then((content) => {
@@ -137,7 +136,7 @@
         });
     },
   });
-  setFromContext(form.context);
+  setFormContext(form.context);
 </script>
 
 <Layout>
@@ -250,8 +249,8 @@
       type="url"
     />
   {/if}
-  <FormTag>
+  <Form>
     <SubmitButton />
     <Content />
-  </FormTag>
+  </Form>
 </Layout>
