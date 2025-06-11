@@ -1,5 +1,11 @@
 # web
 
+## 0.1.0
+
+### Minor Changes
+
+- [`aa6f35f`](https://github.com/x0k/json-table/commit/aa6f35f43100b15d7c4f3120316238f4fce4b5d5) Thanks [@x0k](https://github.com/x0k)! - Use hash to share data
+
 ## 0.0.1
 
 ### Patch Changes
