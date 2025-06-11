@@ -20,6 +20,7 @@
   import { createPage } from "./lib/browser";
 
   import {
+    createShareUrl,
     fetchAsText,
     makeSource,
     resolveSource,
@@ -58,46 +59,23 @@
   }
 
   async function shareTable() {
-    const { value } = form;
-    if (value === undefined) {
+    const options = form.value;
+    if (options === undefined) {
       return;
     }
-    const url = new URL(window.location.href);
-    const { data } = source;
-    if (shareBehavior === ShareBehavior.CreateOnOpen) {
-      url.searchParams.set("createOnOpen", "true");
-    } else {
-      url.searchParams.delete("createOnOpen");
-    }
-    url.searchParams.set("options", compressor.compress(JSON.stringify(value)));
-    url.searchParams.set("data", data && compressor.compress(data));
-    const urlStr = url.toString();
-    copyTextToClipboard(urlStr)
-      .then(() => {
-        if (urlStr.length > 2000) {
-          window.alert("URL is too long");
-          // toast({
-          //   title: "URL is too long",
-          //   description:
-          //     "URL is copied to clipboard, but it's too long for a browsers",
-          //   status: "warning",
-          // });
-        } else {
-          window.alert("URL copied to the clipboard");
-          // toast({
-          //   title: "URL copied to clipboard",
-          //   status: "success",
-          // });
-        }
-      })
-      .catch((err): void => {
+    const sharedUrl = createShareUrl(compressor.compress, {
+      data: source.data,
+      options,
+      createOnOpen: shareBehavior === ShareBehavior.CreateOnOpen,
+    });
+    copyTextToClipboard(sharedUrl).then(
+      () => {
+        window.alert("URL copied to the clipboard");
+      },
+      (): void => {
         window.alert("Failed to copy URL to clipboard");
-        // toast({
-        //   title: "Failed to copy URL to clipboard",
-        //   status: "error",
-        //   description: String(err),
-        // });
-      });
+      }
+    );
   }
 
   let theme = $state<"light" | "dark" | "system">(
@@ -128,11 +106,6 @@
         })
         .catch((e) => {
           window.alert(String(e));
-          // toast({
-          //   title: "Error",
-          //   description: e,
-          //   status: "error",
-          // });
         });
     },
   });

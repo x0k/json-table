@@ -5,7 +5,13 @@ import {
   ASCII_TABLE_FORMATS,
 } from "@json-table/core/block-to-ascii";
 
-import { OutputFormat, TransformPreset } from "./core";
+import { OutputFormat, TransformPreset, type TransformConfig } from "./core";
+
+export interface SharedData {
+  data: string;
+  options: TransformConfig;
+  createOnOpen: boolean;
+}
 
 export enum ShareBehavior {
   CreateOnOpen = "createOnOpen",
@@ -32,6 +38,16 @@ export type Source = {
       type: SourceType.URL;
     }
 );
+
+export function createShareUrl(
+  compress: (data: string) => string,
+  data: SharedData
+) {
+  const encoded = compress(JSON.stringify(data));
+  const url = new URL(location.href);
+  url.hash = encoded;
+  return url.toString();
+}
 
 export function makeSource(type: SourceType): Source {
   switch (type) {
