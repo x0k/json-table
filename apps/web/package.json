@@ -1,7 +1,7 @@
 {
   "name": "web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@json-table/block-to-xlsx": "workspace:^",
-    "@json-table/core": "workspace:^0.1.0",
+    "@json-table/core": "workspace:^0.2.0",
     "@sjsf/ajv8-validator": "^3.0.0",
     "@sjsf/daisyui5-theme": "^3.0.0",
     "@sjsf/form": "^3.0.0",

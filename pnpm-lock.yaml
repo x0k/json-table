@@ -72,7 +72,7 @@ importers:
         specifier: workspace:^
         version: link:../../packages/block-to-xlsx
       '@json-table/core':
-        specifier: workspace:^0.1.0
+        specifier: workspace:^0.2.0
         version: link:../../packages/core
       '@sjsf/ajv8-validator':
         specifier: ^3.0.0
@@ -131,7 +131,7 @@ importers:
         version: 4.4.0
     devDependencies:
       '@json-table/core':
-        specifier: workspace:^0.1.0
+        specifier: workspace:^0.2.0
         version: link:../core
       vitest:
         specifier: 'catalog:'
