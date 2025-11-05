@@ -1,52 +1,7 @@
 <script lang="ts">
-  let { theme = $bindable() }: { theme: "system" | "light" | "dark" } =
-    $props();
-
-  let darkOrLight = $derived(
-    theme === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme
-  );
-
-  const checked = {
-    get value() {
-      return darkOrLight === "dark";
-    },
-    set value(v) {
-      theme = v ? "dark" : "light";
-    },
-  };
-
-  function updateTheme() {
-    if (
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.dataset.theme = "dark";
-    } else {
-      document.documentElement.dataset.theme = "light";
-    }
-  }
+  import { themeManager } from './theme.svelte'
 </script>
 
-<!-- <select
-  bind:value={theme}
-  onchange={() => {
-    if (theme === "system") {
-      localStorage.removeItem("theme");
-    } else {
-      localStorage.theme = theme;
-    }
-    updateTheme();
-  }}
->
-  <option value="system">System</option>
-  <option value="light">Light</option>
-  <option value="dark">Dark</option>
-</select> -->
 <label class="flex cursor-pointer gap-2">
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -67,15 +22,7 @@
   <input
     type="checkbox"
     class="toggle"
-    bind:checked={checked.value}
-    onchange={() => {
-      if (theme === "system") {
-        localStorage.removeItem("theme");
-      } else {
-        localStorage.theme = theme;
-      }
-      updateTheme();
-    }}
+    bind:checked={themeManager.isDark}
   />
   <svg
     xmlns="http://www.w3.org/2000/svg"

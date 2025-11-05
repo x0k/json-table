@@ -79,10 +79,6 @@
     );
   }
 
-  let theme = $state<"light" | "dark" | "system">(
-    localStorage.theme ?? "system"
-  );
-
   const form = createForm<TransformConfig>({
     resolver,
     theme: daisyTheme,
@@ -160,7 +156,7 @@
         ></path>
       </svg>
     </a>
-    <ThemePicker bind:theme />
+    <ThemePicker />
   {/snippet}
   <div class="flex items-center gap-2">
     <p>Source type:</p>
