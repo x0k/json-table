@@ -2,8 +2,8 @@ packages:
   - apps/*
   - packages/*
 catalog:
-  vite: npm:rolldown-vite@^7.1.5
-  vitest: ^3.2.4
+  vite: npm:rolldown-vite@^7.1.20
+  vitest: ^4.0.7
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - sharp

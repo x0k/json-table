@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.05";
     mk.url = "github:x0k/mk";
   };
   outputs =
@@ -18,8 +18,8 @@
         default = pkgs.mkShell {
           buildInputs = [
             mk.packages.${system}.default
-            pkgs.nodejs_23
-            pkgs.pnpm_10
+            pkgs.nodejs_24
+            pkgs.pnpm
           ];
           shellHook = ''
             source <(COMPLETE=bash mk)

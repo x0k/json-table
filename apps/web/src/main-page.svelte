@@ -7,12 +7,15 @@
     Form,
     setFormContext,
     SubmitButton,
+    validate,
   } from "@sjsf/form";
   import { resolver } from "@sjsf/form/resolvers/compat";
   import "@sjsf/form/fields/extra-fields/enum-include";
+  import { createFormMerger } from '@sjsf/form/mergers/modern';
   import { createFormValidator } from "@sjsf/ajv8-validator";
   import { theme as daisyTheme } from "@sjsf/daisyui5-theme";
   import { translation } from "@sjsf/form/translations/en";
+  import { createFormIdBuilder } from '@sjsf/form/id-builders/modern';
 
   import { isValidUrl } from "./lib/url";
   import { copyTextToClipboard } from "./lib/copy-to-clipboard";
@@ -40,8 +43,6 @@
     initialOptions,
   }: { initialData: string; initialOptions: TransformConfig } = $props();
 
-  const validator = createFormValidator();
-
   let source: Source = $state({
     type: isValidUrl(initialData) ? SourceType.URL : SourceType.Text,
     data: initialData,
@@ -59,13 +60,13 @@
   }
 
   async function shareTable() {
-    const options = form.value;
-    if (options === undefined) {
+    const result = validate(form);
+    if (result.errors) {
       return;
     }
     const sharedUrl = createShareUrl(compressor.compress, {
       data: source.data,
-      options,
+      options: result.value,
       createOnOpen: shareBehavior === ShareBehavior.CreateOnOpen,
     });
     copyTextToClipboard(sharedUrl).then(
@@ -82,17 +83,19 @@
     localStorage.theme ?? "system"
   );
 
-  const form = createForm({
+  const form = createForm<TransformConfig>({
     resolver,
     theme: daisyTheme,
     initialValue: initialOptions,
     schema: TRANSFORM_SCHEMA,
     uiSchema: TRANSFORM_UI_SCHEMA,
-    validator,
+    idBuilder: createFormIdBuilder,
+    validator: createFormValidator,
+    merger: createFormMerger,
     translation: overrideByRecord(translation, {
       submit: "Create table",
     }),
-    onSubmit: (cfg: TransformConfig) => {
+    onSubmit: (cfg) => {
       resolveSource(source)
         .then((data) => appWorker.createTable({ data, config: cfg }))
         .then((content) => {
@@ -109,7 +112,7 @@
         });
     },
   });
-  setFormContext(form.context);
+  setFormContext(form);
 </script>
 
 <Layout>

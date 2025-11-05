@@ -10,13 +10,13 @@
     "check": "astro check"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.35.2",
-    "@astrojs/svelte": "^7.1.0",
-    "astro": "^5.13.3",
-    "astro-vtbot": "^2.1.7",
-    "sharp": "^0.34.3",
-    "starlight-package-managers": "^0.11.0",
-    "svelte": "^5.38.3"
+    "@astrojs/check": "^0.9.5",
+    "@astrojs/starlight": "^0.36.2",
+    "@astrojs/svelte": "^7.2.1",
+    "astro": "^5.15.3",
+    "astro-vtbot": "^2.1.9",
+    "sharp": "^0.34.4",
+    "starlight-package-managers": "^0.11.1",
+    "svelte": "^5.43.3"
   }
 }
