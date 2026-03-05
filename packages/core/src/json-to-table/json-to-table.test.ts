@@ -27,6 +27,23 @@ describe("makeTableFactory", () => {
     indexes: true,
   });
 
+  it("should execute `toTable` method", () => {
+    const factory = makeTableFactory<Foo | string>({ cornerCellValue });
+    class Foo {
+      toTable() {
+        return factory("foo");
+      }
+    }
+    const table = factory(new Foo());
+    expect(table.body.data.rows[0].cells[0].value).toBe("foo");
+  });
+
+  it("should execute `toJSON` method", () => {
+    const factory = makeTableFactory<Date>({ cornerCellValue });
+    const table = factory(new Date());
+    expect(table.body.data.rows[0].cells[0].value).toBeTypeOf("string");
+  });
+
   it("Should create table for primitives", () => {
     const data = [false, 12345, "abcde"];
     for (const value of data) {
