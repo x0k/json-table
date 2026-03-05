@@ -16,25 +16,26 @@ npm install @json-table/core
 ```typescript
 import { makeBlockFactory } from "@json-table/core/json-to-table";
 import { blockToASCII } from "@json-table/core/block-to-ascii";
-import { blockToHTML } from '@json-table/core/block-to-html';
+import { blockToHTML } from "@json-table/core/block-to-html";
 
 const createBlock = makeBlockFactory({
   cornerCellValue: "№",
   joinPrimitiveArrayValues: true,
 });
 
-const block = createBlock(data)
+const block = createBlock(data);
 
 const asciiTable = blockToASCII(block);
 
 /* Or */
 
 const htmlTable = blockToHTML(block);
-
 ```
 
 > [!TIP]
-> See [block-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/block-to-html.ts) source code to create your own renderer
+> See [block-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/block-to-html.ts) source code to create your own renderer.
+>
+> [Interactive table example](https://svelte.dev/playground/d77e8d2a2bbb46c0810ee1fa6a05c758).
 
 Input data:
 
@@ -62,7 +63,6 @@ Input data:
     }
   ]
 }
-
 ```
 
 Output:
