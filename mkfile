@@ -22,6 +22,8 @@ docs/:
     pnpm run check
   b:
     pnpm run build
+  p:
+    pnpm run preview
   popd
 
 app/:
