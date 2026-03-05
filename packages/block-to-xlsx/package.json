@@ -1,6 +1,6 @@
 {
   "name": "@json-table/block-to-xlsx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Library for rendering JSON Table to XLSX",
   "license": "MIT",
   "keywords": [
@@ -36,10 +36,10 @@
   },
   "peerDependencies": {
     "exceljs": "^4.4.0",
-    "@json-table/core": "workspace:^0.1.0 || ^0.2.0"
+    "@json-table/core": "workspace:^0.2.0"
   },
   "devDependencies": {
     "vitest": "catalog:",
-    "@json-table/core": "workspace:^0.1.0"
+    "@json-table/core": "workspace:^0.2.0"
   }
 }
