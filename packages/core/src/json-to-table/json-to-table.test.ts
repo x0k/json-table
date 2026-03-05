@@ -4,9 +4,9 @@ import type { JSONPrimitive } from "../lib/json.js";
 import { blockToASCII } from "../block-to-ascii/index.js";
 
 import {
-  CellValue,
   makeBlockFactory,
   makeTableFactory,
+  TO_TABLE,
 } from "./json-to-table.js";
 import { makeTableInPlaceBaker } from "./table";
 
@@ -30,7 +30,7 @@ describe("makeTableFactory", () => {
   it("should execute `toTable` method", () => {
     const factory = makeTableFactory<Foo | string>({ cornerCellValue });
     class Foo {
-      toTable() {
+      [TO_TABLE]() {
         return factory("foo");
       }
     }

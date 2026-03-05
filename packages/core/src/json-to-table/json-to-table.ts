@@ -37,6 +37,8 @@ export type CellValue<V> =
   | Exclude<V, Record<PropertyKey, unknown> | Array<any>>
   | string;
 
+export const TO_TABLE = Symbol("to-table");
+
 export function makeTableFactory<V = JSONValue>({
   cornerCellValue,
   joinPrimitiveArrayValues,
@@ -193,8 +195,8 @@ export function makeTableFactory<V = JSONValue>({
   }
   function transformValue(value: V): Table<CellValue<V>> {
     if (isObject(value)) {
-      if ("toTable" in value && typeof value["toTable"] === "function") {
-        return value.toTable();
+      if (TO_TABLE in value && typeof value[TO_TABLE] === "function") {
+        return value[TO_TABLE]();
       }
       if ("toJSON" in value && typeof value["toJSON"] === "function") {
         return transformValue(value.toJSON());
