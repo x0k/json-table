@@ -1,5 +1,11 @@
 # @json-table/core
 
+## 0.3.0
+
+### Minor Changes
+
+- [#12](https://github.com/x0k/json-table/pull/12) [`a8eab26`](https://github.com/x0k/json-table/commit/a8eab264141ce5fd3433c07c6e199d4cd15feb1b) Thanks [@x0k](https://github.com/x0k)! - [BREAKING] Use `TO_TABLE` symbol instead of `toTable` method during table generation
+
 ## 0.2.0
 
 ### Minor Changes
