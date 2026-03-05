@@ -1,6 +1,6 @@
 import { type JSONValue, isJsonPrimitive } from "../lib/json.js";
 import { array } from "../lib/array.js";
-import { isPlainObject } from "../lib/object.js";
+import { isObject, isPlainObject, isRecordProto } from "../lib/object.js";
 
 import {
   type ComposedTable,
@@ -192,38 +192,46 @@ export function makeTableFactory<V = JSONValue>({
     return stackTablesVertical(titles, tables);
   }
   function transformValue(value: V): Table<CellValue<V>> {
-    if (Array.isArray(value)) {
-      if (value.length === 0) {
-        return makeTableFromValue("");
+    if (isObject(value)) {
+      if ("toTable" in value && typeof value["toTable"] === "function") {
+        return value.toTable();
       }
-      let isPrimitives = true;
-      let isPlainObjects = true;
-      let i = 0;
-      while (i < value.length && (isPrimitives || isPlainObjects)) {
-        isPrimitives = isPrimitives && isJsonPrimitive(value[i]!);
-        isPlainObjects = isPlainObjects && isPlainObject(value[i]);
-        i++;
+      if ("toJSON" in value && typeof value["toJSON"] === "function") {
+        return transformValue(value.toJSON());
       }
-      if (joinPrimitiveArrayValues && isPrimitives) {
-        return makeTableFromValue(value.join(", "));
+      if (isRecordProto(value)) {
+        return transformRecord(value);
       }
-      if (combineArraysOfObjects && isPlainObjects) {
-        return transformRecord(Object.assign({}, ...value));
+      if (Array.isArray(value)) {
+        if (value.length === 0) {
+          return makeTableFromValue("");
+        }
+        let isPrimitives = true;
+        let isPlainObjects = true;
+        let i = 0;
+        while (i < value.length && (isPrimitives || isPlainObjects)) {
+          isPrimitives = isPrimitives && isJsonPrimitive(value[i]!);
+          isPlainObjects = isPlainObjects && isPlainObject(value[i]);
+          i++;
+        }
+        if (joinPrimitiveArrayValues && isPrimitives) {
+          return makeTableFromValue(value.join(", "));
+        }
+        if (combineArraysOfObjects && isPlainObjects) {
+          return transformRecord(Object.assign({}, ...value));
+        }
+        if (stabilizeOrderOfPropertiesInArraysOfObjects && isPlainObjects) {
+          const stabilize = makeObjectPropertiesStabilizer<V>();
+          return transformArray(value, (value) => {
+            const [keys, values] = stabilize(value as Record<PropertyKey, any>);
+            if (keys.length === 0) {
+              return makeTableFromValue("");
+            }
+            return stackTablesHorizontal(keys, values.map(transformValue));
+          });
+        }
+        return transformArray(value, transformValue);
       }
-      if (stabilizeOrderOfPropertiesInArraysOfObjects && isPlainObjects) {
-        const stabilize = makeObjectPropertiesStabilizer<V>();
-        return transformArray(value, (value) => {
-          const [keys, values] = stabilize(value as Record<PropertyKey, any>);
-          if (keys.length === 0) {
-            return makeTableFromValue("");
-          }
-          return stackTablesHorizontal(keys, values.map(transformValue));
-        });
-      }
-      return transformArray(value, transformValue);
-    }
-    if (isPlainObject(value)) {
-      return transformRecord(value);
     }
     return makeTableFromValue(value as CellValue<V>);
   }
