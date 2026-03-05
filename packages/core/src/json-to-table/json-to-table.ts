@@ -1,9 +1,4 @@
-import {
-  type JSONPrimitive,
-  type JSONRecord,
-  type JSONValue,
-  isJsonPrimitive,
-} from "../lib/json.js";
+import { type JSONValue, isJsonPrimitive } from "../lib/json.js";
 import { array } from "../lib/array.js";
 import { isPlainObject } from "../lib/object.js";
 
@@ -38,14 +33,18 @@ export interface TableFactoryOptions<V> {
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
 }
 
-export function makeTableFactory({
+export type CellValue<V> =
+  | Exclude<V, Record<PropertyKey, unknown> | Array<any>>
+  | string;
+
+export function makeTableFactory<V = JSONValue>({
   cornerCellValue,
   joinPrimitiveArrayValues,
   combineArraysOfObjects,
   proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
-}: TableFactoryOptions<JSONPrimitive>) {
+}: NoInfer<TableFactoryOptions<CellValue<V>>>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold,
   );
@@ -60,7 +59,10 @@ export function makeTableFactory({
     cornerCellValue,
   });
 
-  function addIndexesInPlace(table: ComposedTable, titles: string[]): void {
+  function addIndexesInPlace(
+    table: ComposedTable<CellValue<V>>,
+    titles: string[],
+  ): void {
     const { baked, indexes: indexesBlock } = table;
     const hasIndexes = indexesBlock !== null;
     const collapse = hasIndexes && collapseIndexes;
@@ -79,7 +81,7 @@ export function makeTableFactory({
       }
       return;
     }
-    const rawRows = array<Cells>(baked.length, () => ({
+    const rawRows = array<Cells<CellValue<V>>>(baked.length, () => ({
       cells: [],
       columns: [],
     }));
@@ -98,7 +100,7 @@ export function makeTableFactory({
       idx.push(index);
       index += height;
     }
-    const newIndexes: Block = {
+    const newIndexes: Block<CellValue<V>> = {
       height: index,
       width: 1,
       data: {
@@ -111,10 +113,13 @@ export function makeTableFactory({
       : newIndexes;
   }
 
-  function addHeaders(table: ComposedTable, titles: string[]): void {
+  function addHeaders(
+    table: ComposedTable<CellValue<V>>,
+    titles: string[],
+  ): void {
     const { baked, head } = table;
     const hasHeaders = head !== null;
-    const newHead: Cells = {
+    const newHead: Cells<CellValue<V>> = {
       cells: [],
       columns: [],
     };
@@ -142,46 +147,51 @@ export function makeTableFactory({
     };
   }
 
-  function stackTablesVertical(titles: string[], tables: Table[]): Table {
+  function stackTablesVertical(
+    titles: string[],
+    tables: Table<CellValue<V>>[],
+  ): Table<CellValue<V>> {
     const stacked = verticalTableInPlaceStacker(tables);
     addIndexesInPlace(stacked, titles);
     // @ts-expect-error transform to regular table
     delete stacked.baked;
     return stacked;
   }
-  function stackTablesHorizontal(titles: string[], tables: Table[]): Table {
+  function stackTablesHorizontal(
+    titles: string[],
+    tables: Table<CellValue<V>>[],
+  ): Table<CellValue<V>> {
     const stacked = horizontalTableInPlaceStacker(tables);
     addHeaders(stacked, titles);
     // @ts-expect-error transform to regular table
     delete stacked.baked;
     return stacked;
   }
-  function transformRecord(record: Record<string, JSONValue>): Table {
+  function transformRecord(
+    record: Record<PropertyKey, unknown>,
+  ): Table<CellValue<V>> {
     const keys = Object.keys(record);
     if (keys.length === 0) {
       return makeTableFromValue("");
     }
     return stackTablesHorizontal(
       keys,
-      keys.map((key) => transformValue(record[key]!)),
+      keys.map((key) => transformValue(record[key]! as V)),
     );
   }
-  function transformArray<V extends JSONValue>(
+  function transformArray(
     value: V[],
-    transformValue: (value: V) => Table,
-  ): Table {
+    transformValue: (value: V) => Table<CellValue<V>>,
+  ): Table<CellValue<V>> {
     const titles = new Array<string>(value.length);
-    const tables = new Array<Table>(value.length);
+    const tables = new Array<Table<CellValue<V>>>(value.length);
     for (let i = 0; i < value.length; i++) {
       titles[i] = String(i + 1);
       tables[i] = transformValue(value[i]!);
     }
     return stackTablesVertical(titles, tables);
   }
-  function transformValue(value: JSONValue): Table {
-    if (isJsonPrimitive(value)) {
-      return makeTableFromValue(value);
-    }
+  function transformValue(value: V): Table<CellValue<V>> {
     if (Array.isArray(value)) {
       if (value.length === 0) {
         return makeTableFromValue("");
@@ -201,9 +211,9 @@ export function makeTableFactory({
         return transformRecord(Object.assign({}, ...value));
       }
       if (stabilizeOrderOfPropertiesInArraysOfObjects && isPlainObjects) {
-        const stabilize = makeObjectPropertiesStabilizer<JSONValue>();
-        return transformArray(value as JSONRecord[], (value) => {
-          const [keys, values] = stabilize(value);
+        const stabilize = makeObjectPropertiesStabilizer<V>();
+        return transformArray(value, (value) => {
+          const [keys, values] = stabilize(value as Record<PropertyKey, any>);
           if (keys.length === 0) {
             return makeTableFromValue("");
           }
@@ -212,17 +222,22 @@ export function makeTableFactory({
       }
       return transformArray(value, transformValue);
     }
-    return transformRecord(value);
+    if (isPlainObject(value)) {
+      return transformRecord(value);
+    }
+    return makeTableFromValue(value as CellValue<V>);
   }
   return transformValue;
 }
 
-export function makeBlockFactory(options: TableFactoryOptions<JSONPrimitive>) {
-  const makeTable = makeTableFactory(options);
+export function makeBlockFactory<V = JSONValue>(
+  options: NoInfer<TableFactoryOptions<CellValue<V>>>,
+) {
+  const makeTable = makeTableFactory<V>(options);
   const bake = makeTableInPlaceBaker({
     cornerCellValue: options.cornerCellValue,
     head: true,
     indexes: true,
   });
-  return (value: JSONValue) => bake(makeTable(value));
+  return (value: V) => bake(makeTable(value));
 }
