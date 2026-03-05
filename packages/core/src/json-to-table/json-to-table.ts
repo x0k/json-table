@@ -5,7 +5,7 @@ import {
   isJsonPrimitive,
 } from "../lib/json.js";
 import { array } from "../lib/array.js";
-import { isRecord } from "../lib/object.js";
+import { isPlainObject } from "../lib/object.js";
 
 import {
   type ComposedTable,
@@ -47,7 +47,7 @@ export function makeTableFactory({
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
 }: TableFactoryOptions<JSONPrimitive>) {
   const isProportionalResize = makeProportionalResizeGuard(
-    proportionalSizeAdjustmentThreshold
+    proportionalSizeAdjustmentThreshold,
   );
   const verticalTableInPlaceStacker = makeTableInPlaceStacker({
     deduplicationComponent: "head",
@@ -163,12 +163,12 @@ export function makeTableFactory({
     }
     return stackTablesHorizontal(
       keys,
-      keys.map((key) => transformValue(record[key]!))
+      keys.map((key) => transformValue(record[key]!)),
     );
   }
   function transformArray<V extends JSONValue>(
     value: V[],
-    transformValue: (value: V) => Table
+    transformValue: (value: V) => Table,
   ): Table {
     const titles = new Array<string>(value.length);
     const tables = new Array<Table>(value.length);
@@ -187,20 +187,20 @@ export function makeTableFactory({
         return makeTableFromValue("");
       }
       let isPrimitives = true;
-      let isRecords = true;
+      let isPlainObjects = true;
       let i = 0;
-      while (i < value.length && (isPrimitives || isRecords)) {
+      while (i < value.length && (isPrimitives || isPlainObjects)) {
         isPrimitives = isPrimitives && isJsonPrimitive(value[i]!);
-        isRecords = isRecords && isRecord(value[i]);
+        isPlainObjects = isPlainObjects && isPlainObject(value[i]);
         i++;
       }
       if (joinPrimitiveArrayValues && isPrimitives) {
         return makeTableFromValue(value.join(", "));
       }
-      if (combineArraysOfObjects && isRecords) {
+      if (combineArraysOfObjects && isPlainObjects) {
         return transformRecord(Object.assign({}, ...value));
       }
-      if (stabilizeOrderOfPropertiesInArraysOfObjects && isRecords) {
+      if (stabilizeOrderOfPropertiesInArraysOfObjects && isPlainObjects) {
         const stabilize = makeObjectPropertiesStabilizer<JSONValue>();
         return transformArray(value as JSONRecord[], (value) => {
           const [keys, values] = stabilize(value);
