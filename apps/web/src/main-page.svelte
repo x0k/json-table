@@ -195,12 +195,12 @@
     ></textarea>
     <div class="gap-2 items-center flex flex-wrap">
       <p>Examples:</p>
-      <button class="btn" onclick={() => sample("test")}>Basic</button>
-      <button class="btn" onclick={() => sample("deduplication")}>
+      <button class="btn btn-secondary btn-soft" onclick={() => sample("test")}>Basic</button>
+      <button class="btn btn-secondary btn-soft" onclick={() => sample("deduplication")}>
         Deduplication
       </button>
-      <button class="btn" onclick={() => sample("company")}>Company</button>
-      <button class="btn" onclick={() => sample("large")}>Large</button>
+      <button class="btn btn-secondary btn-soft" onclick={() => sample("company")}>Company</button>
+      <button class="btn btn-secondary btn-soft" onclick={() => sample("large")}>Large</button>
     </div>
   {:else if source.type === SourceType.File}
     <button

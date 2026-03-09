@@ -12,10 +12,10 @@ export interface ThemeManager {
 function createThemeManager(
   get: () => Theme | undefined,
   set: (theme: Theme) => void,
-  sync: (manager: ThemeManager) => void
+  sync: (manager: ThemeManager) => void,
 ) {
   const preferredColorSchemeQuery = new MediaQuery(
-    "(prefers-color-scheme: dark)"
+    "(prefers-color-scheme: dark)",
   );
   let theme = $state(get() ?? Theme.System);
   const darkOrLight = $derived(
@@ -23,7 +23,7 @@ function createThemeManager(
       ? preferredColorSchemeQuery.current
         ? Theme.Dark
         : Theme.Light
-      : theme
+      : theme,
   );
   const isDark = $derived(darkOrLight === Theme.Dark);
   const manager = {
@@ -68,7 +68,7 @@ $effect.root(() => {
     () => (localStorage.getItem("theme") as Theme) || undefined,
     (theme) => localStorage.setItem("theme", theme),
     (m) => {
-      document.documentElement.dataset.theme = m.isDark ? "dim" : "light";
-    }
+      document.documentElement.dataset.theme = m.isDark ? "dark" : "light";
+    },
   );
 });
