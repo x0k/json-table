@@ -41,7 +41,7 @@ c/:
   b:
     pnpm run build
   t:
-    pnpm run test
+    pnpm run test $@
   popd
 
 x/:
