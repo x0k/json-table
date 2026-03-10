@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { JSONValue } from "./lib/json";
-import { extractHeadersTree, extractSubtree, makeTreeFactory } from "./layout";
+import {
+  decapitateTree,
+  extractHeadersTree,
+  extractSubtree,
+  makeTreeFactory,
+  stretchLeavesHeight,
+  Tree,
+} from "./layout";
 
 const makeTree = makeTreeFactory<JSONValue>({
   cornerCellValue: "#",
@@ -126,6 +133,191 @@ describe("extractSubtree", () => {
       height: 3,
       type: "row",
       width: 2,
+    });
+  });
+});
+
+describe("decapitateTree", () => {
+  it("should omit header nodes", () => {
+    const tree = makeTree({ foo: "bar", baz: { a: "b" } });
+    const mask = extractHeadersTree(tree);
+    expect(decapitateTree(tree, mask)).toEqual({
+      children: [
+        {
+          height: 1,
+          type: "leaf",
+          value: "bar",
+          width: 1,
+        },
+        {
+          height: 1,
+          type: "leaf",
+          value: "b",
+          width: 1,
+        },
+      ],
+      height: 1,
+      type: "row",
+      width: 2,
+    });
+  });
+});
+
+describe("stretchLeavesHeight", () => {
+  it("should stretch height of lowest leaves", () => {
+    const tree: Tree<JSONValue> = {
+      type: "row",
+      height: 3,
+      width: 3,
+      children: [
+        {
+          type: "col",
+          height: 2,
+          width: 1,
+          children: [
+            {
+              type: "header",
+              height: 1,
+              width: 1,
+              value: "h1",
+            },
+            {
+              type: "leaf",
+              height: 1,
+              width: 1,
+              value: "v1",
+            },
+          ],
+        },
+        {
+          type: "col",
+          height: 2,
+          width: 1,
+          children: [
+            {
+              type: "header",
+              height: 1,
+              width: 1,
+              value: "h2",
+            },
+            {
+              type: "leaf",
+              height: 1,
+              width: 1,
+              value: "v2",
+            },
+          ],
+        },
+        {
+          type: "col",
+          height: 3,
+          width: 1,
+          children: [
+            {
+              type: "header",
+              height: 1,
+              width: 1,
+              value: "h3",
+            },
+            {
+              type: "col",
+              height: 2,
+              width: 1,
+              children: [
+                {
+                  type: "header",
+                  height: 1,
+                  width: 1,
+                  value: "h4",
+                },
+                {
+                  type: "leaf",
+                  height: 1,
+                  width: 1,
+                  value: "v3",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(stretchLeavesHeight(tree)).toEqual({
+      children: [
+        {
+          children: [
+            {
+              height: 1,
+              type: "header",
+              value: "h1",
+              width: 1,
+            },
+            {
+              height: 2,
+              type: "leaf",
+              value: "v1",
+              width: 1,
+            },
+          ],
+          height: 3,
+          type: "col",
+          width: 1,
+        },
+        {
+          children: [
+            {
+              height: 1,
+              type: "header",
+              value: "h2",
+              width: 1,
+            },
+            {
+              height: 2,
+              type: "leaf",
+              value: "v2",
+              width: 1,
+            },
+          ],
+          height: 3,
+          type: "col",
+          width: 1,
+        },
+        {
+          children: [
+            {
+              height: 1,
+              type: "header",
+              value: "h3",
+              width: 1,
+            },
+            {
+              children: [
+                {
+                  height: 1,
+                  type: "header",
+                  value: "h4",
+                  width: 1,
+                },
+                {
+                  height: 1,
+                  type: "leaf",
+                  value: "v3",
+                  width: 1,
+                },
+              ],
+              height: 2,
+              type: "col",
+              width: 1,
+            },
+          ],
+          height: 3,
+          type: "col",
+          width: 1,
+        },
+      ],
+      height: 3,
+      type: "row",
+      width: 3,
     });
   });
 });

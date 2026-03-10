@@ -257,3 +257,72 @@ export function extractSubtree<V>(
     ? tree
     : undefined;
 }
+
+export function decapitateTree<V>(
+  tree: Tree<V>,
+  mask: OptionalTree<V>,
+): Tree<V> {
+  if (
+    mask === undefined ||
+    tree.type !== mask.type ||
+    !("children" in tree) ||
+    !("children" in mask)
+  ) {
+    return tree;
+  }
+  let maxDim = 1;
+  let dimSum = 0;
+  const isRow = tree.type === "row";
+  const children: Tree<V>[] = [];
+  const tc = tree.children;
+  for (let i = 0; i < tc.length; i++) {
+    const m = mask.children[i];
+    if (m?.type === "header") {
+      continue;
+    }
+    const child = decapitateTree(tc[i]!, m);
+    maxDim = max(maxDim, isRow ? child.height : child.width);
+    dimSum += isRow ? child.width : child.height;
+    children.push(child);
+  }
+  if (children.length === 1) {
+    return children[0]!;
+  }
+  return {
+    ...tree,
+    width: isRow ? dimSum : maxDim,
+    height: isRow ? maxDim : dimSum,
+    children,
+  };
+}
+
+export function stretchLeavesHeight<V>(
+  tree: Tree<V>,
+  allocatedHeight = tree.height,
+): Tree<V> {
+  if (tree.type === "row") {
+    const children = tree.children.map((c) =>
+      stretchLeavesHeight(c, allocatedHeight),
+    );
+    return { ...tree, height: allocatedHeight, children };
+  }
+  if (tree.type === "col") {
+    const lastIndex = tree.children.length - 1;
+    const height = allocatedHeight;
+    return {
+      ...tree,
+      height,
+      children: tree.children.map((c, i) => {
+        if (i < lastIndex) {
+          allocatedHeight -= c.height;
+          return c;
+        }
+        return stretchLeavesHeight(c, allocatedHeight);
+      }),
+    };
+  }
+  return {
+    ...tree,
+    height: allocatedHeight,
+  };
+}
