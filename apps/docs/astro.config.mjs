@@ -19,6 +19,11 @@ export default defineConfig({
       title: "JSON Table",
       social: [
         {
+          icon: "discord",
+          href: "https://discord.gg/hVxFWk7dRn",
+          label: "Discord",
+        },
+        {
           icon: "github",
           href: "https://github.com/x0k/json-table",
           label: "GitHub",

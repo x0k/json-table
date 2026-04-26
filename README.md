@@ -4,6 +4,7 @@ Set of tools for converting JSON data into tables (HTML, XLSX, ASCII).
 
 - [Web App](https://x0k.github.io/json-table/)
 - [Documentation](https://x0k.github.io/json-table/docs/)
+- [Discord](https://discord.gg/hVxFWk7dRn)
 
 ## Install
 
