@@ -6,7 +6,7 @@ import {
   extractHeadersTree,
   extractSubtree,
   makeTreeFactory,
-  stretchLeavesHeight,
+  stretchLeavesDimensionInPlace,
   Tree,
 } from "./layout";
 
@@ -242,7 +242,8 @@ describe("stretchLeavesHeight", () => {
         },
       ],
     };
-    expect(stretchLeavesHeight(tree)).toEqual({
+    stretchLeavesDimensionInPlace(tree, "height");
+    expect(tree).toEqual({
       children: [
         {
           children: [

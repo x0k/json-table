@@ -296,33 +296,38 @@ export function decapitateTree<V>(
   };
 }
 
-export function stretchLeavesHeight<V>(
+export function stretchLeavesDimensionInPlace<V>(
   tree: Tree<V>,
-  allocatedHeight = tree.height,
-): Tree<V> {
-  if (tree.type === "row") {
-    const children = tree.children.map((c) =>
-      stretchLeavesHeight(c, allocatedHeight),
-    );
-    return { ...tree, height: allocatedHeight, children };
+  dim: keyof Sized,
+  allocated = tree[dim],
+): void {
+  tree[dim] = allocated;
+
+  if (!("children" in tree)) {
+    return;
   }
-  if (tree.type === "col") {
-    const lastIndex = tree.children.length - 1;
-    const height = allocatedHeight;
-    return {
-      ...tree,
-      height,
-      children: tree.children.map((c, i) => {
-        if (i < lastIndex) {
-          allocatedHeight -= c.height;
-          return c;
-        }
-        return stretchLeavesHeight(c, allocatedHeight);
-      }),
-    };
+
+  const sequential =
+    (dim === "height" && tree.type === "col") ||
+    (dim === "width" && tree.type === "row");
+
+  if (!sequential) {
+    for (const child of tree.children) {
+      stretchLeavesDimensionInPlace(child, dim, allocated);
+    }
+    return;
   }
-  return {
-    ...tree,
-    height: allocatedHeight,
-  };
+
+  let remaining = allocated;
+  const last = tree.children.length - 1;
+
+  for (let i = 0; i < last; i++) {
+    const child = tree.children[i]!;
+    stretchLeavesDimensionInPlace(child, dim, child[dim]);
+    remaining -= child[dim];
+  }
+
+  if (last >= 0) {
+    stretchLeavesDimensionInPlace(tree.children[last]!, dim, remaining);
+  }
 }
