@@ -1,6 +1,8 @@
 import { makeProportionalResizeGuard } from "./json-to-table/proportional-resize-guard.js";
-import { max } from "./lib/math.js";
-import { isObject, isRecordProto } from "./lib/object.js";
+import { makeObjectPropertiesStabilizer } from "./json-to-table/properties-stabilizer.js";
+import { isJsonPrimitive } from "./lib/json.js";
+import { lcm, max } from "./lib/math.js";
+import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
 
 interface Sized {
   height: number;
@@ -30,32 +32,198 @@ export interface TreeFactoryOptions<V> {
   cornerCellValue: LeafValue<V>;
   createHeader: (k: string, record: Record<PropertyKey, V>) => LeafValue<V>;
   createIndex: (i: number, array: V[]) => LeafValue<V>;
+  joinPrimitiveArrayValues?: boolean;
+  /** combine arrays of objects into a single object */
+  combineArraysOfObjects?: boolean;
   /** proportional size adjustment threshold */
   proportionalSizeAdjustmentThreshold?: number;
+  collapseIndexes?: boolean;
+  stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
 }
 
 export function makeTreeFactory<V>({
+  cornerCellValue,
   createHeader,
   createIndex,
+  joinPrimitiveArrayValues,
+  combineArraysOfObjects,
   proportionalSizeAdjustmentThreshold = 1,
+  collapseIndexes,
+  stabilizeOrderOfPropertiesInArraysOfObjects = true,
 }: TreeFactoryOptions<V>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold,
   );
 
-  function transformRecord(value: Record<PropertyKey, V>): Tree<V> {
-    let maxHeight = 1;
-    let widthSum = 0;
-    const children: Tree<V>[] = Object.entries(value).map(([k, v]) => {
-      const child = transformValue(v);
-      const height = child.height + 1;
-      maxHeight = max(maxHeight, height);
-      widthSum += child.width;
+  function isProportionalSize(
+    trees: Tree<V>[],
+    dim: keyof Sized,
+  ): boolean {
+    let maxSize = 1;
+    let lcmSize = 1;
+    for (const tree of trees) {
+      maxSize = max(maxSize, tree[dim]);
+      lcmSize = lcm(lcmSize, tree[dim]);
+    }
+    return isProportionalResize(lcmSize, maxSize);
+  }
+
+  function makeLeaf(value: LeafValue<V>): Tree<V> {
+    return {
+      type: "leaf",
+      value,
+      width: 1,
+      height: 1,
+    };
+  }
+
+  function makeRow(children: Tree<V>[]): Tree<V> {
+    const normalized = children.flatMap((child) =>
+      child.type === "row" ? child.children : [child],
+    );
+    if (normalized.length === 0) {
+      return makeLeaf(cornerCellValue);
+    }
+    if (normalized.length === 1) {
+      return normalized[0]!;
+    }
+    return {
+      type: "row",
+      height: normalized.reduce((h, child) => max(h, child.height), 1),
+      width: normalized.reduce((w, child) => w + child.width, 0),
+      children: normalized,
+    };
+  }
+
+  function makeCol(children: Tree<V>[]): Tree<V> {
+    const normalized = children.flatMap((child) =>
+      child.type === "col" ? child.children : [child],
+    );
+    if (normalized.length === 0) {
+      return makeLeaf(cornerCellValue);
+    }
+    if (normalized.length === 1) {
+      return normalized[0]!;
+    }
+    return {
+      type: "col",
+      height: normalized.reduce((h, child) => h + child.height, 0),
+      width: normalized.reduce((w, child) => max(w, child.width), 1),
+      children: normalized,
+    };
+  }
+
+  function liftSharedHeaders(children: Tree<V>[]): Tree<V>[] {
+    if (children.length < 2) {
+      return children;
+    }
+    const headers = children.map(extractHeadersTree);
+    const headerTrees = headers.filter((tree) => tree !== undefined);
+    if (!isProportionalSize(headerTrees as Tree<V>[], "width")) {
+      return children;
+    }
+    let sharedHeaders = extractHeadersTree(children[0]!);
+    if (sharedHeaders === undefined) {
+      return children;
+    }
+    for (let i = 1; i < children.length; i++) {
+      sharedHeaders = extractSubtree(children[i]!, sharedHeaders);
+      if (sharedHeaders === undefined) {
+        return children;
+      }
+    }
+    const rows = children.map((child) => decapitateTree(child, sharedHeaders));
+    stretchOptionalLeavesDimensionInPlace(
+      sharedHeaders,
+      "width",
+      makeRow(rows).width,
+    );
+    const head = materializeOptionalTree(children[0]!, sharedHeaders);
+    return [head, makeCol(rows)];
+  }
+
+  function liftSharedIndexes(children: Tree<V>[]): Tree<V>[] {
+    if (children.length < 2) {
+      return children;
+    }
+    const indexes = children.map(extractIndexesTree);
+    const indexTrees = indexes.filter((tree) => tree !== undefined);
+    if (!isProportionalSize(indexTrees as Tree<V>[], "height")) {
+      return children;
+    }
+    let sharedIndexes = extractIndexesTree(children[0]!);
+    if (sharedIndexes === undefined) {
+      return children;
+    }
+    for (let i = 1; i < children.length; i++) {
+      sharedIndexes = extractSubtree(children[i]!, sharedIndexes);
+      if (sharedIndexes === undefined) {
+        return children;
+      }
+    }
+    const columns = children.map((child) => decapitateTree(child, sharedIndexes));
+    stretchOptionalLeavesDimensionInPlace(
+      sharedIndexes,
+      "height",
+      makeCol(columns).height,
+    );
+    const indexTree = materializeOptionalTree(children[0]!, sharedIndexes);
+    return [indexTree, makeRow(columns)];
+  }
+
+  function materializeOptionalTree(
+    source: Tree<V>,
+    tree: OptionalTree<V>,
+  ): Tree<V> {
+    if (tree === undefined) {
       return {
-        type: "col",
-        height,
-        width: child.width,
-        children: [
+        type: "leaf",
+        value: cornerCellValue,
+        height: source.height,
+        width: source.width,
+      };
+    }
+    if (!("children" in tree)) {
+      return tree;
+    }
+    return {
+      ...tree,
+      children: tree.children.map((child, i) =>
+        materializeOptionalTree(
+          "children" in source ? source.children[i]! : source,
+          child,
+        ),
+      ),
+    };
+  }
+
+  function prependIndexPrefix(tree: Tree<V>, prefix: string): Tree<V> | null {
+    if (tree.type === "index") {
+      return {
+        ...tree,
+        value: `${prefix}.${tree.value}` as LeafValue<V>,
+      };
+    }
+    if (!("children" in tree)) {
+      return null;
+    }
+    let hasIndex = false;
+    const children = tree.children.map((child) => {
+      const prefixed = prependIndexPrefix(child, prefix);
+      hasIndex ||= prefixed !== null;
+      return prefixed ?? child;
+    });
+    return hasIndex ? { ...tree, children } : null;
+  }
+
+  function transformRecord(value: Record<PropertyKey, V>): Tree<V> {
+    const entries = Object.entries(value);
+    if (entries.length === 0) {
+      return makeLeaf(cornerCellValue);
+    }
+    const columns = entries.map(([k, v]) => {
+      const child = transformValue(v);
+      return makeCol([
           {
             type: "header",
             value: createHeader(k, value),
@@ -63,52 +231,42 @@ export function makeTreeFactory<V>({
             width: child.width,
           },
           child,
-        ],
-      };
+        ]);
     });
-    if (children.length === 1) {
-      return children[0]!;
-    }
-    return {
-      type: "row",
-      height: maxHeight,
-      width: widthSum,
-      children,
-    };
+    return makeRow(liftSharedIndexes(columns));
   }
 
-  function transformArray(value: V[]): Tree<V> {
-    let maxWidth = 1;
-    let heightSum = 0;
-    const children: Tree<V>[] = value.map((v, i) => {
+  function transformArray(
+    value: V[],
+    transformValue: (value: V) => Tree<V>,
+    indexPrefix?: string,
+  ): Tree<V> {
+    if (value.length === 0) {
+      return makeLeaf(cornerCellValue);
+    }
+    const rows = value.map((v, i) => {
       const child = transformValue(v);
-      const width = child.width + 1;
-      maxWidth = max(maxWidth, width);
-      heightSum += child.height;
-      return {
-        type: "row",
-        width,
-        height: child.height,
-        children: [
+      const indexValue = createIndex(i, value);
+      const indexLabel = indexPrefix
+        ? (`${indexPrefix}.${indexValue}` as LeafValue<V>)
+        : indexValue;
+      if (collapseIndexes) {
+        const prefixedChild = prependIndexPrefix(child, String(indexLabel));
+        if (prefixedChild !== null) {
+          return prefixedChild;
+        }
+      }
+      return makeRow([
           {
             type: "index",
-            value: createIndex(i, value),
+            value: indexLabel,
             width: 1,
             height: child.height,
           },
           child,
-        ],
-      };
+        ]);
     });
-    if (children.length === 1) {
-      return children[0]!;
-    }
-    return {
-      type: "col",
-      width: maxWidth,
-      height: heightSum,
-      children,
-    };
+    return makeCol(liftSharedHeaders(rows));
   }
 
   function transformValue(value: V): Tree<V> {
@@ -117,15 +275,44 @@ export function makeTreeFactory<V>({
         return transformRecord(value as Record<PropertyKey, V>);
       }
       if (Array.isArray(value)) {
-        return transformArray(value);
+        if (joinPrimitiveArrayValues && value.every(isJsonPrimitive)) {
+          return makeLeaf(value.join(", ") as LeafValue<V>);
+        }
+        if (combineArraysOfObjects && value.every(isPlainObject)) {
+          return transformRecord(Object.assign({}, ...value));
+        }
+        if (
+          stabilizeOrderOfPropertiesInArraysOfObjects &&
+          value.every(isPlainObject)
+        ) {
+          const stabilize = makeObjectPropertiesStabilizer<V>();
+          return transformArray(value, (value) => {
+            const [keys, values] = stabilize(
+              value as Record<string, V>,
+            );
+            if (keys.length === 0) {
+              return makeLeaf(cornerCellValue);
+            }
+            return makeRow(
+              keys.map((key, i) => {
+                const child = transformValue(values[i]!);
+                return makeCol([
+                  {
+                    type: "header",
+                    value: createHeader(key, value as Record<PropertyKey, V>),
+                    height: 1,
+                    width: child.width,
+                  },
+                  child,
+                ]);
+              }),
+            );
+          });
+        }
+        return transformArray(value, transformValue);
       }
     }
-    return {
-      type: "leaf",
-      value: value as LeafValue<V>,
-      width: 1,
-      height: 1,
-    };
+    return makeLeaf(value as LeafValue<V>);
   }
 
   return transformValue;
@@ -216,6 +403,28 @@ export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
   let isUndefined = true;
   const children = tree.children.map((c) => {
     const t = extractHeadersTree(c);
+    isUndefined &&= t === undefined;
+    return t;
+  });
+  if (isUndefined) {
+    return undefined;
+  }
+  return {
+    ...tree,
+    children,
+  };
+}
+
+export function extractIndexesTree<V>(tree: Tree<V>): OptionalTree<V> {
+  if (tree.type === "index") {
+    return tree;
+  }
+  if ("value" in tree) {
+    return undefined;
+  }
+  let isUndefined = true;
+  const children = tree.children.map((c) => {
+    const t = extractIndexesTree(c);
     isUndefined &&= t === undefined;
     return t;
   });
@@ -329,5 +538,56 @@ export function stretchLeavesDimensionInPlace<V>(
 
   if (last >= 0) {
     stretchLeavesDimensionInPlace(tree.children[last]!, dim, remaining);
+  }
+}
+
+function stretchOptionalLeavesDimensionInPlace<V>(
+  tree: OptionalTree<V>,
+  dim: keyof Sized,
+  allocated: number,
+): void {
+  if (tree === undefined) {
+    return;
+  }
+  tree[dim] = allocated;
+
+  if (!("children" in tree)) {
+    return;
+  }
+
+  const sequential =
+    (dim === "height" && tree.type === "col") ||
+    (dim === "width" && tree.type === "row");
+
+  if (!sequential) {
+    for (const child of tree.children) {
+      stretchOptionalLeavesDimensionInPlace(child, dim, allocated);
+    }
+    return;
+  }
+
+  let remaining = allocated;
+  let lastDefined = -1;
+  for (let i = 0; i < tree.children.length; i++) {
+    if (tree.children[i] !== undefined) {
+      lastDefined = i;
+    }
+  }
+
+  for (let i = 0; i < lastDefined; i++) {
+    const child = tree.children[i];
+    if (child === undefined) {
+      continue;
+    }
+    stretchOptionalLeavesDimensionInPlace(child, dim, child[dim]);
+    remaining -= child[dim];
+  }
+
+  if (lastDefined >= 0) {
+    stretchOptionalLeavesDimensionInPlace(
+      tree.children[lastDefined],
+      dim,
+      remaining,
+    );
   }
 }
