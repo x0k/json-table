@@ -119,6 +119,61 @@ describe("makeTreeFactory", () => {
 +-----+----+
 `);
   });
+
+  it("Should deduplicate tree headers", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          { a: 1, b: 2, c: 3 },
+          { a: 4, b: 5, c: 6 },
+          { a: 7, b: 8, c: 9 },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+---+---+---+
+| № | a | b | c |
++---+---+---+---+
+| 1 | 1 | 2 | 3 |
++---+---+---+---+
+| 2 | 4 | 5 | 6 |
++---+---+---+---+
+| 3 | 7 | 8 | 9 |
++---+---+---+---+
+`);
+  });
+
+  it("Should deduplicate multiline tree headers", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          { a: { x: 1 }, b: { y: 2 } },
+          { a: { x: 3 }, b: { y: 4 } },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+---+---+
+|   | a | b |
+| № +---+---+
+|   | x | y |
++---+---+---+
+| 1 | 1 | 2 |
++---+---+---+
+| 2 | 3 | 4 |
++---+---+---+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {

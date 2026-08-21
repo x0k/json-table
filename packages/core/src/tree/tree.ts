@@ -6,7 +6,7 @@ export interface Sized {
 }
 
 export interface LeafNode<V> extends Sized {
-  type: "leaf" | "header" | "index";
+  type: "leaf" | "header" | "index" | "corner";
   value: V;
 }
 
@@ -45,6 +45,7 @@ export function* cells<V>(
     case "leaf":
     case "header":
     case "index":
+    case "corner":
       yield {
         node,
         x: startCol,

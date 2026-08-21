@@ -12,6 +12,7 @@ const CELL_TYPES = {
   leaf: CellType.Value,
   header: CellType.Header,
   index: CellType.Index,
+  corner: CellType.Corner,
 } as const;
 
 function cloneTree<V>(tree: Tree<V>): Tree<V> {
