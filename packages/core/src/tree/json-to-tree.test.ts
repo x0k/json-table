@@ -196,6 +196,38 @@ describe("makeTreeFactory", () => {
 +---+---+---+---+
 `);
   });
+
+  it("Should combine simple values should not affect objects values", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+      joinPrimitiveArrayValues: true,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory({
+          weather: [
+            {
+              id: 800,
+              main: "Clear",
+              description: "clear sky",
+              icon: "01n",
+            },
+          ],
+        }),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+-----------------------------------+
+|   |              weather              |
+| № +------+-------+-------------+------+
+|   |  id  | main  | description | icon |
++---+------+-------+-------------+------+
+| 1 |  800 | Clear | clear sky   | 01n  |
++---+------+-------+-------------+------+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {

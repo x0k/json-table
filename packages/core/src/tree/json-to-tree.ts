@@ -1,5 +1,6 @@
 import { makeProportionalResizeGuard } from "../json-to-table/proportional-resize-guard.js";
 import { max } from "../lib/math.js";
+import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
 import { isObject, isRecordProto } from "../lib/object.js";
 
 import {
@@ -15,6 +16,7 @@ export interface TreeFactoryOptions<V> {
   cornerCellValue: LeafValue<V>;
   createHeader: (k: string, record: Record<PropertyKey, V>) => LeafValue<V>;
   createIndex: (i: number, array: V[]) => LeafValue<V>;
+  joinPrimitiveArrayValues?: boolean;
   /** proportional size adjustment threshold */
   proportionalSizeAdjustmentThreshold?: number;
   collapseIndexes?: boolean;
@@ -24,6 +26,7 @@ export function makeTreeFactory<V>({
   cornerCellValue,
   createHeader,
   createIndex,
+  joinPrimitiveArrayValues,
   proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
 }: TreeFactoryOptions<V>) {
@@ -31,14 +34,61 @@ export function makeTreeFactory<V>({
     proportionalSizeAdjustmentThreshold,
   );
 
+  /** when a child carries its own corner-augmented header block (from an
+   * index-producing array), merge the record header into that block */
+  function wrapWithHeader(header: Tree<V>, child: Tree<V>): Tree<V> {
+    const top = child.type === "col" ? child.children[0] : undefined;
+    if (
+      child.type === "col" &&
+      child.children.length > 1 &&
+      top !== undefined &&
+      top.type === "row" &&
+      "children" in top &&
+      top.children[0]?.type === "corner"
+    ) {
+      const [corner, ...headers] = top.children as Tree<V>[];
+      const headersRow: Tree<V> = {
+        type: "row",
+        height: 1,
+        width: headers.reduce((sum, c) => sum + c.width, 0),
+        children: headers,
+      };
+      const headerCol: Tree<V> = {
+        type: "col",
+        height: 1 + headersRow.height,
+        width: headersRow.width,
+        children: [{ ...header, width: headersRow.width }, headersRow],
+      };
+      const newCorner: Tree<V> = {
+        ...(corner as Tree<V>),
+        height: 1 + headersRow.height,
+      };
+      const block: Tree<V> = {
+        type: "row",
+        height: newCorner.height,
+        width: newCorner.width + headerCol.width,
+        children: [newCorner, headerCol],
+      };
+      return {
+        type: "col",
+        height: block.height + child.height - top.height,
+        width: block.width,
+        children: [block, ...child.children.slice(1)],
+      };
+    }
+    return {
+      type: "col",
+      height: child.height + 1,
+      width: child.width,
+      children: [header, child],
+    };
+  }
+
   function transformRecord(value: Record<PropertyKey, V>): Tree<V> {
     let maxHeight = 1;
     let widthSum = 0;
     const wrapped = Object.entries(value).map(([k, v]) => {
       const child = transformValue(v);
-      const height = child.height + 1;
-      maxHeight = max(maxHeight, height);
-      widthSum += child.width;
       return {
         header: {
           type: "header",
@@ -56,12 +106,13 @@ export function makeTreeFactory<V>({
     if (deduped !== undefined) {
       return deduped;
     }
-    const children: Tree<V>[] = wrapped.map((w) => ({
-      type: "col",
-      height: w.child.height + 1,
-      width: w.child.width,
-      children: [w.header, w.child],
-    }));
+    const children: Tree<V>[] = wrapped.map((w) =>
+      wrapWithHeader(w.header, w.child),
+    );
+    for (const wrapped of children) {
+      maxHeight = max(maxHeight, wrapped.height);
+      widthSum += wrapped.width;
+    }
     if (children.length === 1) {
       return children[0]!;
     }
@@ -381,6 +432,20 @@ export function makeTreeFactory<V>({
   function transformArray(value: V[]): Tree<V> {
     let maxWidth = 1;
     let heightSum = 0;
+    if (joinPrimitiveArrayValues) {
+      let isPrimitives = true;
+      for (const v of value) {
+        isPrimitives = isPrimitives && isJsonPrimitive(v as JSONValue);
+      }
+      if (isPrimitives) {
+        return {
+          type: "leaf",
+          value: value.join(", ") as LeafValue<V>,
+          width: 1,
+          height: 1,
+        };
+      }
+    }
     const children: Tree<V>[] = collapseIndexes
       ? collapseRows(value, "")
       : dedupIndexedRows(value);
