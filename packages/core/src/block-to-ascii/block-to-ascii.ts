@@ -12,7 +12,7 @@ function getMaxLineLength(rows: string[]) {
   return max;
 }
 
-function padCellRow(row: string, w: number, cell: Cell, rows: string[]) {
+function padCellRow<T>(row: string, w: number, cell: Cell<T>, rows: string[]) {
   switch (cell.type) {
     case CellType.Corner:
     case CellType.Header:
@@ -40,22 +40,21 @@ export interface BlockToASCIIOptions {
   format?: ASCIITableFormat;
 }
 
-interface InputCell {
-  cell: Cell;
+interface InputCell<T> {
+  cell: Cell<T>;
   rowIndex: number;
   collIndex: number;
   lines: string[];
   maxRowLength: number;
 }
 
-function populateShifts(
-  block: Block,
-  inputMatrix: Matrix<InputCell>,
+function populateShifts<T>(
+  inputMatrix: Matrix<InputCell<T>>,
   xShift: number[],
   yShift: number[]
 ) {
-  for (let i = 0; i < block.height; i++) {
-    for (let j = 0; j < block.width; j++) {
+  for (let i = 0; i < inputMatrix.length; i++) {
+    for (let j = 0; j < inputMatrix[0]!.length; j++) {
       const cell = inputMatrix[i]![j]!;
       if (cell.collIndex === j) {
         xShift[j + 1] = Math.max(
@@ -73,24 +72,22 @@ function populateShifts(
   }
 }
 
-function populateMySqlShifts(
-  block: Block,
-  inputMatrix: Matrix<InputCell>,
+function populateMySqlShifts<T>(
+  inputMatrix: Matrix<InputCell<T>>,
   xShift: number[],
   yShift: number[]
 ) {
   xShift[0] = yShift[0] = 1;
-  populateShifts(block, inputMatrix, xShift, yShift);
+  populateShifts(inputMatrix, xShift, yShift);
 }
 
-function populateMarkdownLikeShifts(
-  block: Block,
-  inputMatrix: Matrix<InputCell>,
+function populateMarkdownLikeShifts<T>(
+  inputMatrix: Matrix<InputCell<T>>,
   xShift: number[],
   yShift: number[]
 ) {
   xShift[0] = 1;
-  populateShifts(block, inputMatrix, xShift, yShift);
+  populateShifts(inputMatrix, xShift, yShift);
   for (let i = 2; i < inputMatrix.length; i++) {
     yShift[i]! -= 1;
   }
@@ -176,43 +173,50 @@ const BORDER_DRAWERS = {
   [ASCIITableFormat.MarkdownLike]: drawMarkdownLikeBorder,
 };
 
-export function blockToASCII(
-  block: Block,
+export function matrixToASCII<T>(
+  cellMatrix: Matrix<Cell<T>>,
   { format = ASCIITableFormat.MySQL }: BlockToASCIIOptions = {}
 ) {
-  const inputMatrix = createMatrix(
-    block,
-    (cell, rowIndex, collIndex): InputCell => {
-      const content =
-        typeof cell.value === "string"
-          ? cell.value
-          : JSON.stringify(cell.value, null, 2);
-      const lines = content.split("\n").map((r) => ` ${r.trim()} `);
-      return {
-        cell,
-        rowIndex,
-        collIndex,
-        lines,
-        maxRowLength: getMaxLineLength(lines),
-      };
-    }
+  const cache = new Map<Cell<T>, InputCell<T>>();
+  const inputMatrix = cellMatrix.map((row, rowIndex) =>
+    row.map((cell, collIndex): InputCell<T> => {
+      let input = cache.get(cell);
+      if (input === undefined) {
+        const content =
+          typeof cell.value === "string"
+            ? cell.value
+            : JSON.stringify(cell.value, null, 2);
+        const lines = content.split("\n").map((r) => ` ${r.trim()} `);
+        input = {
+          cell,
+          rowIndex,
+          collIndex,
+          lines,
+          maxRowLength: getMaxLineLength(lines),
+        };
+        cache.set(cell, input);
+      }
+      return input;
+    })
   );
-  const xShift = array(block.width + 1, () => 0);
-  const yShift = array(block.height + 1, () => 0);
-  SHIFTS_POPULATORS[format](block, inputMatrix, xShift, yShift);
+  const height = inputMatrix.length;
+  const width = inputMatrix[0]!.length;
+  const xShift = array(width + 1, () => 0);
+  const yShift = array(height + 1, () => 0);
+  SHIFTS_POPULATORS[format](inputMatrix, xShift, yShift);
   // Accumulate
-  for (let i = 1; i <= block.width; i++) {
+  for (let i = 1; i <= width; i++) {
     xShift[i]! += xShift[i - 1]!;
   }
-  for (let i = 1; i <= block.height; i++) {
+  for (let i = 1; i <= height; i++) {
     yShift[i]! += yShift[i - 1]!;
   }
-  const height = block.height + yShift[block.height]!;
-  const width = block.width + xShift[block.width]!;
-  const outMatrix = matrix<string | null>(height, width, () => null);
-  const placed = new Set<Cell>();
-  for (let i = 0; i < block.height; i++) {
-    for (let j = 0; j < block.width; j++) {
+  const outHeight = height + yShift[height]!;
+  const outWidth = width + xShift[width]!;
+  const outMatrix = matrix<string | null>(outHeight, outWidth, () => null);
+  const placed = new Set<Cell<T>>();
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
       const { cell, lines } = inputMatrix[i]![j]!;
       if (placed.has(cell)) {
         continue;
@@ -241,6 +245,10 @@ export function blockToASCII(
       }
     }
   }
-  BORDER_DRAWERS[format](outMatrix, width, height);
+  BORDER_DRAWERS[format](outMatrix, outWidth, outHeight);
   return outMatrix.map((row) => row.join("")).join("\n");
+}
+
+export function blockToASCII(block: Block, options: BlockToASCIIOptions = {}) {
+  return matrixToASCII(createMatrix(block, (cell) => cell), options);
 }

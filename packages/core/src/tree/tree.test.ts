@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { JSONValue } from "../lib/json";
+import { matrixToASCII } from "../block-to-ascii/block-to-ascii";
 import {
   decapitateTree,
   extractHeadersTree,
@@ -9,6 +10,7 @@ import {
   Tree,
 } from "./tree";
 import { makeTreeFactory } from "./json-to-tree";
+import { treeToMatrix } from "./tree-to-matrix";
 
 const makeTree = makeTreeFactory<JSONValue>({
   cornerCellValue: "#",
@@ -37,6 +39,23 @@ describe("makeTreeFactory", () => {
       type: "col",
       width: 1,
     });
+  });
+
+  it("Should create tree for primitives", () => {
+    const data = [false, 12345, "abcde"];
+    for (const value of data) {
+      expect(makeTree(value)).toEqual({
+        type: "leaf",
+        value,
+        width: 1,
+        height: 1,
+      });
+      const ascii = matrixToASCII(treeToMatrix(makeTree(value)));
+      expect(`\n${ascii}`).toBe(`
++-------+
+| ${value} |
++-------+`);
+    }
   });
 });
 
