@@ -228,6 +228,37 @@ describe("makeTreeFactory", () => {
 +---+------+-------+-------------+------+
 `);
   });
+
+  it("Should not deduplicate objects with different headers", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          { character_id: "5428010618020694593", item_id: "95" },
+          {
+            character_id: "5428010618020694593",
+            item_id: "101",
+            stack_count: "4",
+          },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+------------------------------+---------------------+
+|   |         character_id         |       item_id       |
+| 1 +------------------------------+---------------------+
+|   |          5428010618020694593 |                  95 |
++---+---------------------+--------+-------+-------------+
+|   |    character_id     |    item_id     | stack_count |
+| 2 +---------------------+----------------+-------------+
+|   | 5428010618020694593 |            101 |           4 |
++---+---------------------+----------------+-------------+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {

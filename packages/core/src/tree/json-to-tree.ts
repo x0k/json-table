@@ -1,5 +1,5 @@
 import { makeProportionalResizeGuard } from "../json-to-table/proportional-resize-guard.js";
-import { max } from "../lib/math.js";
+import { lcm, max } from "../lib/math.js";
 import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
 import { isObject, isRecordProto } from "../lib/object.js";
 
@@ -381,10 +381,26 @@ export function makeTreeFactory<V>({
     return { mask: mask as Tree<V>, band };
   }
 
+  function scaleWidthsInPlace(tree: Tree<V>, m: number): void {
+    if (m === 1) {
+      return;
+    }
+    tree.width *= m;
+    if ("children" in tree) {
+      for (const child of tree.children) {
+        scaleWidthsInPlace(child, m);
+      }
+    }
+  }
+
   function dedupIndexedRows(value: V[]): Tree<V>[] {
     const items = value.map((v) => transformValue(v));
     const common = commonHeaders(items);
     if (common === undefined) {
+      const commonWidth = items.reduce((acc, item) => lcm(acc, item.width), 1);
+      for (const item of items) {
+        scaleWidthsInPlace(item, commonWidth / item.width);
+      }
       return items.map((child, i) =>
         makeIndexedRow(createIndex(i, value), child),
       );
