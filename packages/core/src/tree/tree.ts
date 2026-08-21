@@ -100,8 +100,11 @@ export function isTreeStructurallyEquals<V>(
   return "value" in a && "value" in b && a.value === b.value;
 }
 
-export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
-  if (tree.type === "header") {
+function extractComponentTree<V>(
+  tree: Tree<V>,
+  kind: "header" | "index",
+): OptionalTree<V> {
+  if (tree.type === kind) {
     return tree;
   }
   if ("value" in tree) {
@@ -109,7 +112,7 @@ export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
   }
   let isUndefined = true;
   const children = tree.children.map((c) => {
-    const t = extractHeadersTree(c);
+    const t = extractComponentTree(c, kind);
     isUndefined &&= t === undefined;
     return t;
   });
@@ -120,6 +123,14 @@ export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
     ...tree,
     children,
   };
+}
+
+export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
+  return extractComponentTree(tree, "header");
+}
+
+export function extractIndexesTree<V>(tree: Tree<V>): OptionalTree<V> {
+  return extractComponentTree(tree, "index");
 }
 
 export function extractSubtree<V>(
@@ -155,6 +166,7 @@ export function extractSubtree<V>(
 export function decapitateTree<V>(
   tree: Tree<V>,
   mask: OptionalTree<V>,
+  kind: "header" | "index",
 ): Tree<V> {
   if (
     mask === undefined ||
@@ -171,10 +183,10 @@ export function decapitateTree<V>(
   const tc = tree.children;
   for (let i = 0; i < tc.length; i++) {
     const m = mask.children[i];
-    if (m?.type === "header") {
+    if (m?.type === kind) {
       continue;
     }
-    const child = decapitateTree(tc[i]!, m);
+    const child = decapitateTree(tc[i]!, m, kind);
     maxDim = max(maxDim, isRow ? child.height : child.width);
     dimSum += isRow ? child.width : child.height;
     children.push(child);

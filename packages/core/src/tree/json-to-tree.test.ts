@@ -174,6 +174,28 @@ describe("makeTreeFactory", () => {
 +---+---+---+
 `);
   });
+
+  it("Should deduplicate tree indexes", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(factory({ a: [1, 4, 7], b: [2, 5, 8], c: [3, 6, 9] })),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+---+---+---+
+| № | a | b | c |
++---+---+---+---+
+| 1 | 1 | 2 | 3 |
++---+---+---+---+
+| 2 | 4 | 5 | 6 |
++---+---+---+---+
+| 3 | 7 | 8 | 9 |
++---+---+---+---+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {
@@ -277,7 +299,7 @@ describe("decapitateTree", () => {
   it("should omit header nodes", () => {
     const tree = makeTree({ foo: "bar", baz: { a: "b" } });
     const mask = extractHeadersTree(tree);
-    expect(decapitateTree(tree, mask)).toEqual({
+    expect(decapitateTree(tree, mask, "header")).toEqual({
       children: [
         {
           height: 1,
