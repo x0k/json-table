@@ -91,6 +91,34 @@ describe("makeTreeFactory", () => {
 +---+---+----+
 `);
   });
+
+  it("Should create tree for arrays with indexes collapse", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "#",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+      collapseIndexes: true,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          [1, 2],
+          [11, 22],
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++-----+----+
+| 1.1 |  1 |
++-----+----+
+| 1.2 |  2 |
++-----+----+
+| 2.1 | 11 |
++-----+----+
+| 2.2 | 22 |
++-----+----+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {
