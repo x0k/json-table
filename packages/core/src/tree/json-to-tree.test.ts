@@ -293,6 +293,55 @@ describe("makeTreeFactory", () => {
 +---+-----------------------------------------------------------------------------+
 `);
   });
+
+  it("Should create correct tree", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          {
+            options: { reduceOptions: { values: false } },
+            pluginVersion: "7.3.1",
+            targets: [{ expr: "loki_build_info", format: "table" }],
+          },
+          {
+            options: { reduceOptions: { values: false } },
+            pluginVersion: "7.3.1",
+            targets: [{ expr: "sum(log_messages_total)" }],
+          },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+---------------+---------------+-----------------------------------------+
+| № |    options    | pluginVersion |                 targets                 |
++---+---------------+---------------+-------+------------------------+--------+
+|   | reduceOptions |               |       |                        |        |
+|   |               |               |   №   |          expr          | format |
+|   +---------------+               |       |                        |        |
+|   |               |               |       |                        |        |
+| 1 |    values     | 7.3.1         +-------+------------------------+--------+
+|   |               |               |       |                        |        |
+|   +---------------+               |   1   | loki_build_info        | table  |
+|   | false         |               |       |                        |        |
+|   |               |               |       |                        |        |
++---+---------------+---------------+-------+------------------------+--------+
+|   | reduceOptions |               |       |                                 |
+|   |               |               |   №   |              expr               |
+|   +---------------+               |       |                                 |
+|   |               |               |       |                                 |
+| 2 |    values     | 7.3.1         +-------+---------------------------------+
+|   |               |               |       |                                 |
+|   +---------------+               |   1   | sum(log_messages_total)         |
+|   | false         |               |       |                                 |
+|   |               |               |       |                                 |
++---+---------------+---------------+-------+---------------------------------+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {
