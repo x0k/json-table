@@ -259,6 +259,40 @@ describe("makeTreeFactory", () => {
 +---+---------------------+----------------+-------------+
 `);
   });
+
+  it("Should work with unique headers", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          {
+            description: "name of the ComponentStatus",
+            in: "path",
+            name: "name",
+            required: true,
+            type: "string",
+            uniqueItems: true,
+          },
+          { $ref: "#/parameters/pretty-tJGM1-ng" },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+-----------------------------+------+------+----------+--------+-------------+
+|   |         description         |  in  | name | required |  type  | uniqueItems |
+| 1 +-----------------------------+------+------+----------+--------+-------------+
+|   | name of the ComponentStatus | path | name | true     | string | true        |
++---+-----------------------------+------+------+----------+--------+-------------+
+|   |                                    $ref                                     |
+| 2 +-----------------------------------------------------------------------------+
+|   | #/parameters/pretty-tJGM1-ng                                                |
++---+-----------------------------------------------------------------------------+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {
