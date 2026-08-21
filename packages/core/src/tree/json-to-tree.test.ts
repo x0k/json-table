@@ -13,14 +13,18 @@ import { makeTreeFactory } from "./json-to-tree";
 import { treeToMatrix } from "./tree-to-matrix";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
+import emptyArrays from "./__fixtures__/empty-arrays.json";
 import formatInBothItems from "./__fixtures__/format-in-both-items.json";
 import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
+import indexesDeduplication from "./__fixtures__/indexes-deduplication.json";
 import multilineHeaders from "./__fixtures__/multiline-headers.json";
 import nestedArrays from "./__fixtures__/nested-arrays.json";
 import objects from "./__fixtures__/objects.json";
+import parsingError from "./__fixtures__/parsing-error.json";
 import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
 import primitivesFixture from "./__fixtures__/primitives.json";
 import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
+import uniqHeaders from "./__fixtures__/uniq-headers.json";
 import wrongSizes from "./__fixtures__/wrong-sizes.json";
 
 const makeTree = makeTreeFactory<JSONValue>({
@@ -39,7 +43,11 @@ const renderFixtures: RenderFixture[] = [
   objects,
   nestedArrays,
   collapsedIndexes,
+  emptyArrays,
+  indexesDeduplication,
+  parsingError,
   simpleHeadersDuplication,
+  uniqHeaders,
   multilineHeaders,
   partiallyDifferentHeaders,
   wrongSizes,
@@ -57,7 +65,10 @@ describe.each(renderFixtures)("$name", ({ name, options, input }) => {
     } as never);
     const tree = factory(input);
     stretchLeavesDimensionInPlace(tree, "height");
-    expect(`\n${matrixToASCII(treeToMatrix(tree))}\n`).toMatchSnapshot(name);
+    expect({
+      input,
+      view: `\n${matrixToASCII(treeToMatrix(tree))}`,
+    }).toMatchSnapshot(name);
   });
 });
 
@@ -93,8 +104,10 @@ describe("makeTreeFactory", () => {
         width: 1,
         height: 1,
       });
-      const ascii = matrixToASCII(treeToMatrix(makeTree(value)));
-      expect(`\n${ascii}`).toMatchSnapshot(`primitive ${String(value)}`);
+      expect({
+        input: value,
+        view: `\n${matrixToASCII(treeToMatrix(makeTree(value)))}`,
+      }).toMatchSnapshot(`primitive ${String(value)}`);
     }
   });
 

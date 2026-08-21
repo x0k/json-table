@@ -435,28 +435,12 @@ export function makeTreeFactory<V>({
     const bodies = items.map((item) =>
       decapitateTree(item, common as never, HEAD_KINDS),
     );
-    const maskColumns =
-      commonNode.type === "row" && "children" in commonNode
-        ? commonNode.children
-        : [commonNode as Tree<V>];
-    const firstBodyColumns = columnsOf(bodies[0]!);
-    const bandHeight = maskToBand(commonNode)?.height ?? 1;
-    const bandColumns = firstBodyColumns.map((bodyCol, k) => {
-      const band = maskToBand(maskColumns[k]) as Tree<V> | undefined;
-      if (band === undefined) {
-        // no common header for this column: blank spacer
-        return {
-          type: "header",
-          value: "" as never,
-          width: bodyCol.width,
-          height: bandHeight,
-        } as Tree<V>;
-      }
-      if (band.height < bandHeight) {
-        stretchLeavesDimensionInPlace(band, "height", bandHeight);
-      }
-      return band;
-    });
+    const commonBand = maskToBand(commonNode) as Tree<V>;
+    if (commonBand === undefined) {
+      // unreachable when `common` is defined
+      throw new Error("empty common header band");
+    }
+    const bandHeight = commonBand.height;
     const corner: Tree<V> = {
       type: "corner",
       value: cornerCellValue,
@@ -466,8 +450,8 @@ export function makeTreeFactory<V>({
     const headerBlock: Tree<V> = {
       type: "row",
       height: bandHeight,
-      width: corner.width + bandColumns.reduce((sum, c) => sum + c.width, 0),
-      children: [corner, ...bandColumns],
+      width: corner.width + commonBand.width,
+      children: [corner, commonBand],
     };
     const rows = bodies.map((body, i) => {
       const filled = body;
@@ -497,6 +481,14 @@ export function makeTreeFactory<V>({
   }
 
   function transformArray(value: V[]): Tree<V> {
+    if (value.length === 0) {
+      return {
+        type: "leaf",
+        value: "" as LeafValue<V>,
+        width: 1,
+        height: 1,
+      };
+    }
     let maxWidth = 1;
     let heightSum = 0;
     if (joinPrimitiveArrayValues) {
