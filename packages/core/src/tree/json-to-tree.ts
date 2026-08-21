@@ -533,6 +533,9 @@ export function makeTreeFactory<V>({
 
   function transformValue(value: V): Tree<V> {
     if (isObject(value)) {
+      if ("toJSON" in value && typeof value["toJSON"] === "function") {
+        return transformValue(value.toJSON() as V);
+      }
       if (isRecordProto(value)) {
         return transformRecord(value as Record<PropertyKey, V>);
       }

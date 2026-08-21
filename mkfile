@@ -6,7 +6,7 @@ cs:
   pnpm changeset
 
 t:
-  pnpm run test
+  pnpm run test $@
 
 b:
   pnpm run build

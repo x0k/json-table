@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { JSONValue } from "../lib/json";
+import type { JSONValue } from "../lib/json";
 import { matrixToASCII } from "../block-to-ascii/block-to-ascii";
 import {
   decapitateTree,
@@ -12,10 +12,53 @@ import {
 import { makeTreeFactory } from "./json-to-tree";
 import { treeToMatrix } from "./tree-to-matrix";
 
+import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
+import formatInBothItems from "./__fixtures__/format-in-both-items.json";
+import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
+import multilineHeaders from "./__fixtures__/multiline-headers.json";
+import nestedArrays from "./__fixtures__/nested-arrays.json";
+import objects from "./__fixtures__/objects.json";
+import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
+import primitivesFixture from "./__fixtures__/primitives.json";
+import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
+import wrongSizes from "./__fixtures__/wrong-sizes.json";
+
 const makeTree = makeTreeFactory<JSONValue>({
   cornerCellValue: "#",
   createHeader: (k) => k,
   createIndex: (i) => `${i + 1}`,
+});
+
+interface RenderFixture {
+  name: string;
+  options: Record<string, unknown>;
+  input: JSONValue;
+}
+
+const renderFixtures: RenderFixture[] = [
+  objects,
+  nestedArrays,
+  collapsedIndexes,
+  simpleHeadersDuplication,
+  multilineHeaders,
+  partiallyDifferentHeaders,
+  wrongSizes,
+  fullyDeduplicated,
+  formatInBothItems,
+] as unknown as RenderFixture[];
+
+describe.each(renderFixtures)("$name", ({ name, options, input }) => {
+  it("renders expected table", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "#",
+      createHeader: (k: string) => k,
+      createIndex: (i: number) => `${i + 1}`,
+      ...options,
+    } as never);
+    const tree = factory(input);
+    stretchLeavesDimensionInPlace(tree, "height");
+    expect(`\n${matrixToASCII(treeToMatrix(tree))}\n`).toMatchSnapshot(name);
+  });
 });
 
 describe("makeTreeFactory", () => {
@@ -42,7 +85,7 @@ describe("makeTreeFactory", () => {
   });
 
   it("Should create tree for primitives", () => {
-    const data = [false, 12345, "abcde"];
+    const data = primitivesFixture.input;
     for (const value of data) {
       expect(makeTree(value)).toEqual({
         type: "leaf",
@@ -51,352 +94,22 @@ describe("makeTreeFactory", () => {
         height: 1,
       });
       const ascii = matrixToASCII(treeToMatrix(makeTree(value)));
-      expect(`\n${ascii}`).toBe(`
-+-------+
-| ${value} |
-+-------+`);
+      expect(`\n${ascii}`).toMatchSnapshot(`primitive ${String(value)}`);
     }
   });
 
-  it("Should create tree for objects", () => {
-    const data = {
-      a: 1,
-      b: 2,
-      c: { aa: 11, bb: 22 },
-    };
-    const ascii = matrixToASCII(treeToMatrix(makeTree(data)));
-    expect(`\n${ascii}\n`).toBe(`
-+---+---+---------+
-| a | b |    c    |
-+---+---+----+----+
-|   |   | aa | bb |
-| 1 | 2 +----+----+
-|   |   | 11 | 22 |
-+---+---+----+----+
-`);
-  });
-
-  it("Should create tree for arrays", () => {
-    const data = [1, 2, [11, 22]];
-    const ascii = matrixToASCII(treeToMatrix(makeTree(data)));
-    expect(`\n${ascii}\n`).toBe(`
-+---+--------+
-| 1 |      1 |
-+---+--------+
-| 2 |      2 |
-+---+---+----+
-|   | 1 | 11 |
-| 3 +---+----+
-|   | 2 | 22 |
-+---+---+----+
-`);
-  });
-
-  it("Should create tree for arrays with indexes collapse", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "#",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-      collapseIndexes: true,
+  it("should unwrap toJSON values", () => {
+    const tree = makeTree({
+      date: { toJSON: () => "2026-08-21" } as unknown as JSONValue,
     });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          [1, 2],
-          [11, 22],
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+-----+----+
-| 1.1 |  1 |
-+-----+----+
-| 1.2 |  2 |
-+-----+----+
-| 2.1 | 11 |
-+-----+----+
-| 2.2 | 22 |
-+-----+----+
-`);
-  });
-
-  it("Should deduplicate tree headers", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
+    stretchLeavesDimensionInPlace(tree, "height");
+    if (!("children" in tree)) {
+      throw new Error("expected a branch node");
+    }
+    expect(tree.children[1]).toMatchObject({
+      type: "leaf",
+      value: "2026-08-21",
     });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          { a: 1, b: 2, c: 3 },
-          { a: 4, b: 5, c: 6 },
-          { a: 7, b: 8, c: 9 },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---+---+---+
-| № | a | b | c |
-+---+---+---+---+
-| 1 | 1 | 2 | 3 |
-+---+---+---+---+
-| 2 | 4 | 5 | 6 |
-+---+---+---+---+
-| 3 | 7 | 8 | 9 |
-+---+---+---+---+
-`);
-  });
-
-  it("Should deduplicate multiline tree headers", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          { a: { x: 1 }, b: { y: 2 } },
-          { a: { x: 3 }, b: { y: 4 } },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---+---+
-|   | a | b |
-| № +---+---+
-|   | x | y |
-+---+---+---+
-| 1 | 1 | 2 |
-+---+---+---+
-| 2 | 3 | 4 |
-+---+---+---+
-`);
-  });
-
-  it("Should deduplicate tree indexes", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(factory({ a: [1, 4, 7], b: [2, 5, 8], c: [3, 6, 9] })),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---+---+---+
-| № | a | b | c |
-+---+---+---+---+
-| 1 | 1 | 2 | 3 |
-+---+---+---+---+
-| 2 | 4 | 5 | 6 |
-+---+---+---+---+
-| 3 | 7 | 8 | 9 |
-+---+---+---+---+
-`);
-  });
-
-  it("Should combine simple values should not affect objects values", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-      joinPrimitiveArrayValues: true,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory({
-          weather: [
-            {
-              id: 800,
-              main: "Clear",
-              description: "clear sky",
-              icon: "01n",
-            },
-          ],
-        }),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+-----------------------------------+
-|   |              weather              |
-| № +------+-------+-------------+------+
-|   |  id  | main  | description | icon |
-+---+------+-------+-------------+------+
-| 1 |  800 | Clear | clear sky   | 01n  |
-+---+------+-------+-------------+------+
-`);
-  });
-
-  it("Should partially deduplicate objects with different headers", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          { character_id: "5428010618020694593", item_id: "95" },
-          {
-            character_id: "5428010618020694593",
-            item_id: "101",
-            stack_count: "4",
-          },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---------------------+-----------------------+
-|   |    character_id     |        item_id        |
-| 1 +---------------------+-----------------------+
-|   | 5428010618020694593 |                    95 |
-+---+---------------------+---------+-------------+
-|   |    character_id     | item_id | stack_count |
-| 2 +---------------------+---------+-------------+
-|   | 5428010618020694593 |     101 |           4 |
-+---+---------------------+---------+-------------+
-`);
-  });
-
-  it("Should work with unique headers", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          {
-            description: "name of the ComponentStatus",
-            in: "path",
-            name: "name",
-            required: true,
-            type: "string",
-            uniqueItems: true,
-          },
-          { $ref: "#/parameters/pretty-tJGM1-ng" },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+-----------------------------+------+------+----------+--------+-------------+
-|   |         description         |  in  | name | required |  type  | uniqueItems |
-| 1 +-----------------------------+------+------+----------+--------+-------------+
-|   | name of the ComponentStatus | path | name | true     | string | true        |
-+---+-----------------------------+------+------+----------+--------+-------------+
-|   |                                    $ref                                     |
-| 2 +-----------------------------------------------------------------------------+
-|   | #/parameters/pretty-tJGM1-ng                                                |
-+---+-----------------------------------------------------------------------------+
-`);
-  });
-
-  it("Should create correct tree", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          {
-            options: { reduceOptions: { values: false } },
-            pluginVersion: "7.3.1",
-            targets: [{ expr: "loki_build_info", format: "table" }],
-          },
-          {
-            options: { reduceOptions: { values: false } },
-            pluginVersion: "7.3.1",
-            targets: [{ expr: "sum(log_messages_total)" }],
-          },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---------------+---------------+------+--------------------------------+
-|   |    options    |               |      |                                |
-|   +---------------+               |      |                                |
-| № | reduceOptions | pluginVersion |  №   |            targets             |
-|   +---------------+               |      |                                |
-|   |    values     |               |      |                                |
-+---+---------------+---------------+------+--------------------------------+
-|   |               |               | expr |             format             |
-| 1 | false         | 7.3.1         +------+------------------------+-------+
-|   |               |               |  1   | loki_build_info        | table |
-+---+---------------+---------------+------+------------------------+-------+
-|   |               |               |                 expr                  |
-| 2 | false         | 7.3.1         +------+--------------------------------+
-|   |               |               |  1   | sum(log_messages_total)        |
-+---+---------------+---------------+------+--------------------------------+
-`);
-  });
-
-  it("Should deduplicate headers with format in both items", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          {
-            options: { reduceOptions: { values: false } },
-            pluginVersion: "7.3.1",
-            targets: [{ expr: "loki_build_info", format: "table" }],
-          },
-          {
-            options: { reduceOptions: { values: false } },
-            pluginVersion: "7.3.2",
-            targets: [{ expr: "sum_messages", format: "json" }],
-          },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---------------+---------------+---+--------------------------+
-|   |    options    |               |   |         targets          |
-|   +---------------+               |   +-----------------+--------+
-| № | reduceOptions | pluginVersion | № |                 |        |
-|   +---------------+               |   |      expr       | format |
-|   |    values     |               |   |                 |        |
-+---+---------------+---------------+---+-----------------+--------+
-| 1 | false         | 7.3.1         | 1 | loki_build_info | table  |
-+---+---------------+---------------+---+-----------------+--------+
-| 2 | false         | 7.3.2         | 1 | sum_messages    | json   |
-+---+---------------+---------------+---+-----------------+--------+
-`);
-  });
-
-  it("Should fully deduplicate common headers", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "№",
-      createHeader: (k) => k,
-      createIndex: (i) => `${i + 1}`,
-    });
-    const ascii = matrixToASCII(
-      treeToMatrix(
-        factory([
-          { a: 1, b: { c: 1 } },
-          { a: 2, b: { c: 2 } },
-        ]),
-      ),
-    );
-    expect(`\n${ascii}\n`).toBe(`
-+---+---+---+
-|   |   | b |
-| № | a +---+
-|   |   | c |
-+---+---+---+
-| 1 | 1 | 1 |
-+---+---+---+
-| 2 | 2 | 2 |
-+---+---+---+
-`);
   });
 });
 
@@ -501,7 +214,7 @@ describe("decapitateTree", () => {
   it("should omit header nodes", () => {
     const tree = makeTree({ foo: "bar", baz: { a: "b" } });
     const mask = extractHeadersTree(tree);
-    expect(decapitateTree(tree, mask, new Set(["header", "corner"]))).toEqual({
+    expect(decapitateTree(tree, mask, new Set(["header"]))).toEqual({
       children: [
         {
           height: 1,

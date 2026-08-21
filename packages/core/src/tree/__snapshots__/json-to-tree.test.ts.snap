@@ -1,0 +1,154 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`'create correct tree' > renders expected table > create correct tree 1`] = `
+"
++---+---------------+---------------+------+--------------------------------+
+|   |    options    |               |      |                                |
+|   +---------------+               |      |                                |
+| # | reduceOptions | pluginVersion |  #   |            targets             |
+|   +---------------+               |      |                                |
+|   |    values     |               |      |                                |
++---+---------------+---------------+------+--------------------------------+
+|   |               |               | expr |             format             |
+| 1 | false         | 7.3.1         +------+------------------------+-------+
+|   |               |               |  1   | loki_build_info        | table |
++---+---------------+---------------+------+------------------------+-------+
+|   |               |               |                 expr                  |
+| 2 | false         | 7.3.1         +------+--------------------------------+
+|   |               |               |  1   | sum(log_messages_total)        |
++---+---------------+---------------+------+--------------------------------+
+"
+`;
+
+exports[`'create tree for arrays with indexes c…' > renders expected table > create tree for arrays with indexes collapse 1`] = `
+"
++-----+----+
+| 1.1 |  1 |
++-----+----+
+| 1.2 |  2 |
++-----+----+
+| 2.1 | 11 |
++-----+----+
+| 2.2 | 22 |
++-----+----+
+"
+`;
+
+exports[`'create tree for arrays' > renders expected table > create tree for arrays 1`] = `
+"
++---+--------+
+| 1 |      1 |
++---+--------+
+| 2 |      2 |
++---+---+----+
+|   | 1 | 11 |
+| 3 +---+----+
+|   | 2 | 22 |
++---+---+----+
+"
+`;
+
+exports[`'create tree for objects' > renders expected table > create tree for objects 1`] = `
+"
++---+---+---------+
+| a | b |    c    |
++---+---+----+----+
+|   |   | aa | bb |
+| 1 | 2 +----+----+
+|   |   | 11 | 22 |
++---+---+----+----+
+"
+`;
+
+exports[`'deduplicate headers with format in bo…' > renders expected table > deduplicate headers with format in both items 1`] = `
+"
++---+---------------+---------------+---+--------------------------+
+|   |    options    |               |   |         targets          |
+|   +---------------+               |   +-----------------+--------+
+| # | reduceOptions | pluginVersion | # |                 |        |
+|   +---------------+               |   |      expr       | format |
+|   |    values     |               |   |                 |        |
++---+---------------+---------------+---+-----------------+--------+
+| 1 | false         | 7.3.1         | 1 | loki_build_info | table  |
++---+---------------+---------------+---+-----------------+--------+
+| 2 | false         | 7.3.2         | 1 | sum_messages    | json   |
++---+---------------+---------------+---+-----------------+--------+
+"
+`;
+
+exports[`'deduplicate multiline tree headers' > renders expected table > deduplicate multiline tree headers 1`] = `
+"
++---+---+---+
+|   | a | b |
+| # +---+---+
+|   | x | y |
++---+---+---+
+| 1 | 1 | 2 |
++---+---+---+
+| 2 | 3 | 4 |
++---+---+---+
+"
+`;
+
+exports[`'deduplicate tree headers' > renders expected table > deduplicate tree headers 1`] = `
+"
++---+---+---+---+
+| # | a | b | c |
++---+---+---+---+
+| 1 | 1 | 2 | 3 |
++---+---+---+---+
+| 2 | 4 | 5 | 6 |
++---+---+---+---+
+| 3 | 7 | 8 | 9 |
++---+---+---+---+
+"
+`;
+
+exports[`'fully deduplicate common headers' > renders expected table > fully deduplicate common headers 1`] = `
+"
++---+---+---+
+|   |   | b |
+| # | a +---+
+|   |   | c |
++---+---+---+
+| 1 | 1 | 1 |
++---+---+---+
+| 2 | 2 | 2 |
++---+---+---+
+"
+`;
+
+exports[`'partially deduplicate objects with di…' > renders expected table > partially deduplicate objects with different headers 1`] = `
+"
++---+---------------------+-----------------------+
+|   |    character_id     |        item_id        |
+| 1 +---------------------+-----------------------+
+|   | 5428010618020694593 |                    95 |
++---+---------------------+---------+-------------+
+|   |    character_id     | item_id | stack_count |
+| 2 +---------------------+---------+-------------+
+|   | 5428010618020694593 |     101 |           4 |
++---+---------------------+---------+-------------+
+"
+`;
+
+exports[`makeTreeFactory > Should create tree for primitives > primitive 12345 1`] = `
+"
++-------+
+| 12345 |
++-------+"
+`;
+
+exports[`makeTreeFactory > Should create tree for primitives > primitive abcde 1`] = `
+"
++-------+
+| abcde |
++-------+"
+`;
+
+exports[`makeTreeFactory > Should create tree for primitives > primitive false 1`] = `
+"
++-------+
+| false |
++-------+"
+`;

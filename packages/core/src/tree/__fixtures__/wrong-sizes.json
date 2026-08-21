@@ -1,0 +1,15 @@
+{
+  "name": "create correct tree",
+  "input": [
+    {
+      "options": { "reduceOptions": { "values": false } },
+      "pluginVersion": "7.3.1",
+      "targets": [{ "expr": "loki_build_info", "format": "table" }]
+    },
+    {
+      "options": { "reduceOptions": { "values": false } },
+      "pluginVersion": "7.3.1",
+      "targets": [{ "expr": "sum(log_messages_total)" }]
+    }
+  ]
+}
