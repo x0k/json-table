@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { JSONValue } from "./lib/json";
+import { JSONValue } from "../lib/json";
 import {
   decapitateTree,
   extractHeadersTree,
   extractSubtree,
-  makeTreeFactory,
   stretchLeavesDimensionInPlace,
   Tree,
-} from "./layout";
+} from "./tree";
+import { makeTreeFactory } from "./json-to-tree";
 
 const makeTree = makeTreeFactory<JSONValue>({
   cornerCellValue: "#",

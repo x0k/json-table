@@ -57,6 +57,10 @@
     "./json-to-table": {
       "types": "./dist/json-to-table/index.d.ts",
       "import": "./dist/json-to-table/index.js"
+    },
+    "./tree": {
+      "types": "./dist/tree/index.d.ts",
+      "import": "./dist/tree/index.js"
     }
   },
   "devDependencies": {
