@@ -100,21 +100,22 @@ export function isTreeStructurallyEquals<V>(
   return "value" in a && "value" in b && a.value === b.value;
 }
 
-function extractComponentTree<V>(
+export type ComponentKind = "header" | "index" | "corner";
+
+export function extractComponentTree<V>(
   tree: Tree<V>,
-  kind: "header" | "index",
+  kinds: ReadonlySet<ComponentKind>,
 ): OptionalTree<V> {
-  if (tree.type === kind) {
-    return tree;
-  }
   if ("value" in tree) {
-    return undefined;
+    return kinds.has(tree.type as ComponentKind)
+      ? (tree as unknown as OptionalTree<V>)
+      : undefined;
   }
   let isUndefined = true;
   const children = tree.children.map((c) => {
-    const t = extractComponentTree(c, kind);
-    isUndefined &&= t === undefined;
-    return t;
+    const r = extractComponentTree(c, kinds);
+    isUndefined &&= r === undefined;
+    return r;
   });
   if (isUndefined) {
     return undefined;
@@ -125,12 +126,15 @@ function extractComponentTree<V>(
   };
 }
 
+const HEADER_KINDS: ReadonlySet<ComponentKind> = new Set(["header"]);
+const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"]);
+
 export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
-  return extractComponentTree(tree, "header");
+  return extractComponentTree(tree, HEADER_KINDS);
 }
 
 export function extractIndexesTree<V>(tree: Tree<V>): OptionalTree<V> {
-  return extractComponentTree(tree, "index");
+  return extractComponentTree(tree, INDEX_KINDS);
 }
 
 export function extractSubtree<V>(
@@ -166,7 +170,7 @@ export function extractSubtree<V>(
 export function decapitateTree<V>(
   tree: Tree<V>,
   mask: OptionalTree<V>,
-  kind: "header" | "index",
+  kinds: ReadonlySet<ComponentKind>,
 ): Tree<V> {
   if (
     mask === undefined ||
@@ -183,13 +187,24 @@ export function decapitateTree<V>(
   const tc = tree.children;
   for (let i = 0; i < tc.length; i++) {
     const m = mask.children[i];
-    if (m?.type === kind) {
+    if (m !== undefined && !("children" in m) && kinds.has(m.type as ComponentKind)) {
       continue;
     }
-    const child = decapitateTree(tc[i]!, m, kind);
+    const child = decapitateTree(tc[i]!, m, kinds);
+    // containers emptied by stripping and corners with nothing left
+    // to span vanish
+    if (
+      ("children" in child && child.children.length === 0) ||
+      (child.width === 0 && child.height === 0)
+    ) {
+      continue;
+    }
     maxDim = max(maxDim, isRow ? child.height : child.width);
     dimSum += isRow ? child.width : child.height;
     children.push(child);
+  }
+  if (children.length > 0 && children.every((c) => c.type === "corner")) {
+    return { ...tree, width: 0, height: 0 };
   }
   if (children.length === 1) {
     return children[0]!;

@@ -4,14 +4,21 @@ import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
 import { isObject, isRecordProto } from "../lib/object.js";
 
 import {
+  type ComponentKind,
   decapitateTree,
+  extractComponentTree,
   extractIndexesTree,
   extractSubtree,
-  isTreeStructurallyEquals,
   stretchLeavesDimensionInPlace,
   type LeafValue,
   type Tree,
 } from "./tree.js";
+
+const HEAD_KINDS: ReadonlySet<ComponentKind> = new Set([
+  "header",
+  "corner",
+] as const);
+const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"] as const);
 
 export interface TreeFactoryOptions<V> {
   cornerCellValue: LeafValue<V>;
@@ -243,7 +250,7 @@ export function makeTreeFactory<V>({
     const tableRows: Tree<V>[][][] = [];
     for (const body of bodies) {
       const rows = flattenBodyRows(
-        decapitateTree(body, mask as never, "index"),
+        decapitateTree(body, mask as never, INDEX_KINDS),
       );
       if (rows === undefined) {
         return undefined;
@@ -328,123 +335,6 @@ export function makeTreeFactory<V>({
 
   /** header chain of a record key column: plain col[header, X] nesting only;
    * corner-merged wrappers contribute their single inner header and stop */
-  function headerChain(child: Tree<V>): Tree<V>[] {
-    if (
-      child.type === "col" &&
-      "children" in child &&
-      child.children[0]?.type === "header"
-    ) {
-      const rest = child.children.slice(1);
-      const body: Tree<V> =
-        rest.length === 1
-          ? rest[0]!
-          : { ...child, height: child.height - 1, children: rest };
-      if (
-        body.type === "col" &&
-        "children" in body &&
-        body.children[0]?.type === "header"
-      ) {
-        return [child.children[0] as Tree<V>, ...headerChain(body)];
-      }
-      return [child.children[0] as Tree<V>];
-    }
-    if (child.type === "col" && "children" in child) {
-      const first = child.children[0];
-      if (
-        first !== undefined &&
-        first.type === "row" &&
-        "children" in first &&
-        first.children[0]?.type === "corner"
-      ) {
-        const inner = first.children[1];
-        if (
-          inner !== undefined &&
-          inner.type === "col" &&
-          "children" in inner &&
-          inner.children[0]?.type === "header"
-        ) {
-          return [inner.children[0]];
-        }
-      }
-    }
-    return [];
-  }
-
-  /** removes the first `depth` headers of a column chain */
-  function stripChain(child: Tree<V>, depth: number): Tree<V> {
-    if (depth <= 0) {
-      return child;
-    }
-    if (
-      child.type === "col" &&
-      "children" in child &&
-      child.children[0]?.type === "header"
-    ) {
-      const rest = child.children.slice(1);
-      const body: Tree<V> =
-        rest.length === 1
-          ? rest[0]!
-          : { ...child, height: child.height - 1, children: rest };
-      return stripChain(body, depth - 1);
-    }
-    if (child.type === "col" && "children" in child) {
-      const first = child.children[0];
-      if (
-        first !== undefined &&
-        first.type === "row" &&
-        "children" in first &&
-        first.children[0]?.type === "corner"
-      ) {
-        const inner = first.children[1];
-        if (
-          inner !== undefined &&
-          inner.type === "col" &&
-          "children" in inner &&
-          inner.children[0]?.type === "header"
-        ) {
-          const rest = inner.children.slice(1);
-          const strippedInner: Tree<V> =
-            rest.length === 1
-              ? rest[0]!
-              : { ...inner, height: inner.height - 1, children: rest };
-          const newCorner: Tree<V> = {
-            ...(first.children[0] as Tree<V>),
-            height: strippedInner.height,
-          };
-          const strippedBlock: Tree<V> = {
-            ...first,
-            height: strippedInner.height,
-            children: [newCorner, strippedInner],
-          };
-          const rest2 = child.children.slice(1);
-          return {
-            ...child,
-            height:
-              strippedBlock.height +
-              rest2.reduce((sum, c) => sum + c.height, 0),
-            children: [strippedBlock, ...rest2],
-          };
-        }
-      }
-    }
-    return child;
-  }
-
-  function scaleWidthsInPlace(tree: Tree<V>, m: number): void {
-    if (m === 1) {
-      return;
-    }
-    tree.width *= m;
-    if ("children" in tree) {
-      for (const child of tree.children) {
-        scaleWidthsInPlace(child, m);
-      }
-    }
-  }
-
-  /** top-level header of a record key column (plain or corner-merged) */
-  /** mirrors the block horizontal stacker: equalize column-body heights
-   * to their lcm when proportional, else to the maximum */
   function equalizeBodyHeights(body: Tree<V>): void {
     if (body.type !== "row" || !("children" in body) || body.children.length < 2) {
       return;
@@ -470,91 +360,119 @@ export function makeTreeFactory<V>({
     body.height = finalHeight;
   }
 
+  /** converts a header mask into a renderable band tree:
+   * undefined holes are dropped, sizes recomputed from kept children */
+  function maskToBand<V>(mask: unknown): Tree<V> | undefined {
+    if (mask === undefined || mask === null) {
+      return undefined;
+    }
+    const m = mask as Tree<V>;
+    if (!("children" in m)) {
+      return m.type === "header" || m.type === "corner" ? m : undefined;
+    }
+    const children = m.children
+      .map((c) => maskToBand(c))
+      .filter((c): c is Tree<V> => c !== undefined);
+    if (children.length === 0) {
+      return undefined;
+    }
+    if (children.length === 1) {
+      const only = children[0]!;
+      // a lone survivor of a row inherits the row's full width
+      if (m.type === "row" && only.width < m.width) {
+        stretchLeavesDimensionInPlace(only, "width", m.width);
+      }
+      return only;
+    }
+    const isRow = m.type === "row";
+    return {
+      type: m.type,
+      height: isRow
+        ? children.reduce((acc, c) => max(acc, c.height), 1)
+        : children.reduce((sum, c) => sum + c.height, 0),
+      width: isRow
+        ? children.reduce((sum, c) => sum + c.width, 0)
+        : children.reduce((acc, c) => max(acc, c.width), 1),
+      children,
+    };
+  }
+
+  function scaleWidthsInPlace(tree: Tree<V>, m: number): void {
+    if (m === 1) {
+      return;
+    }
+    tree.width *= m;
+    if ("children" in tree) {
+      for (const child of tree.children) {
+        scaleWidthsInPlace(child, m);
+      }
+    }
+  }
+
   function dedupIndexedRows(value: V[]): Tree<V>[] {
     const items = value.map((v) => transformValue(v));
     const columnsOf = (item: Tree<V>): Tree<V>[] =>
       item.type === "row" && "children" in item ? item.children : [item];
-
-    const columnLists = items.map(columnsOf);
-    const colCount = columnLists[0]?.length ?? 0;
-    const sameShape =
-      colCount > 0 && columnLists.every((cols) => cols.length === colCount);
-
-    const chains = columnLists.map((cols) => cols.map(headerChain));
-    let depths: number[] | undefined;
-    if (sameShape) {
-      depths = new Array<number>(colCount).fill(0);
-      for (let k = 0; k < colCount; k++) {
-        let d = chains[0]![k]!.length;
-        for (let i = 1; i < items.length && d > 0; i++) {
-          const other = chains[i]![k]!;
-          d = Math.min(d, other.length);
-          for (let j = 0; j < d; j++) {
-            if (
-              !isTreeStructurallyEquals(chains[i]![k]![j], chains[0]![k]![j])
-            ) {
-              d = j;
-              break;
-            }
-          }
-        }
-        depths[k] = d;
+    // proportional-ish width alignment across items: narrower items
+    // stretch their trailing columns to match the widest item
+    const maxWidth = items.reduce((acc, item) => max(acc, item.width), 1);
+    for (const item of items) {
+      if (item.width < maxWidth) {
+        stretchLeavesDimensionInPlace(item, "width", maxWidth);
       }
     }
-
-    const bandHeight = depths ? depths.reduce((acc, d) => max(acc, d), 0) : 0;
-
-    if (depths === undefined || bandHeight === 0) {
-      const commonWidth = items.reduce((acc, item) => lcm(acc, item.width), 1);
-      for (const item of items) {
-        scaleWidthsInPlace(item, commonWidth / item.width);
-      }
+    let common: unknown = extractComponentTree(items[0]!, HEAD_KINDS);
+    for (let i = 1; i < items.length; i++) {
+      common = extractSubtree(items[i] as never, common as never);
+    }
+    if (common === undefined) {
       return items.map((child, i) =>
         makeIndexedRow(createIndex(i, value), child),
       );
     }
 
+    const commonNode = common as Tree<V>;
+    const bodies = items.map((item) =>
+      decapitateTree(item, common as never, HEAD_KINDS),
+    );
+    const maskColumns =
+      commonNode.type === "row" && "children" in commonNode
+        ? commonNode.children
+        : [commonNode as Tree<V>];
+    const firstBodyColumns = columnsOf(bodies[0]!);
+    const bandHeight = maskToBand(commonNode)?.height ?? 1;
+    const bandColumns = firstBodyColumns.map((bodyCol, k) => {
+      const band = maskToBand(maskColumns[k]) as Tree<V> | undefined;
+      if (band === undefined) {
+        // no common header for this column: blank spacer
+        return {
+          type: "header",
+          value: "" as never,
+          width: bodyCol.width,
+          height: bandHeight,
+        } as Tree<V>;
+      }
+      if (band.height < bandHeight) {
+        stretchLeavesDimensionInPlace(band, "height", bandHeight);
+      }
+      return band;
+    });
     const corner: Tree<V> = {
       type: "corner",
       value: cornerCellValue,
       width: 1,
       height: bandHeight,
     };
-    const bandColumns = columnLists[0]!.map((_, k) => {
-      const headers = chains[0]![k]!.slice(0, depths[k]);
-      let node: Tree<V> = headers[headers.length - 1]!;
-      for (let j = headers.length - 2; j >= 0; j--) {
-        node = {
-          type: "col",
-          height: node.height + headers[j]!.height,
-          width: node.width,
-          children: [headers[j]!, node],
-        };
-      }
-      if (node.height < bandHeight) {
-        stretchLeavesDimensionInPlace(node, "height", bandHeight);
-      }
-      return node;
-    });
     const headerBlock: Tree<V> = {
       type: "row",
       height: bandHeight,
       width: corner.width + bandColumns.reduce((sum, c) => sum + c.width, 0),
       children: [corner, ...bandColumns],
     };
-    const rows = items.map((item, i) => {
-      const stripped = columnsOf(item).map((c, k) => stripChain(c, depths[k]!));
-      const body: Tree<V> =
-        stripped.length === 1
-          ? stripped[0]!
-          : ({
-              ...item,
-              height: stripped.reduce((acc, c) => max(acc, c.height), 1),
-              width: stripped.reduce((sum, c) => sum + c.width, 0),
-              children: stripped,
-            } as Tree<V>);
-      equalizeBodyHeights(body);
-      return makeIndexedRow(createIndex(i, value), body);
+    const rows = bodies.map((body, i) => {
+      const filled = body;
+      equalizeBodyHeights(filled);
+      return makeIndexedRow(createIndex(i, value), filled);
     });
     return [headerBlock, ...rows];
   }

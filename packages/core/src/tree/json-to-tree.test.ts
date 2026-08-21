@@ -229,7 +229,7 @@ describe("makeTreeFactory", () => {
 `);
   });
 
-  it("Should not deduplicate objects with different headers", () => {
+  it("Should partially deduplicate objects with different headers", () => {
     const factory = makeTreeFactory<JSONValue>({
       cornerCellValue: "№",
       createHeader: (k) => k,
@@ -248,15 +248,15 @@ describe("makeTreeFactory", () => {
       ),
     );
     expect(`\n${ascii}\n`).toBe(`
-+---+------------------------------+---------------------+
-|   |         character_id         |       item_id       |
-| 1 +------------------------------+---------------------+
-|   |          5428010618020694593 |                  95 |
-+---+---------------------+--------+-------+-------------+
-|   |    character_id     |    item_id     | stack_count |
-| 2 +---------------------+----------------+-------------+
-|   | 5428010618020694593 |            101 |           4 |
-+---+---------------------+----------------+-------------+
++---+---------------------+-----------------------+
+|   |    character_id     |        item_id        |
+| 1 +---------------------+-----------------------+
+|   | 5428010618020694593 |                    95 |
++---+---------------------+---------+-------------+
+|   |    character_id     | item_id | stack_count |
+| 2 +---------------------+---------+-------------+
+|   | 5428010618020694593 |     101 |           4 |
++---+---------------------+---------+-------------+
 `);
   });
 
@@ -317,21 +317,58 @@ describe("makeTreeFactory", () => {
       ),
     );
     expect(`\n${ascii}\n`).toBe(`
-+---+---------------+---------------+-----------------------------------------+
-|   |    options    |               |                                         |
-|   +---------------+               |                                         |
-| № | reduceOptions | pluginVersion |                 targets                 |
-|   +---------------+               |                                         |
-|   |    values     |               |                                         |
-+---+---------------+---------------+-------+------------------------+--------+
-|   |               |               |   №   |          expr          | format |
-| 1 | false         | 7.3.1         +-------+------------------------+--------+
-|   |               |               |   1   | loki_build_info        | table  |
-+---+---------------+---------------+-------+------------------------+--------+
-|   |               |               |   №   |              expr               |
-| 2 | false         | 7.3.1         +-------+---------------------------------+
-|   |               |               |   1   | sum(log_messages_total)         |
-+---+---------------+---------------+-------+---------------------------------+
++---+---------------+---------------+------+--------------------------------+
+|   |    options    |               |      |                                |
+|   +---------------+               |      |                                |
+| № | reduceOptions | pluginVersion |  №   |            targets             |
+|   +---------------+               |      |                                |
+|   |    values     |               |      |                                |
++---+---------------+---------------+------+--------------------------------+
+|   |               |               | expr |             format             |
+| 1 | false         | 7.3.1         +------+------------------------+-------+
+|   |               |               |  1   | loki_build_info        | table |
++---+---------------+---------------+------+------------------------+-------+
+|   |               |               |                 expr                  |
+| 2 | false         | 7.3.1         +------+--------------------------------+
+|   |               |               |  1   | sum(log_messages_total)        |
++---+---------------+---------------+------+--------------------------------+
+`);
+  });
+
+  it("Should deduplicate headers with format in both items", () => {
+    const factory = makeTreeFactory<JSONValue>({
+      cornerCellValue: "№",
+      createHeader: (k) => k,
+      createIndex: (i) => `${i + 1}`,
+    });
+    const ascii = matrixToASCII(
+      treeToMatrix(
+        factory([
+          {
+            options: { reduceOptions: { values: false } },
+            pluginVersion: "7.3.1",
+            targets: [{ expr: "loki_build_info", format: "table" }],
+          },
+          {
+            options: { reduceOptions: { values: false } },
+            pluginVersion: "7.3.2",
+            targets: [{ expr: "sum_messages", format: "json" }],
+          },
+        ]),
+      ),
+    );
+    expect(`\n${ascii}\n`).toBe(`
++---+---------------+---------------+---+--------------------------+
+|   |    options    |               |   |         targets          |
+|   +---------------+               |   +-----------------+--------+
+| № | reduceOptions | pluginVersion | № |                 |        |
+|   +---------------+               |   |      expr       | format |
+|   |    values     |               |   |                 |        |
++---+---------------+---------------+---+-----------------+--------+
+| 1 | false         | 7.3.1         | 1 | loki_build_info | table  |
++---+---------------+---------------+---+-----------------+--------+
+| 2 | false         | 7.3.2         | 1 | sum_messages    | json   |
++---+---------------+---------------+---+-----------------+--------+
 `);
   });
 
@@ -464,7 +501,7 @@ describe("decapitateTree", () => {
   it("should omit header nodes", () => {
     const tree = makeTree({ foo: "bar", baz: { a: "b" } });
     const mask = extractHeadersTree(tree);
-    expect(decapitateTree(tree, mask, "header")).toEqual({
+    expect(decapitateTree(tree, mask, new Set(["header", "corner"]))).toEqual({
       children: [
         {
           height: 1,
