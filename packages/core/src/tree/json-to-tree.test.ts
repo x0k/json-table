@@ -57,6 +57,40 @@ describe("makeTreeFactory", () => {
 +-------+`);
     }
   });
+
+  it("Should create tree for objects", () => {
+    const data = {
+      a: 1,
+      b: 2,
+      c: { aa: 11, bb: 22 },
+    };
+    const ascii = matrixToASCII(treeToMatrix(makeTree(data)));
+    expect(`\n${ascii}\n`).toBe(`
++---+---+---------+
+| a | b |    c    |
++---+---+----+----+
+|   |   | aa | bb |
+| 1 | 2 +----+----+
+|   |   | 11 | 22 |
++---+---+----+----+
+`);
+  });
+
+  it("Should create tree for arrays", () => {
+    const data = [1, 2, [11, 22]];
+    const ascii = matrixToASCII(treeToMatrix(makeTree(data)));
+    expect(`\n${ascii}\n`).toBe(`
++---+--------+
+| 1 |      1 |
++---+--------+
+| 2 |      2 |
++---+---+----+
+|   | 1 | 11 |
+| 3 +---+----+
+|   | 2 | 22 |
++---+---+----+
+`);
+  });
 });
 
 describe("extractHeadersTree", () => {
