@@ -49,6 +49,26 @@ export function makeTreeFactory<V>({
     proportionalSizeAdjustmentThreshold,
   );
 
+  /** creates a container whose extents are derived from its actual
+   * children: sequential extent is the exact sum, cross extent the max.
+   * Deriving instead of declaring keeps layout invariants intact whatever
+   * the children's shapes are */
+  function sizedContainer(type: "row" | "col", children: Tree<V>[]): Tree<V> {
+    const isRow = type === "row";
+    let sequential = 0;
+    let cross = 1;
+    for (const child of children) {
+      sequential += isRow ? child.width : child.height;
+      cross = max(cross, isRow ? child.height : child.width);
+    }
+    return {
+      type,
+      width: isRow ? sequential : cross,
+      height: isRow ? cross : sequential,
+      children,
+    };
+  }
+
   /** when a child carries its own corner-augmented header block (from an
    * index-producing array), merge the record header into that block */
   function wrapWithHeader(header: Tree<V>, child: Tree<V>): Tree<V> {
@@ -64,47 +84,19 @@ export function makeTreeFactory<V>({
       top.children[0]?.type === "corner"
     ) {
       const corner = top.children[0]!;
-      let headersWidth = 0;
-      let headersHeight = 1;
-      for (let i = 1; i < top.children.length; i++) {
-        headersWidth += top.children[i]!.width;
-        headersHeight = max(headersHeight, top.children[i]!.height);
-      }
-      const headersRow: Tree<V> = {
-        type: "row",
-        height: headersHeight,
-        width: headersWidth,
-        children: top.children.slice(1),
-      };
-      const headerCol: Tree<V> = {
-        type: "col",
-        height: 1 + headersRow.height,
-        width: headersRow.width,
-        children: [{ ...header, width: headersRow.width }, headersRow],
-      };
+      const headersRow = sizedContainer("row", top.children.slice(1));
+      const headerCol = sizedContainer("col", [
+        { ...header, width: headersRow.width },
+        headersRow,
+      ]);
       const newCorner: Tree<V> = {
         ...corner,
-        height: 1 + headersRow.height,
+        height: headerCol.height,
       };
-      const block: Tree<V> = {
-        type: "row",
-        height: newCorner.height,
-        width: newCorner.width + headerCol.width,
-        children: [newCorner, headerCol],
-      };
-      return {
-        type: "col",
-        height: block.height + child.height - top.height,
-        width: block.width,
-        children: [block, ...child.children.slice(1)],
-      };
+      const block = sizedContainer("row", [newCorner, headerCol]);
+      return sizedContainer("col", [block, ...child.children.slice(1)]);
     }
-    return {
-      type: "col",
-      height: child.height + 1,
-      width: child.width,
-      children: [header, child],
-    };
+    return sizedContainer("col", [header, child]);
   }
 
   function scaleHeightsInPlace(tree: Tree<V>, m: number): void {
@@ -125,7 +117,7 @@ export function makeTreeFactory<V>({
     const headers: Tree<V>[] = new Array(keys.length);
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i]!;
-      const child = transformValue(value[k]!);
+      const child = parseValue(value[k]!);
       headers[i] = {
         type: "header",
         value: createHeader(k, value),
@@ -138,24 +130,14 @@ export function makeTreeFactory<V>({
     if (deduped !== undefined) {
       return deduped;
     }
-    let maxHeight = 1;
-    let widthSum = 0;
     const children: Tree<V>[] = new Array(keys.length);
-    for (let i = 0; i < children.length; i++) {
-      const wrapped = wrapWithHeader(headers[i]!, bodies[i]!);
-      maxHeight = max(maxHeight, wrapped.height);
-      widthSum += wrapped.width;
-      children[i] = wrapped;
+    for (let i = 0; i < keys.length; i++) {
+      children[i] = wrapWithHeader(headers[i]!, bodies[i]!);
     }
     if (children.length === 1) {
       return children[0]!;
     }
-    return {
-      type: "row",
-      height: maxHeight,
-      width: widthSum,
-      children,
-    };
+    return sizedContainer("row", children);
   }
 
   /** mirror of `headerBand` for the leftmost index band */
@@ -181,12 +163,7 @@ export function makeTreeFactory<V>({
       if (children.length === 1) {
         return children[0]!;
       }
-      return {
-        type: "col",
-        height: children.reduce((sum, c) => sum + c.height, 0),
-        width: children.reduce((acc, c) => max(acc, c.width), 1),
-        children,
-      };
+      return sizedContainer("col", children);
     }
     const bands: Tree<V>[] = [];
     for (const child of n.children) {
@@ -202,12 +179,7 @@ export function makeTreeFactory<V>({
     if (bands.length === 1) {
       return bands[0]!;
     }
-    return {
-      type: "row",
-      width: bands.reduce((sum, c) => sum + c.width, 0),
-      height: bands.reduce((acc, c) => max(acc, c.height), 1),
-      children: bands,
-    };
+    return sizedContainer("row", bands);
   }
 
   /** flattens a stripped body into rows of leaf cells */
@@ -311,50 +283,34 @@ export function makeTreeFactory<V>({
       ...h,
       width: rowWidth,
     }));
-    const headerRow: Tree<V> = {
-      type: "row",
-      height: 1,
-      width: corner.width + sizedHeaders.reduce((s, h) => s + h.width, 0),
-      children: [corner, ...sizedHeaders],
-    };
+    const headerRow = sizedContainer("row", [
+      corner,
+      ...headers.map((h) => ({ ...h, width: rowWidth })),
+    ]);
     const bodyRows: Tree<V>[] = [];
     for (let r = 0; r < rowCount; r++) {
       const cells: Tree<V>[] = [indexNodes[r]!];
-      let width = indexNodes[r]!.width;
-      let height = indexNodes[r]!.height;
       for (const rows of tableRows) {
         const row = rows[r]!;
         for (const c of row) {
           cells.push(c);
-          width += c.width;
-          height = max(height, c.height);
         }
       }
-      bodyRows.push({ type: "row", height, width, children: cells });
+      bodyRows.push(sizedContainer("row", cells));
     }
-    return {
-      type: "col",
-      height: headerRow.height + bodyRows.reduce((s, r) => s + r.height, 0),
-      width: headerRow.width,
-      children: [headerRow, ...bodyRows],
-    };
+    return sizedContainer("col", [headerRow, ...bodyRows]);
   }
 
   function makeIndexedRow(indexValue: LeafValue<V>, child: Tree<V>): Tree<V> {
-    return {
-      type: "row",
-      width: child.width + 1,
-      height: child.height,
-      children: [
-        {
-          type: "index",
-          value: indexValue,
-          width: 1,
-          height: child.height,
-        },
-        child,
-      ],
-    };
+    return sizedContainer("row", [
+      {
+        type: "index",
+        value: indexValue,
+        width: 1,
+        height: child.height,
+      },
+      child,
+    ]);
   }
 
   /** header chain of a record key column: plain col[header, X] nesting only;
@@ -419,16 +375,7 @@ export function makeTreeFactory<V>({
       return only;
     }
     const isRow = m.type === "row";
-    return {
-      type: m.type,
-      height: isRow
-        ? children.reduce((acc, c) => max(acc, c.height), 1)
-        : children.reduce((sum, c) => sum + c.height, 0),
-      width: isRow
-        ? children.reduce((sum, c) => sum + c.width, 0)
-        : children.reduce((acc, c) => max(acc, c.width), 1),
-      children,
-    };
+    return sizedContainer(isRow ? "row" : "col", children);
   }
 
   /** lifts a header band common to all rows into a single band on top of
@@ -490,12 +437,7 @@ export function makeTreeFactory<V>({
       width: 1,
       height: bandHeight,
     };
-    const headerBlock: Tree<V> = {
-      type: "row",
-      height: bandHeight,
-      width: corner.width + commonBand.width,
-      children: [corner, commonBand],
-    };
+    const headerBlock = sizedContainer("row", [corner, commonBand]);
     const out: Tree<V>[] = new Array(rows.length);
     for (let i = 0; i < rows.length; i++) {
       const body = decapitateTree(rows[i]!, common, DEDUP_KINDS);
@@ -526,7 +468,7 @@ export function makeTreeFactory<V>({
   }
 
   function dedupIndexedRows(value: V[]): Tree<V>[] {
-    const items = value.map((v) => transformValue(v));
+    const items = value.map((v) => parseValue(v));
     // proportional-ish width alignment across items: narrower items
     // stretch their trailing columns to match the widest item
     const maxWidth = items.reduce((acc, item) => max(acc, item.width), 1);
@@ -550,7 +492,7 @@ export function makeTreeFactory<V>({
         collapseRows(v, `${prefix}${title}.`, rows);
       } else {
         rows.push(
-          makeIndexedRow(`${prefix}${title}` as LeafValue<V>, transformValue(v)),
+          makeIndexedRow(`${prefix}${title}` as LeafValue<V>, parseValue(v)),
         );
       }
     }
@@ -569,10 +511,8 @@ export function makeTreeFactory<V>({
     // a single-element array renders exactly as its only element:
     // an index column for one row carries no information
     if (value.length === 1) {
-      return transformValue(value[0]!);
+      return parseValue(value[0]!);
     }
-    let maxWidth = 1;
-    let heightSum = 0;
     if (joinPrimitiveArrayValues) {
       let isPrimitives = true;
       for (let i = 0; i < value.length; i++) {
@@ -616,22 +556,13 @@ export function makeTreeFactory<V>({
     const children: Tree<V>[] = collapseIndexes
       ? stackRowsWithHeaders(collapseRows(value, ""), value, false)
       : dedupIndexedRows(value);
-    for (const child of children) {
-      maxWidth = max(maxWidth, child.width);
-      heightSum += child.height;
-    }
     if (children.length === 1) {
       return children[0]!;
     }
-    return {
-      type: "col",
-      width: maxWidth,
-      height: heightSum,
-      children,
-    };
+    return sizedContainer("col", children);
   }
 
-  function transformValue(value: V): Tree<V> {
+  function parseValue(value: V): Tree<V> {
     if (isObject(value)) {
       if (
         TO_TABLE in value &&
@@ -640,7 +571,7 @@ export function makeTreeFactory<V>({
         return (value as { [TO_TABLE]: () => Tree<V> })[TO_TABLE]();
       }
       if ("toJSON" in value && typeof value["toJSON"] === "function") {
-        return transformValue(value.toJSON() as V);
+        return parseValue(value.toJSON() as V);
       }
       if (isRecordProto(value)) {
         return transformRecord(value as Record<PropertyKey, V>);
@@ -657,5 +588,5 @@ export function makeTreeFactory<V>({
     };
   }
 
-  return transformValue;
+  return parseValue;
 }

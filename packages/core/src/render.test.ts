@@ -3,6 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { JSONValue } from "./lib/json";
 import { ASCIITableFormat, toASCII } from "./tree-to-ascii";
 import { toHTML } from "./tree-to-html";
+import {
+  horizontalMirrorInPlace,
+  transposeTree,
+  verticalMirrorInPlace,
+} from "./tree/tree";
 import { makeTreeFactory } from "./tree/json-to-tree";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
@@ -70,5 +75,34 @@ describe.each(renderFixtures)("$name", ({ name, options, input }) => {
 
   it("renders expected html table", () => {
     expect(toHTML(tree)).toMatchSnapshot(`${name} html`);
+  });
+});
+
+describe("'company structure' transformations", () => {
+  const createTree = makeTreeFactory<JSONValue>({
+    cornerCellValue: "#",
+    createHeader: (k: string) => k,
+    createIndex: (i: number) => `${i + 1}`,
+    collapseIndexes: true,
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const companyInput = (company as any).input as JSONValue;
+
+  it("renders expected horizontally mirrored table", () => {
+    const tree = createTree(companyInput);
+    horizontalMirrorInPlace(tree);
+    expect(`\n${toASCII(tree)}`).toMatchSnapshot("company hmirror ascii");
+  });
+
+  it("renders expected vertically mirrored table", () => {
+    const tree = createTree(companyInput);
+    verticalMirrorInPlace(tree);
+    expect(`\n${toASCII(tree)}`).toMatchSnapshot("company vmirror ascii");
+  });
+
+  it("renders expected transposed table", () => {
+    const tree = transposeTree(createTree(companyInput));
+    expect(`\n${toASCII(tree)}`).toMatchSnapshot("company transpose ascii");
+    expect(() => toHTML(tree)).not.toThrow();
   });
 });

@@ -291,3 +291,70 @@ export function stretchLeavesDimensionInPlace<V>(
     stretchLeavesDimensionInPlace(tree.children[last]!, dim, remaining);
   }
 }
+
+/** recomputes every container extent bottom-up from its actual children:
+ * sequential extent becomes the exact sum, cross extent the max. Guarantees
+ * the layout invariants that span allocation (and transformations such as
+ * transpose) rely on, whatever assumptions construction made */
+export function normalizeExtentsInPlace<V>(tree: Tree<V>): void {
+  if (!("children" in tree)) {
+    return;
+  }
+  const isRow = tree.type === "row";
+  let sequential = 0;
+  let cross = 1;
+  for (const child of tree.children) {
+    normalizeExtentsInPlace(child);
+    sequential += isRow ? child.width : child.height;
+    cross = max(cross, isRow ? child.height : child.width);
+  }
+  if (isRow) {
+    tree.width = sequential;
+    tree.height = cross;
+  } else {
+    tree.width = cross;
+    tree.height = sequential;
+  }
+}
+
+/** reverses the visual order of columns */
+export function horizontalMirrorInPlace<V>(tree: Tree<V>): void {
+  if (!("children" in tree)) {
+    return;
+  }
+  for (const child of tree.children) {
+    horizontalMirrorInPlace(child);
+  }
+  if (tree.type === "row") {
+    tree.children.reverse();
+  }
+}
+
+/** reverses the visual order of rows */
+export function verticalMirrorInPlace<V>(tree: Tree<V>): void {
+  if (!("children" in tree)) {
+    return;
+  }
+  for (const child of tree.children) {
+    verticalMirrorInPlace(child);
+  }
+  if (tree.type === "col") {
+    tree.children.reverse();
+  }
+}
+
+/** reflects the table over its main diagonal: rows become columns and
+ * vice versa; extents are swapped on every node, including leaf-typed
+ * nodes carrying merged spans */
+export function transposeTree<V>(tree: Tree<V>): Tree<V> {
+  if (!("children" in tree)) {
+    return { ...tree, width: tree.height, height: tree.width };
+  }
+  return {
+    ...tree,
+    type: tree.type === "row" ? "col" : "row",
+    width: tree.height,
+    height: tree.width,
+    children: tree.children.map(transposeTree),
+  };
+}
