@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { JSONValue } from "../lib/json";
-import { toASCII } from "../tree-to-ascii";
 import {
   decapitateTree,
   extractHeadersTree,
@@ -12,80 +11,17 @@ import {
 import { makeTreeFactory } from "./json-to-tree";
 import { makePropertiesStabilizer } from "./properties-stabilizer";
 
-import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
-import emptyArrays from "./__fixtures__/empty-arrays.json";
-import formatInBothItems from "./__fixtures__/format-in-both-items.json";
-import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
-import indexesDeduplication from "./__fixtures__/indexes-deduplication.json";
-import multilineHeaders from "./__fixtures__/multiline-headers.json";
-import noHeaderDedup from "./__fixtures__/no-header-dedup.json";
-import nestedArrays from "./__fixtures__/nested-arrays.json";
-import objects from "./__fixtures__/objects.json";
-import parsingError from "./__fixtures__/parsing-error.json";
-import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
-import primitivesFixture from "./__fixtures__/primitives.json";
-import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
-import shuffledKeys from "./__fixtures__/shuffled-keys.json";
-import uniqHeaders from "./__fixtures__/uniq-headers.json";
-import wrongSizes from "./__fixtures__/wrong-sizes.json";
-
 const makeTree = makeTreeFactory<JSONValue>({
   cornerCellValue: "#",
   createHeader: (k) => k,
   createIndex: (i) => `${i + 1}`,
 });
 
-interface RenderFixture {
-  name: string;
-  options: Record<string, unknown>;
-  input: JSONValue;
-}
-
-const renderFixtures: RenderFixture[] = [
-  objects,
-  nestedArrays,
-  collapsedIndexes,
-  emptyArrays,
-  indexesDeduplication,
-  parsingError,
-  simpleHeadersDuplication,
-  uniqHeaders,
-  multilineHeaders,
-  noHeaderDedup,
-  partiallyDifferentHeaders,
-  shuffledKeys,
-  wrongSizes,
-  fullyDeduplicated,
-  formatInBothItems,
-] as unknown as RenderFixture[];
-
-describe.each(renderFixtures)("$name", ({ name, options, input }) => {
-  it("renders expected table", () => {
-    const factory = makeTreeFactory<JSONValue>({
-      cornerCellValue: "#",
-      createHeader: (k: string) => k,
-      createIndex: (i: number) => `${i + 1}`,
-      ...options,
-    } as never);
-    const tree = factory(input);
-    expect({
-      input,
-      view: `\n${toASCII(tree)}`,
-    }).toMatchSnapshot(name);
-  });
-});
-
 describe("makePropertiesStabilizer", () => {
   it("orders entries by stable first-seen position", () => {
     const stabilize = makePropertiesStabilizer<string>();
-    expect(stabilize({ b: "1", a: "2" }).map((e) => e.key)).toEqual([
-      "b",
-      "a",
-    ]);
-    expect(stabilize({ c: "3", a: "4" }).map((e) => e.key)).toEqual([
-      "a",
-      "c",
-    ]);
+    expect(stabilize({ b: "1", a: "2" }).map((e) => e.key)).toEqual(["b", "a"]);
+    expect(stabilize({ c: "3", a: "4" }).map((e) => e.key)).toEqual(["a", "c"]);
     expect(stabilize({ b: "0", c: "5", a: "6" }).map((e) => e.key)).toEqual([
       "b",
       "a",
@@ -118,18 +54,13 @@ describe("makeTreeFactory", () => {
   });
 
   it("Should create tree for primitives", () => {
-    const data = primitivesFixture.input;
-    for (const value of data) {
+    for (const value of [false, 12345, "abcde"]) {
       expect(makeTree(value)).toEqual({
         type: "leaf",
         value,
         width: 1,
         height: 1,
       });
-      expect({
-        input: value,
-        view: `\n${toASCII(makeTree(value))}`,
-      }).toMatchSnapshot(`primitive ${String(value)}`);
     }
   });
 

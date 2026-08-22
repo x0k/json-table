@@ -397,8 +397,14 @@ export function makeTreeFactory<V>({
     }
     if (children.length === 1) {
       const only = children[0]!;
-      // a lone survivor of a row inherits the row's full width
-      if (m.type === "row" && only.width < m.width) {
+      // a lone survivor of a structurally single-child row inherits the
+      // row's full width; when siblings were dropped as undefined holes
+      // the surviving width is already the honest one
+      if (
+        m.type === "row" &&
+        m.children.every((c) => c !== undefined) &&
+        only.width < m.width
+      ) {
         stretchLeavesDimensionInPlace(only, "width", m.width);
       }
       return only;
@@ -416,26 +422,24 @@ export function makeTreeFactory<V>({
     };
   }
 
-  function dedupIndexedRows(value: V[]): Tree<V>[] {
-    const items = value.map((v) => transformValue(v));
-    // proportional-ish width alignment across items: narrower items
-    // stretch their trailing columns to match the widest item
-    const maxWidth = items.reduce((acc, item) => max(acc, item.width), 1);
-    for (const item of items) {
-      if (item.width < maxWidth) {
-        stretchLeavesDimensionInPlace(item, "width", maxWidth);
-      }
-    }
+  /** lifts a header band common to all rows into a single band on top of
+   * the table; `indexed` wraps each body with a fresh index cell, otherwise
+   * rows are expected to carry their own (collapsed) indexes */
+  function stackRowsWithHeaders(
+    rows: Tree<V>[],
+    value: V[],
+    indexed: boolean,
+  ): Tree<V>[] {
     let common: OptionalTree<V> =
-      deduplicateHeaders === false
+      deduplicateHeaders === false || rows.length === 0
         ? undefined
-        : extractComponentTree(items[0]!, DEDUP_KINDS);
-    for (let i = 1; i < items.length; i++) {
-      common = extractSubtree(items[i]!, common);
+        : extractComponentTree(rows[0]!, DEDUP_KINDS);
+    for (let i = 1; i < rows.length; i++) {
+      common = extractSubtree(rows[i]!, common);
     }
     if (common !== undefined) {
-      // extractSubtree carries the last-folded item's geometry: restore
-      // the first item's extents, where the mask was originally seeded
+      // extractSubtree carries the last-folded row's geometry: restore
+      // the first row's extents, where the mask was originally seeded
       const adopt = (
         commonNode: OptionalTree<V>,
         itemNode: OptionalTree<V>,
@@ -454,17 +458,18 @@ export function makeTreeFactory<V>({
           }
         }
       };
-      adopt(common, items[0]);
+      adopt(common, rows[0]);
     }
     if (common === undefined) {
-      return items.map((child, i) =>
+      if (!indexed) {
+        return rows;
+      }
+      return rows.map((child, i) =>
         makeIndexedRow(createIndex(i, value), child),
       );
     }
 
-    const bodies = items.map((item) =>
-      decapitateTree(item, common, DEDUP_KINDS),
-    );
+    const bodies = rows.map((row) => decapitateTree(row, common, DEDUP_KINDS));
     const commonBand = maskToBand(common);
     if (commonBand === undefined) {
       // unreachable when `common` is defined
@@ -483,12 +488,42 @@ export function makeTreeFactory<V>({
       width: corner.width + commonBand.width,
       children: [corner, commonBand],
     };
-    const rows = bodies.map((body, i) => {
-      const filled = body;
-      equalizeBodyHeights(filled);
-      return makeIndexedRow(createIndex(i, value), filled);
+    const out = bodies.map((body, i) => {
+      if (
+        !indexed &&
+        "children" in body &&
+        body.children[0]?.type === "index"
+      ) {
+        // a collapsed index spans its original (pre-strip) row height:
+        // resize it to the remaining body once the common band is lifted
+        const indexCell = body.children[0];
+        let restHeight = 1;
+        for (let i = 1; i < body.children.length; i++) {
+          restHeight = max(restHeight, body.children[i]!.height);
+        }
+        indexCell.height = restHeight;
+        body.height = restHeight;
+      }
+      equalizeBodyHeights(body);
+      if (!indexed) {
+        return body;
+      }
+      return makeIndexedRow(createIndex(i, value), body);
     });
-    return [headerBlock, ...rows];
+    return [headerBlock, ...out];
+  }
+
+  function dedupIndexedRows(value: V[]): Tree<V>[] {
+    const items = value.map((v) => transformValue(v));
+    // proportional-ish width alignment across items: narrower items
+    // stretch their trailing columns to match the widest item
+    const maxWidth = items.reduce((acc, item) => max(acc, item.width), 1);
+    for (const item of items) {
+      if (item.width < maxWidth) {
+        stretchLeavesDimensionInPlace(item, "width", maxWidth);
+      }
+    }
+    return stackRowsWithHeaders(items, value, true);
   }
 
   function collapseRows(
@@ -518,6 +553,11 @@ export function makeTreeFactory<V>({
         width: 1,
         height: 1,
       };
+    }
+    // a single-element array renders exactly as its only element:
+    // an index column for one row carries no information
+    if (value.length === 1) {
+      return transformValue(value[0]!);
     }
     let maxWidth = 1;
     let heightSum = 0;
@@ -552,7 +592,7 @@ export function makeTreeFactory<V>({
       });
     }
     const children: Tree<V>[] = collapseIndexes
-      ? collapseRows(value, "")
+      ? stackRowsWithHeaders(collapseRows(value, ""), value, false)
       : dedupIndexedRows(value);
     for (const child of children) {
       maxWidth = max(maxWidth, child.width);

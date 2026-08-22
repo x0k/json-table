@@ -5,20 +5,22 @@ import { ASCIITableFormat, toASCII } from "./tree-to-ascii";
 import { toHTML } from "./tree-to-html";
 import { makeTreeFactory } from "./tree/json-to-tree";
 
-import collapsedIndexes from "./tree/__fixtures__/collapsed-indexes.json";
-import deduplication from "./tree/__fixtures__/deduplication.json";
-import emptyArrays from "./tree/__fixtures__/empty-arrays.json";
-import formatInBothItems from "./tree/__fixtures__/format-in-both-items.json";
-import fullyDeduplicated from "./tree/__fixtures__/fully-deduplicated.json";
-import indexesDeduplication from "./tree/__fixtures__/indexes-deduplication.json";
-import multilineHeaders from "./tree/__fixtures__/multiline-headers.json";
-import nestedArrays from "./tree/__fixtures__/nested-arrays.json";
-import noHeaderDedup from "./tree/__fixtures__/no-header-dedup.json";
-import objects from "./tree/__fixtures__/objects.json";
-import partiallyDifferentHeaders from "./tree/__fixtures__/partially-different-headers.json";
-import simpleHeadersDuplication from "./tree/__fixtures__/simple-headers-duplication.json";
-import shuffledKeys from "./tree/__fixtures__/shuffled-keys.json";
-import uniqHeaders from "./tree/__fixtures__/uniq-headers.json";
+import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
+import deduplication from "./__fixtures__/deduplication.json";
+import emptyArrays from "./__fixtures__/empty-arrays.json";
+import formatInBothItems from "./__fixtures__/format-in-both-items.json";
+import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
+import indexesDeduplication from "./__fixtures__/indexes-deduplication.json";
+import joinPrimitiveValues from "./__fixtures__/parsing-error.json";
+import multilineHeaders from "./__fixtures__/multiline-headers.json";
+import nestedArrays from "./__fixtures__/nested-arrays.json";
+import noHeaderDedup from "./__fixtures__/no-header-dedup.json";
+import objects from "./__fixtures__/objects.json";
+import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
+import shuffledKeys from "./__fixtures__/shuffled-keys.json";
+import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
+import uniqHeaders from "./__fixtures__/uniq-headers.json";
+import wrongSizes from "./__fixtures__/wrong-sizes.json";
 
 interface RenderFixture {
   name: string;
@@ -32,15 +34,19 @@ const renderFixtures = [
   collapsedIndexes,
   deduplication,
   emptyArrays,
+  formatInBothItems,
+  fullyDeduplicated,
   indexesDeduplication,
-  simpleHeadersDuplication,
-  uniqHeaders,
+  joinPrimitiveValues,
   multilineHeaders,
+  nestedArrays,
   noHeaderDedup,
+  objects,
   partiallyDifferentHeaders,
   shuffledKeys,
-  fullyDeduplicated,
-  formatInBothItems,
+  simpleHeadersDuplication,
+  uniqHeaders,
+  wrongSizes,
 ] as unknown as RenderFixture[];
 
 describe.each(renderFixtures)("$name", ({ name, options, input }) => {
@@ -57,8 +63,9 @@ describe.each(renderFixtures)("$name", ({ name, options, input }) => {
   });
 
   it("renders expected markdown-like ascii table", () => {
-    expect(`\n${toASCII(tree, { format: ASCIITableFormat.MarkdownLike })}`)
-      .toMatchSnapshot(`${name} markdown-like`);
+    expect(
+      `\n${toASCII(tree, { format: ASCIITableFormat.MarkdownLike })}`,
+    ).toMatchSnapshot(`${name} markdown-like`);
   });
 
   it("renders expected html table", () => {
