@@ -13,13 +13,13 @@ import {
   stretchLeavesDimensionInPlace,
   type LeafValue,
   type Tree,
+  INDEX_KINDS,
 } from "./tree.js";
 
-const HEAD_KINDS: ReadonlySet<ComponentKind> = new Set([
+const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
   "header",
   "corner",
 ] as const);
-const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"] as const);
 
 export interface TreeFactoryOptions<V> {
   cornerCellValue: LeafValue<V>;
@@ -233,7 +233,7 @@ export function makeTreeFactory<V>({
     if (bodies.length === 0) {
       return undefined;
     }
-    let mask: unknown = extractIndexesTree(bodies[0]!);
+    let mask: unknown = extractComponentTree(bodies[0]!, INDEX_KINDS);
     for (let i = 1; i < bodies.length; i++) {
       mask = extractSubtree(bodies[i]!, mask as never);
     }
@@ -403,18 +403,6 @@ export function makeTreeFactory<V>({
     };
   }
 
-  function scaleWidthsInPlace(tree: Tree<V>, m: number): void {
-    if (m === 1) {
-      return;
-    }
-    tree.width *= m;
-    if ("children" in tree) {
-      for (const child of tree.children) {
-        scaleWidthsInPlace(child, m);
-      }
-    }
-  }
-
   function dedupIndexedRows(value: V[]): Tree<V>[] {
     const items = value.map((v) => transformValue(v));
     const columnsOf = (item: Tree<V>): Tree<V>[] =>
@@ -430,7 +418,7 @@ export function makeTreeFactory<V>({
     let common: unknown =
       deduplicateHeaders === false
         ? undefined
-        : extractComponentTree(items[0]!, HEAD_KINDS);
+        : extractComponentTree(items[0]!, DEDUP_KINDS);
     for (let i = 1; i < items.length; i++) {
       common = extractSubtree(items[i] as never, common as never);
     }
@@ -464,7 +452,7 @@ export function makeTreeFactory<V>({
 
     const commonNode = common as Tree<V>;
     const bodies = items.map((item) =>
-      decapitateTree(item, common as never, HEAD_KINDS),
+      decapitateTree(item, common as never, DEDUP_KINDS),
     );
     const commonBand = maskToBand(commonNode) as Tree<V>;
     if (commonBand === undefined) {

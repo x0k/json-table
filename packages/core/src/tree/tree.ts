@@ -126,11 +126,11 @@ export function extractComponentTree<V>(
   };
 }
 
-const HEADER_KINDS: ReadonlySet<ComponentKind> = new Set(["header"]);
-const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"]);
+export const HEAD_KINDS: ReadonlySet<ComponentKind> = new Set(["header"]);
+export const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"]);
 
 export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
-  return extractComponentTree(tree, HEADER_KINDS);
+  return extractComponentTree(tree, HEAD_KINDS);
 }
 
 export function extractIndexesTree<V>(tree: Tree<V>): OptionalTree<V> {
