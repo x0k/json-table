@@ -58,5 +58,5 @@ export function treeToMatrix<V>(tree: Tree<V>): Matrix<Cell<LeafValue<V>>> {
       }
     }
   }
-  return m as Matrix<Cell<LeafValue<V>>>;
+  return m.map((row) => row.map((cell) => cell!));
 }

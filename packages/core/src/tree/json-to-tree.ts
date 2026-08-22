@@ -8,10 +8,10 @@ import {
   type ComponentKind,
   decapitateTree,
   extractComponentTree,
-  extractIndexesTree,
   extractSubtree,
   stretchLeavesDimensionInPlace,
   type LeafValue,
+  type OptionalTree,
   type Tree,
   INDEX_KINDS,
 } from "./tree.js";
@@ -60,7 +60,7 @@ export function makeTreeFactory<V>({
       "children" in top &&
       top.children[0]?.type === "corner"
     ) {
-      const [corner, ...headers] = top.children as Tree<V>[];
+      const [corner, ...headers] = top.children;
       const headersRow: Tree<V> = {
         type: "row",
         height: 1,
@@ -74,7 +74,7 @@ export function makeTreeFactory<V>({
         children: [{ ...header, width: headersRow.width }, headersRow],
       };
       const newCorner: Tree<V> = {
-        ...(corner as Tree<V>),
+        ...corner,
         height: 1 + headersRow.height,
       };
       const block: Tree<V> = {
@@ -151,11 +151,11 @@ export function makeTreeFactory<V>({
   }
 
   /** mirror of `headerBand` for the leftmost index band */
-  function indexBand(node: unknown): Tree<V> | undefined {
-    if (node === undefined || node === null) {
+  function indexBand(node: OptionalTree<V>): Tree<V> | undefined {
+    if (node === undefined) {
       return undefined;
     }
-    const n = node as Tree<V>;
+    const n = node;
     if (!("children" in n)) {
       return n.type === "index" ? n : undefined;
     }
@@ -199,21 +199,23 @@ export function makeTreeFactory<V>({
   }
 
   /** flattens a stripped body into rows of leaf cells */
-  function flattenBodyRows(node: unknown): Tree<V>[][] | undefined {
-    if (node === undefined || node === null) {
+  function flattenBodyRows(node: OptionalTree<V>): Tree<V>[][] | undefined {
+    if (node === undefined) {
       return undefined;
     }
-    const n = node as Tree<V>;
+    const n = node;
     if (!("children" in n)) {
       return n.type === "leaf" ? [[n]] : undefined;
     }
     if (n.type === "row") {
+      const row: Tree<V>[] = [];
       for (const c of n.children) {
-        if ("children" in c) {
+        if (c === undefined || "children" in c) {
           return undefined;
         }
+        row.push(c);
       }
-      return [n.children as Tree<V>[]];
+      return [row];
     }
     const rows: Tree<V>[][] = [];
     for (const child of n.children) {
@@ -233,9 +235,9 @@ export function makeTreeFactory<V>({
     if (bodies.length === 0) {
       return undefined;
     }
-    let mask: unknown = extractComponentTree(bodies[0]!, INDEX_KINDS);
+    let mask: OptionalTree<V> = extractComponentTree(bodies[0]!, INDEX_KINDS);
     for (let i = 1; i < bodies.length; i++) {
-      mask = extractSubtree(bodies[i]!, mask as never);
+      mask = extractSubtree(bodies[i]!, mask);
     }
     if (mask === undefined) {
       return undefined;
@@ -248,16 +250,14 @@ export function makeTreeFactory<V>({
       band.type === "index"
         ? [band]
         : "children" in band
-        ? (band.children as Tree<V>[])
+        ? band.children
         : [band];
     if (!indexNodes.every((n) => n.height === 1 && n.width === 1)) {
       return undefined;
     }
     const tableRows: Tree<V>[][][] = [];
     for (const body of bodies) {
-      const rows = flattenBodyRows(
-        decapitateTree(body, mask as never, INDEX_KINDS),
-      );
+      const rows = flattenBodyRows(decapitateTree(body, mask, INDEX_KINDS));
       if (rows === undefined) {
         return undefined;
       }
@@ -342,7 +342,11 @@ export function makeTreeFactory<V>({
   /** header chain of a record key column: plain col[header, X] nesting only;
    * corner-merged wrappers contribute their single inner header and stop */
   function equalizeBodyHeights(body: Tree<V>): void {
-    if (body.type !== "row" || !("children" in body) || body.children.length < 2) {
+    if (
+      body.type !== "row" ||
+      !("children" in body) ||
+      body.children.length < 2
+    ) {
       return;
     }
     let lcmHeight = body.children[0]!.height;
@@ -368,11 +372,11 @@ export function makeTreeFactory<V>({
 
   /** converts a header mask into a renderable band tree:
    * undefined holes are dropped, sizes recomputed from kept children */
-  function maskToBand<V>(mask: unknown): Tree<V> | undefined {
-    if (mask === undefined || mask === null) {
+  function maskToBand(mask: OptionalTree<V>): Tree<V> | undefined {
+    if (mask === undefined) {
       return undefined;
     }
-    const m = mask as Tree<V>;
+    const m = mask;
     if (!("children" in m)) {
       return m.type === "header" || m.type === "corner" ? m : undefined;
     }
@@ -415,23 +419,24 @@ export function makeTreeFactory<V>({
         stretchLeavesDimensionInPlace(item, "width", maxWidth);
       }
     }
-    let common: unknown =
+    let common: OptionalTree<V> =
       deduplicateHeaders === false
         ? undefined
         : extractComponentTree(items[0]!, DEDUP_KINDS);
     for (let i = 1; i < items.length; i++) {
-      common = extractSubtree(items[i] as never, common as never);
+      common = extractSubtree(items[i]!, common);
     }
     if (common !== undefined) {
       // extractSubtree carries the last-folded item's geometry: restore
       // the first item's extents, where the mask was originally seeded
-      const adopt = (commonNode: any, itemNode: any): void => {
-        if (!commonNode || !itemNode) {
+      const adopt = (
+        commonNode: OptionalTree<V>,
+        itemNode: OptionalTree<V>,
+      ): void => {
+        if (commonNode === undefined || itemNode === undefined) {
           return;
         }
-        if ("width" in itemNode) {
-          commonNode.width = itemNode.width;
-        }
+        commonNode.width = itemNode.width;
         if ("children" in commonNode && "children" in itemNode) {
           const len = Math.min(
             commonNode.children.length,
@@ -442,7 +447,7 @@ export function makeTreeFactory<V>({
           }
         }
       };
-      adopt(common as never, items[0]);
+      adopt(common, items[0]);
     }
     if (common === undefined) {
       return items.map((child, i) =>
@@ -452,9 +457,9 @@ export function makeTreeFactory<V>({
 
     const commonNode = common as Tree<V>;
     const bodies = items.map((item) =>
-      decapitateTree(item, common as never, DEDUP_KINDS),
+      decapitateTree(item, common, DEDUP_KINDS),
     );
-    const commonBand = maskToBand(commonNode) as Tree<V>;
+    const commonBand = maskToBand(commonNode);
     if (commonBand === undefined) {
       // unreachable when `common` is defined
       throw new Error("empty common header band");
@@ -486,7 +491,7 @@ export function makeTreeFactory<V>({
       const title = String(createIndex(i, value));
       const v = value[i]!;
       if (Array.isArray(v) && v.length > 0) {
-        rows.push(...collapseRows(v as V[], `${prefix}${title}.`));
+        rows.push(...collapseRows(v, `${prefix}${title}.`));
       } else {
         rows.push(
           makeIndexedRow(
@@ -531,9 +536,7 @@ export function makeTreeFactory<V>({
       const stabilize = makePropertiesStabilizer<V>();
       value = value.map((item) => {
         const stabilized: Record<string, V> = {};
-        for (const { key, value: v } of stabilize(
-          item as Record<string, V>,
-        )) {
+        for (const { key, value: v } of stabilize(item as Record<string, V>)) {
           stabilized[key] = v;
         }
         return stabilized as unknown as V;

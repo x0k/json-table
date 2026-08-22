@@ -25,7 +25,7 @@ export type LeafValue<V> = Exclude<
 export type Tree<V> = Node<LeafValue<V>>;
 
 export interface Cell<V> extends Sized {
-  node: Extract<Node<V>, { value: any }>;
+  node: LeafNode<V>;
   y: number;
   x: number;
 }
@@ -77,9 +77,12 @@ export function* cells<V>(
   }
 }
 
-type OptionalNode<V> = LeafNode<V> | TreeNode<OptionalNode<V>> | undefined;
+export type OptionalNode<V> =
+  | LeafNode<V>
+  | TreeNode<OptionalNode<V>>
+  | undefined;
 
-type OptionalTree<V> = OptionalNode<LeafValue<V>>;
+export type OptionalTree<V> = OptionalNode<LeafValue<V>>;
 
 export function isTreeStructurallyEquals<V>(
   a: OptionalTree<V>,
@@ -102,14 +105,17 @@ export function isTreeStructurallyEquals<V>(
 
 export type ComponentKind = "header" | "index" | "corner";
 
+/** every possible node discriminant, including `"leaf"`; kind sets used for
+ * stripping may only ever name component kinds, but membership is always
+ * tested against leaf node discriminants */
+export type NodeKind = LeafNode<never>["type"];
+
 export function extractComponentTree<V>(
   tree: Tree<V>,
-  kinds: ReadonlySet<ComponentKind>,
+  kinds: ReadonlySet<NodeKind>,
 ): OptionalTree<V> {
   if ("value" in tree) {
-    return kinds.has(tree.type as ComponentKind)
-      ? (tree as unknown as OptionalTree<V>)
-      : undefined;
+    return kinds.has(tree.type) ? tree : undefined;
   }
   let isUndefined = true;
   const children = tree.children.map((c) => {
@@ -131,10 +137,6 @@ export const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"]);
 
 export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
   return extractComponentTree(tree, HEAD_KINDS);
-}
-
-export function extractIndexesTree<V>(tree: Tree<V>): OptionalTree<V> {
-  return extractComponentTree(tree, INDEX_KINDS);
 }
 
 export function extractSubtree<V>(
@@ -170,7 +172,7 @@ export function extractSubtree<V>(
 export function decapitateTree<V>(
   tree: Tree<V>,
   mask: OptionalTree<V>,
-  kinds: ReadonlySet<ComponentKind>,
+  kinds: ReadonlySet<NodeKind>,
 ): Tree<V> {
   if (
     mask === undefined ||
@@ -187,11 +189,7 @@ export function decapitateTree<V>(
   const tc = tree.children;
   for (let i = 0; i < tc.length; i++) {
     const m = mask.children[i];
-    if (
-      m !== undefined &&
-      !("children" in m) &&
-      kinds.has(m.type as ComponentKind)
-    ) {
+    if (m !== undefined && !("children" in m) && kinds.has(m.type)) {
       continue;
     }
     const child = decapitateTree(tc[i]!, m, kinds);
@@ -205,10 +203,7 @@ export function decapitateTree<V>(
     children.push(child);
   }
   // a row of nothing but corners has no remaining content
-  if (
-    children.length > 0 &&
-    children.every((c) => c.type === "corner")
-  ) {
+  if (children.length > 0 && children.every((c) => c.type === "corner")) {
     return { ...tree, width: 0, height: 0 };
   }
   for (const child of children) {
