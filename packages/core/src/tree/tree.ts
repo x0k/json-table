@@ -180,32 +180,54 @@ export function decapitateTree<V>(
   ) {
     return tree;
   }
-  let maxDim = 1;
   let dimSum = 0;
+  let contentMax = 1;
   const isRow = tree.type === "row";
   const children: Tree<V>[] = [];
   const tc = tree.children;
   for (let i = 0; i < tc.length; i++) {
     const m = mask.children[i];
-    if (m !== undefined && !("children" in m) && kinds.has(m.type as ComponentKind)) {
+    if (
+      m !== undefined &&
+      !("children" in m) &&
+      kinds.has(m.type as ComponentKind)
+    ) {
       continue;
     }
     const child = decapitateTree(tc[i]!, m, kinds);
-    // containers emptied by stripping and corners with nothing left
-    // to span vanish
+    // containers emptied by stripping and zero-size vanish markers
     if (
       ("children" in child && child.children.length === 0) ||
       (child.width === 0 && child.height === 0)
     ) {
       continue;
     }
-    maxDim = max(maxDim, isRow ? child.height : child.width);
-    dimSum += isRow ? child.width : child.height;
     children.push(child);
   }
-  if (children.length > 0 && children.every((c) => c.type === "corner")) {
+  // a row of nothing but corners has no remaining content
+  if (
+    children.length > 0 &&
+    children.every((c) => c.type === "corner")
+  ) {
     return { ...tree, width: 0, height: 0 };
   }
+  for (const child of children) {
+    if (child.type !== "corner") {
+      contentMax = max(contentMax, isRow ? child.height : child.width);
+    }
+  }
+  // surviving corners span exactly their remaining content region
+  for (const child of children) {
+    if (child.type === "corner") {
+      if (isRow) {
+        child.height = contentMax;
+      } else {
+        child.width = contentMax;
+      }
+    }
+    dimSum += isRow ? child.width : child.height;
+  }
+  const maxDim = contentMax;
   if (children.length === 1) {
     return children[0]!;
   }

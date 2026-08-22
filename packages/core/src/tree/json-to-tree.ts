@@ -428,6 +428,28 @@ export function makeTreeFactory<V>({
     for (let i = 1; i < items.length; i++) {
       common = extractSubtree(items[i] as never, common as never);
     }
+    if (common !== undefined) {
+      // extractSubtree carries the last-folded item's geometry: restore
+      // the first item's extents, where the mask was originally seeded
+      const adopt = (commonNode: any, itemNode: any): void => {
+        if (!commonNode || !itemNode) {
+          return;
+        }
+        if ("width" in itemNode) {
+          commonNode.width = itemNode.width;
+        }
+        if ("children" in commonNode && "children" in itemNode) {
+          const len = Math.min(
+            commonNode.children.length,
+            itemNode.children.length,
+          );
+          for (let i = 0; i < len; i++) {
+            adopt(commonNode.children[i], itemNode.children[i]);
+          }
+        }
+      };
+      adopt(common as never, items[0]);
+    }
     if (common === undefined) {
       return items.map((child, i) =>
         makeIndexedRow(createIndex(i, value), child),
