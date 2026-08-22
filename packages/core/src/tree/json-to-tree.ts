@@ -64,13 +64,14 @@ export function makeTreeFactory<V>({
       top.children[0]?.type === "corner"
     ) {
       const corner = top.children[0]!;
+      let headersWidth = 0;
+      for (let i = 1; i < top.children.length; i++) {
+        headersWidth += top.children[i]!.width;
+      }
       const headersRow: Tree<V> = {
         type: "row",
         height: 1,
-        width: top.children.reduce(
-          (sum, c, i) => (i === 0 ? sum : sum + c.width),
-          0,
-        ),
+        width: headersWidth,
         children: top.children.slice(1),
       };
       const headerCol: Tree<V> = {
@@ -165,9 +166,13 @@ export function makeTreeFactory<V>({
       return n.type === "index" ? n : undefined;
     }
     if (n.type === "col") {
-      const children = n.children
-        .map((c) => indexBand(c))
-        .filter((c): c is Tree<V> => c !== undefined);
+      const children: Tree<V>[] = [];
+      for (const c of n.children) {
+        const band = indexBand(c);
+        if (band !== undefined) {
+          children.push(band);
+        }
+      }
       if (children.length === 0) {
         return undefined;
       }
@@ -469,7 +474,6 @@ export function makeTreeFactory<V>({
       );
     }
 
-    const bodies = rows.map((row) => decapitateTree(row, common, DEDUP_KINDS));
     const commonBand = maskToBand(common);
     if (commonBand === undefined) {
       // unreachable when `common` is defined
@@ -488,7 +492,9 @@ export function makeTreeFactory<V>({
       width: corner.width + commonBand.width,
       children: [corner, commonBand],
     };
-    const out = bodies.map((body, i) => {
+    const out: Tree<V>[] = new Array(rows.length);
+    for (let i = 0; i < rows.length; i++) {
+      const body = decapitateTree(rows[i]!, common, DEDUP_KINDS);
       if (
         !indexed &&
         "children" in body &&
@@ -498,19 +504,21 @@ export function makeTreeFactory<V>({
         // resize it to the remaining body once the common band is lifted
         const indexCell = body.children[0];
         let restHeight = 1;
-        for (let i = 1; i < body.children.length; i++) {
-          restHeight = max(restHeight, body.children[i]!.height);
+        for (let j = 1; j < body.children.length; j++) {
+          restHeight = max(restHeight, body.children[j]!.height);
         }
         indexCell.height = restHeight;
         body.height = restHeight;
       }
       equalizeBodyHeights(body);
-      if (!indexed) {
-        return body;
-      }
-      return makeIndexedRow(createIndex(i, value), body);
-    });
-    return [headerBlock, ...out];
+      out[i] = !indexed ? body : makeIndexedRow(createIndex(i, value), body);
+    }
+    const result: Tree<V>[] = new Array(out.length + 1);
+    result[0] = headerBlock;
+    for (let i = 0; i < out.length; i++) {
+      result[i + 1] = out[i]!;
+    }
+    return result;
   }
 
   function dedupIndexedRows(value: V[]): Tree<V>[] {
@@ -578,18 +586,28 @@ export function makeTreeFactory<V>({
         };
       }
     }
-    if (
-      stabilizeOrderOfPropertiesInArraysOfObjects &&
-      value.every((v) => isPlainObject(v))
-    ) {
-      const stabilize = makePropertiesStabilizer<V>();
-      value = value.map((item) => {
-        const stabilized: Record<string, V> = {};
-        for (const { key, value: v } of stabilize(item as Record<string, V>)) {
-          stabilized[key] = v;
+    if (stabilizeOrderOfPropertiesInArraysOfObjects) {
+      let isPlainObjects = true;
+      for (let i = 0; i < value.length; i++) {
+        if (!isPlainObject(value[i])) {
+          isPlainObjects = false;
+          break;
         }
-        return stabilized as unknown as V;
-      });
+      }
+      if (isPlainObjects) {
+        const stabilize = makePropertiesStabilizer<V>();
+        const stabilizedValues = new Array<V>(value.length);
+        for (let i = 0; i < value.length; i++) {
+          const stabilized: Record<string, V> = {};
+          for (const { key, value: v } of stabilize(
+            value[i] as Record<string, V>,
+          )) {
+            stabilized[key] = v;
+          }
+          stabilizedValues[i] = stabilized as unknown as V;
+        }
+        value = stabilizedValues;
+      }
     }
     const children: Tree<V>[] = collapseIndexes
       ? stackRowsWithHeaders(collapseRows(value, ""), value, false)
