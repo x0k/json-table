@@ -1,7 +1,8 @@
 import { makeProportionalResizeGuard } from "../json-to-table/proportional-resize-guard.js";
 import { lcm, max } from "../lib/math.js";
 import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
-import { isObject, isRecordProto } from "../lib/object.js";
+import { isObject, isPlainObject, isRecordProto } from "../lib/object.js";
+import { makePropertiesStabilizer } from "./properties-stabilizer.js";
 
 import {
   type ComponentKind,
@@ -28,6 +29,7 @@ export interface TreeFactoryOptions<V> {
   /** proportional size adjustment threshold */
   proportionalSizeAdjustmentThreshold?: number;
   collapseIndexes?: boolean;
+  stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
 }
 
 export function makeTreeFactory<V>({
@@ -37,6 +39,7 @@ export function makeTreeFactory<V>({
   joinPrimitiveArrayValues,
   proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
+  stabilizeOrderOfPropertiesInArraysOfObjects = true,
 }: TreeFactoryOptions<V>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold,
@@ -504,6 +507,21 @@ export function makeTreeFactory<V>({
           height: 1,
         };
       }
+    }
+    if (
+      stabilizeOrderOfPropertiesInArraysOfObjects &&
+      value.every((v) => isPlainObject(v))
+    ) {
+      const stabilize = makePropertiesStabilizer<V>();
+      value = value.map((item) => {
+        const stabilized: Record<string, V> = {};
+        for (const { key, value: v } of stabilize(
+          item as Record<string, V>,
+        )) {
+          stabilized[key] = v;
+        }
+        return stabilized as unknown as V;
+      });
     }
     const children: Tree<V>[] = collapseIndexes
       ? collapseRows(value, "")

@@ -378,6 +378,31 @@ exports[`'partially deduplicate objects with di…' > renders expected table > p
 }
 `;
 
+exports[`'stabilize order of properties in arra…' > renders expected table > stabilize order of properties in arrays of objects 1`] = `
+{
+  "input": [
+    {
+      "a": 1,
+      "b": 2,
+    },
+    {
+      "a": 4,
+      "c": 3,
+    },
+  ],
+  "view": "
++---+---+---+
+|   | b | a |
+| 1 +---+---+
+|   | 2 | 1 |
++---+---+---+
+|   | a | c |
+| 2 +---+---+
+|   | 4 | 3 |
++---+---+---+",
+}
+`;
+
 exports[`'work with unique headers' > renders expected table > work with unique headers 1`] = `
 {
   "input": [

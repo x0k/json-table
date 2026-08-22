@@ -10,6 +10,7 @@ import {
   Tree,
 } from "./tree";
 import { makeTreeFactory } from "./json-to-tree";
+import { makePropertiesStabilizer } from "./properties-stabilizer";
 import { treeToMatrix } from "./tree-to-matrix";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
@@ -24,6 +25,7 @@ import parsingError from "./__fixtures__/parsing-error.json";
 import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
 import primitivesFixture from "./__fixtures__/primitives.json";
 import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
+import shuffledKeys from "./__fixtures__/shuffled-keys.json";
 import uniqHeaders from "./__fixtures__/uniq-headers.json";
 import wrongSizes from "./__fixtures__/wrong-sizes.json";
 
@@ -50,6 +52,7 @@ const renderFixtures: RenderFixture[] = [
   uniqHeaders,
   multilineHeaders,
   partiallyDifferentHeaders,
+  shuffledKeys,
   wrongSizes,
   fullyDeduplicated,
   formatInBothItems,
@@ -69,6 +72,25 @@ describe.each(renderFixtures)("$name", ({ name, options, input }) => {
       input,
       view: `\n${matrixToASCII(treeToMatrix(tree))}`,
     }).toMatchSnapshot(name);
+  });
+});
+
+describe("makePropertiesStabilizer", () => {
+  it("orders entries by stable first-seen position", () => {
+    const stabilize = makePropertiesStabilizer<string>();
+    expect(stabilize({ b: "1", a: "2" }).map((e) => e.key)).toEqual([
+      "b",
+      "a",
+    ]);
+    expect(stabilize({ c: "3", a: "4" }).map((e) => e.key)).toEqual([
+      "a",
+      "c",
+    ]);
+    expect(stabilize({ b: "0", c: "5", a: "6" }).map((e) => e.key)).toEqual([
+      "b",
+      "a",
+      "c",
+    ]);
   });
 });
 
