@@ -55,20 +55,45 @@ export function* cells<V>(
       };
       return;
 
+    // along the container's direction earlier children keep their own
+    // extent while the last one absorbs whatever remains of the
+    // allocated span; across it every child receives the full span
     case "row": {
       let col = startCol;
-      for (const child of node.children) {
+      const last = node.children.length - 1;
+      for (let i = 0; i < last; i++) {
+        const child = node.children[i]!;
         yield* cells(child, startRow, col, child.width, allocHeight);
         col += child.width;
+      }
+      if (last >= 0) {
+        yield* cells(
+          node.children[last]!,
+          startRow,
+          col,
+          allocWidth - (col - startCol),
+          allocHeight,
+        );
       }
       return;
     }
 
     case "col": {
       let row = startRow;
-      for (const child of node.children) {
+      const last = node.children.length - 1;
+      for (let i = 0; i < last; i++) {
+        const child = node.children[i]!;
         yield* cells(child, row, startCol, allocWidth, child.height);
         row += child.height;
+      }
+      if (last >= 0) {
+        yield* cells(
+          node.children[last]!,
+          row,
+          startCol,
+          allocWidth,
+          allocHeight - (row - startRow),
+        );
       }
       return;
     }

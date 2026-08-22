@@ -1,12 +1,7 @@
 import { type Cell, CellType } from "../json-table.js";
 import { type Matrix, matrix } from "../lib/matrix.js";
 
-import {
-  cells,
-  stretchLeavesDimensionInPlace,
-  type LeafValue,
-  type Tree,
-} from "./tree.js";
+import { cells, type LeafValue, type Tree } from "./tree.js";
 
 const CELL_TYPES = {
   leaf: CellType.Value,
@@ -15,23 +10,13 @@ const CELL_TYPES = {
   corner: CellType.Corner,
 } as const;
 
-function cloneTree<V>(tree: Tree<V>): Tree<V> {
-  if (!("children" in tree)) {
-    return { ...tree };
-  }
-  return { ...tree, children: tree.children.map(cloneTree) };
-}
-
 export function treeToMatrix<V>(tree: Tree<V>): Matrix<Cell<LeafValue<V>>> {
-  const prepared = cloneTree(tree);
-  stretchLeavesDimensionInPlace(prepared, "height");
-  stretchLeavesDimensionInPlace(prepared, "width");
   const m = matrix<Cell<LeafValue<V>> | undefined>(
-    prepared.height,
-    prepared.width,
+    tree.height,
+    tree.width,
     () => undefined,
   );
-  for (const { node, x, y, width, height } of cells(prepared)) {
+  for (const { node, x, y, width, height } of cells(tree)) {
     const cell: Cell<LeafValue<V>> = {
       value: node.value,
       type: CELL_TYPES[node.type],
@@ -49,8 +34,8 @@ export function treeToMatrix<V>(tree: Tree<V>): Matrix<Cell<LeafValue<V>>> {
       }
     }
   }
-  for (let i = 0; i < prepared.height; i++) {
-    for (let j = 0; j < prepared.width; j++) {
+  for (let i = 0; i < tree.height; i++) {
+    for (let j = 0; j < tree.width; j++) {
       if (m[i]![j] === undefined) {
         throw new Error(
           `uncovered position at [${i}][${j}], tree cannot be materialized into a dense matrix`,
@@ -58,5 +43,6 @@ export function treeToMatrix<V>(tree: Tree<V>): Matrix<Cell<LeafValue<V>>> {
       }
     }
   }
-  return m.map((row) => row.map((cell) => cell!));
+  // the coverage loop above guarantees density
+  return m as Matrix<Cell<LeafValue<V>>>;
 }
