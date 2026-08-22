@@ -6,6 +6,7 @@ import { toHTML } from "./tree-to-html";
 import { makeTreeFactory } from "./tree/json-to-tree";
 
 import collapsedIndexes from "./tree/__fixtures__/collapsed-indexes.json";
+import deduplication from "./tree/__fixtures__/deduplication.json";
 import emptyArrays from "./tree/__fixtures__/empty-arrays.json";
 import formatInBothItems from "./tree/__fixtures__/format-in-both-items.json";
 import fullyDeduplicated from "./tree/__fixtures__/fully-deduplicated.json";
@@ -29,6 +30,7 @@ const renderFixtures = [
   objects,
   nestedArrays,
   collapsedIndexes,
+  deduplication,
   emptyArrays,
   indexesDeduplication,
   simpleHeadersDuplication,

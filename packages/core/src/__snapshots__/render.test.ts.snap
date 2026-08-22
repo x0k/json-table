@@ -183,6 +183,109 @@ exports[`'deduplicate multiline tree headers' > renders expected markdown-like a
 | 2 | 3 | 4 |"
 `;
 
+exports[`'deduplicate nested arrays of objects' > renders expected ascii table > deduplicate nested arrays of objects ascii 1`] = `
+"
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 1.1 +---+-----+-----+-----+
+|     | 1 | 1.1 | 1.2 | 1.3 |
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 1.2 +---+-----+-----+-----+
+|     | 1 | 1.4 | 1.5 | 1.6 |
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 1.3 +---+-----+-----+-----+
+|     | 1 | 1.7 | 1.8 | 1.9 |
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 2.1 +---+-----+-----+-----+
+|     | 1 | 2.1 | 2.2 | 2.3 |
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 2.2 +---+-----+-----+-----+
+|     | 1 | 2.4 | 2.5 | 2.6 |
++-----+---+-----+-----+-----+
+|     | # |  a  |  b  |  c  |
+| 2.3 +---+-----+-----+-----+
+|     | 1 | 2.7 | 2.8 | 2.9 |
++-----+---+-----+-----+-----+"
+`;
+
+exports[`'deduplicate nested arrays of objects' > renders expected html table > deduplicate nested arrays of objects html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1.1</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1.1</td>
+<td colspan="1" rowspan="1">1.2</td>
+<td colspan="1" rowspan="1">1.3</td></tr>
+<tr><td colspan="1" rowspan="2"><b>1.2</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1.4</td>
+<td colspan="1" rowspan="1">1.5</td>
+<td colspan="1" rowspan="1">1.6</td></tr>
+<tr><td colspan="1" rowspan="2"><b>1.3</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1.7</td>
+<td colspan="1" rowspan="1">1.8</td>
+<td colspan="1" rowspan="1">1.9</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2.1</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">2.1</td>
+<td colspan="1" rowspan="1">2.2</td>
+<td colspan="1" rowspan="1">2.3</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2.2</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">2.4</td>
+<td colspan="1" rowspan="1">2.5</td>
+<td colspan="1" rowspan="1">2.6</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2.3</b></td>
+<td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">2.7</td>
+<td colspan="1" rowspan="1">2.8</td>
+<td colspan="1" rowspan="1">2.9</td></tr></table>"
+`;
+
+exports[`'deduplicate nested arrays of objects' > renders expected markdown-like ascii table > deduplicate nested arrays of objects markdown-like 1`] = `
+"
+| 1.1 | # |  a  |  b  |  c  |
+|     |---|-----|-----|-----|
+|-----| 1 | 1.1 | 1.2 | 1.3 |
+| 1.2 | # |  a  |  b  |  c  |
+|-----| 1 | 1.4 | 1.5 | 1.6 |
+| 1.3 | # |  a  |  b  |  c  |
+|-----| 1 | 1.7 | 1.8 | 1.9 |
+| 2.1 | # |  a  |  b  |  c  |
+|-----| 1 | 2.1 | 2.2 | 2.3 |
+| 2.2 | # |  a  |  b  |  c  |
+|-----| 1 | 2.4 | 2.5 | 2.6 |
+| 2.3 | # |  a  |  b  |  c  |
+|     | 1 | 2.7 | 2.8 | 2.9 |"
+`;
+
 exports[`'deduplicate tree headers' > renders expected ascii table > deduplicate tree headers ascii 1`] = `
 "
 +---+---+---+---+
