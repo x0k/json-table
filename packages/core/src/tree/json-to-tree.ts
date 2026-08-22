@@ -199,13 +199,20 @@ export function makeTreeFactory<V>({
   }
 
   /** flattens a stripped body into rows of leaf cells */
-  function flattenBodyRows(node: OptionalTree<V>): Tree<V>[][] | undefined {
+  function flattenBodyRows(
+    node: OptionalTree<V>,
+    rows: Tree<V>[][] = [],
+  ): Tree<V>[][] | undefined {
     if (node === undefined) {
       return undefined;
     }
     const n = node;
     if (!("children" in n)) {
-      return n.type === "leaf" ? [[n]] : undefined;
+      if (n.type !== "leaf") {
+        return undefined;
+      }
+      rows.push([n]);
+      return rows;
     }
     if (n.type === "row") {
       const row: Tree<V>[] = [];
@@ -215,15 +222,13 @@ export function makeTreeFactory<V>({
         }
         row.push(c);
       }
-      return [row];
+      rows.push(row);
+      return rows;
     }
-    const rows: Tree<V>[][] = [];
     for (const child of n.children) {
-      const r = flattenBodyRows(child);
-      if (r === undefined) {
+      if (flattenBodyRows(child, rows) === undefined) {
         return undefined;
       }
-      rows.push(...r);
     }
     return rows;
   }
@@ -304,8 +309,11 @@ export function makeTreeFactory<V>({
       const cells: Tree<V>[] = [indexNodes[r]!];
       let width = indexNodes[r]!.width;
       for (const rows of tableRows) {
-        cells.push(...rows[r]!);
-        width += rows[r]!.reduce((sum, c) => sum + c.width, 0);
+        const row = rows[r]!;
+        for (const c of row) {
+          cells.push(c);
+          width += c.width;
+        }
       }
       bodyRows.push({ type: "row", height: 1, width, children: cells });
     }
@@ -485,19 +493,19 @@ export function makeTreeFactory<V>({
     return [headerBlock, ...rows];
   }
 
-  function collapseRows(value: V[], prefix: string): Tree<V>[] {
-    const rows: Tree<V>[] = [];
+  function collapseRows(
+    value: V[],
+    prefix: string,
+    rows: Tree<V>[] = [],
+  ): Tree<V>[] {
     for (let i = 0; i < value.length; i++) {
-      const title = String(createIndex(i, value));
       const v = value[i]!;
+      const title = String(createIndex(i, value));
       if (Array.isArray(v) && v.length > 0) {
-        rows.push(...collapseRows(v, `${prefix}${title}.`));
+        collapseRows(v, `${prefix}${title}.`, rows);
       } else {
         rows.push(
-          makeIndexedRow(
-            `${prefix}${title}` as LeafValue<V>,
-            transformValue(v),
-          ),
+          makeIndexedRow(`${prefix}${title}` as LeafValue<V>, transformValue(v)),
         );
       }
     }
