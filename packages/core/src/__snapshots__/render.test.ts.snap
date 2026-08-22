@@ -31,6 +31,129 @@ exports[`'combine simple values without affecti…' > renders expected markdown-
 |  800 | Clear | clear sky   | 01n  |"
 `;
 
+exports[`'company structure' > renders expected ascii table > company structure ascii 1`] = `
+"
++----------+-------------+-----------------+--------------------------+---+------------------------------------------------------+---+--------------------------------------+
+| company  | yearFounded |    founders     |       headquarters       |   |                     departments                      |   |               projects               |
++----------+-------------+---------+-------+----------------+---------+   +-------------+---+------------------------------------+ # +-----------+---------------+----------+
+|          |             |    1    | Alice |      city      | country | # |             |   |             employees              |   |   title   |     team      | progress |
+|          |             +---------+-------+----------------+---------+   |    name     | # +----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             |   |   name   |        position         |   |           |  1  | Alice   |          |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 1 | Charlie  | Research Scientist      | 1 | Project A |  2  | Charlie |       75 |
+|          |             |         |       |                |         | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 2 | Diana    | Research Analyst        |   |           |  3  | Eva     |          |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             | 1 | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+| TechCorp |        2000 |         |       |                |         | 2 | Development +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |    2    | Bob   | Silicon Valley | USA     |   |             | 2 | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |   |           |  3  | Frank   |          |
+|          |             |         |       |                |         |   |             +---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |
++----------+-------------+---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+"
+`;
+
+exports[`'company structure' > renders expected html table > company structure html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>company</b></td>
+<td colspan="1" rowspan="1"><b>yearFounded</b></td>
+<td colspan="2" rowspan="1"><b>founders</b></td>
+<td colspan="2" rowspan="1"><b>headquarters</b></td>
+<td colspan="1" rowspan="3"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>departments</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>projects</b></td></tr>
+<tr><td colspan="1" rowspan="10">TechCorp</td>
+<td colspan="1" rowspan="10">2000</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="1"><b>city</b></td>
+<td colspan="1" rowspan="1"><b>country</b></td>
+<td colspan="1" rowspan="2"><b>name</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="2" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>title</b></td>
+<td colspan="2" rowspan="1"><b>team</b></td>
+<td colspan="1" rowspan="1"><b>progress</b></td></tr>
+<tr><td colspan="1" rowspan="9"><b>2</b></td>
+<td colspan="1" rowspan="9">Bob</td>
+<td colspan="1" rowspan="9">Silicon Valley</td>
+<td colspan="1" rowspan="9">USA</td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>position</b></td>
+<td colspan="1" rowspan="3"><b>1</b></td>
+<td colspan="1" rowspan="3">Project A</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="3">75</td></tr>
+<tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="2">Research</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="1">Research Scientist</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Charlie</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td>
+<td colspan="1" rowspan="1">Research Analyst</td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="2">Development</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Eva</td>
+<td colspan="1" rowspan="1">Software Engineer</td>
+<td colspan="1" rowspan="3"><b>2</b></td>
+<td colspan="1" rowspan="3">Project B</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Bob</td>
+<td colspan="1" rowspan="3">60</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Frank</td>
+<td colspan="1" rowspan="1">UI/UX Designer</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td></tr>
+<tr><td colspan="1" rowspan="4"><b>3</b></td>
+<td colspan="1" rowspan="4">Marketing</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Grace</td>
+<td colspan="1" rowspan="1">Marketing Manager</td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Frank</td></tr>
+<tr><td colspan="1" rowspan="3"><b>2</b></td>
+<td colspan="1" rowspan="3">Harry</td>
+<td colspan="1" rowspan="3">Social Media Specialist</td>
+<td colspan="1" rowspan="3"><b>3</b></td>
+<td colspan="1" rowspan="3">Project C</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="3">90</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Grace</td></tr></table>"
+`;
+
+exports[`'company structure' > renders expected markdown-like ascii table > company structure markdown-like 1`] = `
+"
+| company  | yearFounded |    founders     |       headquarters       |   |                     departments                      | # |               projects               |
+|----------|-------------|-----------------|--------------------------| # |------------------------------------------------------|   |--------------------------------------|
+|          |             |    1    | Alice |      city      | country |   |    name     | # |             employees              |---|   title   |     team      | progress |
+|          |             |         |       |                |         |---|-------------|---|   name   |        position         | 1 | Project A |  1  | Alice   |       75 |
+|          |             |         |       |                |         | 1 | Research    | 1 | Charlie  | Research Scientist      |   |           |  2  | Charlie |          |
+|          |             |         |       |                |         |---|-------------| 2 | Diana    | Research Analyst        |---|-----------|  3  | Eva     |----------|
+| TechCorp |        2000 |         |       |                |         | 2 | Development | 1 | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
+|          |             |    2    | Bob   | Silicon Valley | USA     |---|-------------| 2 | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
+|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |---|-----------|  3  | Frank   |----------|
+|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |"
+`;
+
 exports[`'create correct tree' > renders expected ascii table > create correct tree ascii 1`] = `
 "
 +---+---------------+---------------+---------------------------------+
@@ -129,32 +252,7 @@ exports[`'create tree for arrays' > renders expected ascii table > create tree f
 +---+---+----+"
 `;
 
-exports[`'create tree for arrays' > renders expected ascii table > create tree for arrays ascii 2`] = `
-"
-+---+--------+
-| 1 |      1 |
-+---+--------+
-| 2 |      2 |
-+---+---+----+
-|   | 1 | 11 |
-| 3 +---+----+
-|   | 2 | 22 |
-+---+---+----+"
-`;
-
 exports[`'create tree for arrays' > renders expected html table > create tree for arrays html 1`] = `
-"<table><tr><td colspan="1" rowspan="1"><b>1</b></td>
-<td colspan="2" rowspan="1">1</td></tr>
-<tr><td colspan="1" rowspan="1"><b>2</b></td>
-<td colspan="2" rowspan="1">2</td></tr>
-<tr><td colspan="1" rowspan="2"><b>3</b></td>
-<td colspan="1" rowspan="1"><b>1</b></td>
-<td colspan="1" rowspan="1">11</td></tr>
-<tr><td colspan="1" rowspan="1"><b>2</b></td>
-<td colspan="1" rowspan="1">22</td></tr></table>"
-`;
-
-exports[`'create tree for arrays' > renders expected html table > create tree for arrays html 2`] = `
 "<table><tr><td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="2" rowspan="1">1</td></tr>
 <tr><td colspan="1" rowspan="1"><b>2</b></td>
@@ -175,27 +273,7 @@ exports[`'create tree for arrays' > renders expected markdown-like ascii table >
 |   | 2 | 22 |"
 `;
 
-exports[`'create tree for arrays' > renders expected markdown-like ascii table > create tree for arrays markdown-like 2`] = `
-"
-| 1 |      1 |
-|---|--------|
-| 2 |      2 |
-| 3 | 1 | 11 |
-|   | 2 | 22 |"
-`;
-
 exports[`'create tree for objects' > renders expected ascii table > create tree for objects ascii 1`] = `
-"
-+---+---+---------+
-| a | b |    c    |
-+---+---+----+----+
-|   |   | aa | bb |
-| 1 | 2 +----+----+
-|   |   | 11 | 22 |
-+---+---+----+----+"
-`;
-
-exports[`'create tree for objects' > renders expected ascii table > create tree for objects ascii 2`] = `
 "
 +---+---+---------+
 | a | b |    c    |
@@ -218,27 +296,7 @@ exports[`'create tree for objects' > renders expected html table > create tree f
 <td colspan="1" rowspan="1">22</td></tr></table>"
 `;
 
-exports[`'create tree for objects' > renders expected html table > create tree for objects html 2`] = `
-"<table><tr><td colspan="1" rowspan="1"><b>a</b></td>
-<td colspan="1" rowspan="1"><b>b</b></td>
-<td colspan="2" rowspan="1"><b>c</b></td></tr>
-<tr><td colspan="1" rowspan="2">1</td>
-<td colspan="1" rowspan="2">2</td>
-<td colspan="1" rowspan="1"><b>aa</b></td>
-<td colspan="1" rowspan="1"><b>bb</b></td></tr>
-<tr><td colspan="1" rowspan="1">11</td>
-<td colspan="1" rowspan="1">22</td></tr></table>"
-`;
-
 exports[`'create tree for objects' > renders expected markdown-like ascii table > create tree for objects markdown-like 1`] = `
-"
-| a | b |    c    |
-|---|---|---------|
-| 1 | 2 | aa | bb |
-|   |   | 11 | 22 |"
-`;
-
-exports[`'create tree for objects' > renders expected markdown-like ascii table > create tree for objects markdown-like 2`] = `
 "
 | a | b |    c    |
 |---|---|---------|

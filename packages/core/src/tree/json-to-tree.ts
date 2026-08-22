@@ -65,12 +65,14 @@ export function makeTreeFactory<V>({
     ) {
       const corner = top.children[0]!;
       let headersWidth = 0;
+      let headersHeight = 1;
       for (let i = 1; i < top.children.length; i++) {
         headersWidth += top.children[i]!.width;
+        headersHeight = max(headersHeight, top.children[i]!.height);
       }
       const headersRow: Tree<V> = {
         type: "row",
-        height: 1,
+        height: headersHeight,
         width: headersWidth,
         children: top.children.slice(1),
       };
@@ -319,14 +321,16 @@ export function makeTreeFactory<V>({
     for (let r = 0; r < rowCount; r++) {
       const cells: Tree<V>[] = [indexNodes[r]!];
       let width = indexNodes[r]!.width;
+      let height = indexNodes[r]!.height;
       for (const rows of tableRows) {
         const row = rows[r]!;
         for (const c of row) {
           cells.push(c);
           width += c.width;
+          height = max(height, c.height);
         }
       }
-      bodyRows.push({ type: "row", height: 1, width, children: cells });
+      bodyRows.push({ type: "row", height, width, children: cells });
     }
     return {
       type: "col",

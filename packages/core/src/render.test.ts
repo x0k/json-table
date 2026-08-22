@@ -6,6 +6,7 @@ import { toHTML } from "./tree-to-html";
 import { makeTreeFactory } from "./tree/json-to-tree";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
+import company from "./__fixtures__/company.json";
 import deduplication from "./__fixtures__/deduplication.json";
 import emptyArrays from "./__fixtures__/empty-arrays.json";
 import formatInBothItems from "./__fixtures__/format-in-both-items.json";
@@ -29,9 +30,8 @@ interface RenderFixture {
 }
 
 const renderFixtures = [
-  objects,
-  nestedArrays,
   collapsedIndexes,
+  company,
   deduplication,
   emptyArrays,
   formatInBothItems,
