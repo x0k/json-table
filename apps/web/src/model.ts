@@ -144,6 +144,13 @@ export const TRANSFORM_SCHEMA: Schema = {
               type: "boolean",
               default: true,
             },
+            deduplicateHeaders: {
+              title: "Deduplicate headers",
+              description:
+                "Lift common headers of array items into a single shared header band",
+              type: "boolean",
+              default: true,
+            },
             proportionalSizeAdjustmentThreshold: {
               title: "Proportional size adjustment threshold",
               description:
@@ -237,6 +244,7 @@ export const TRANSFORM_UI_SCHEMA: UiSchemaRoot = {
       "collapseIndexes",
       "joinPrimitiveArrayValues",
       "stabilizeOrderOfPropertiesInArraysOfObjects",
+      "deduplicateHeaders",
       "proportionalSizeAdjustmentThreshold",
       "cornerCellValue",
       "transform",

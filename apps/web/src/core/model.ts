@@ -61,6 +61,7 @@ export function extractTableFactoryOptions(
         proportionalSizeAdjustmentThreshold: 1,
         collapseIndexes: true,
         stabilizeOrderOfPropertiesInArraysOfObjects: true,
+        deduplicateHeaders: true,
       };
     case TransformPreset.Manual: {
       const {
@@ -69,6 +70,7 @@ export function extractTableFactoryOptions(
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue,
+        deduplicateHeaders,
       } = config;
       return {
         collapseIndexes,
@@ -76,6 +78,7 @@ export function extractTableFactoryOptions(
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue: cornerCellValue ?? "",
+        deduplicateHeaders,
         createHeader: TREE_FACTORY_HEADER,
         createIndex: TREE_FACTORY_INDEX,
       };
