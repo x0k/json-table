@@ -1,9 +1,5 @@
+import type { Sized } from "../json-table.js";
 import { max } from "../lib/math.js";
-
-export interface Sized {
-  height: number;
-  width: number;
-}
 
 export interface LeafNode<V> extends Sized {
   type: "leaf" | "header" | "index" | "corner";
@@ -24,7 +20,8 @@ export type LeafValue<V> = Exclude<
 
 export type Tree<V> = Node<LeafValue<V>>;
 
-export interface Cell<V> extends Sized {
+/** a leaf node placed at its materialized matrix position */
+export interface TreeCell<V> extends Sized {
   node: LeafNode<V>;
   y: number;
   x: number;
@@ -40,7 +37,7 @@ export function* cells<V>(
   startCol = 0,
   allocWidth = node.width,
   allocHeight = node.height,
-): Generator<Cell<LeafValue<V>>> {
+): Generator<TreeCell<LeafValue<V>>> {
   switch (node.type) {
     case "leaf":
     case "header":

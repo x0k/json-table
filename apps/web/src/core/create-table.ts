@@ -1,9 +1,11 @@
 import { escapeHtml } from "@json-table/core/lib/html";
-import { type JSONValue, isJsonPrimitive } from "@json-table/core/lib/json";
+import {
+  type JSONPrimitive,
+  type JSONValue,
+  isJsonPrimitive,
+} from "@json-table/core/lib/json";
 import { max, sum } from "@json-table/core/lib/math";
-import type { Block } from "@json-table/core";
-import { blockToASCII } from "@json-table/core/block-to-ascii";
-import { makeBlockFactory } from "@json-table/core/json-to-table";
+import { type Tree, type TreeFactoryOptions, makeTreeFactory, toASCII } from "@json-table/core";
 
 import { type Entry, transformValue } from "@/lib/entry";
 import { createFileURL, createXLSBlob } from "@/lib/file";
@@ -33,7 +35,9 @@ export async function createTable(
   transformConfig: TransformConfig
 ) {
   const options = extractTableFactoryOptions(transformConfig);
-  const makeBlock = makeBlockFactory(options);
+  const makeTree = makeTreeFactory<JSONValue>(
+    options as unknown as TreeFactoryOptions<JSONValue>
+  );
   const transformApplicator = makeTransformApplicator(transformConfig);
   const tableData = parseTableData(data);
   const pagesData: Entry<JSONValue>[] =
@@ -45,8 +49,12 @@ export async function createTable(
           (key) => [key, tableData[key]] as Entry<JSONValue>
         );
   const pagesTables = pagesData
-    .map(transformValue(makeBlock))
-    .map(transformValue(transformApplicator));
+    .map(transformValue(makeTree))
+    .map(
+      transformValue(
+        transformApplicator as (t: Tree<JSONValue>) => Tree<JSONValue>
+      )
+    );
   switch (transformConfig.format) {
     case OutputFormat.HTML: {
       return renderHTMLPage(
@@ -56,9 +64,9 @@ export async function createTable(
       );
     }
     case OutputFormat.ASCII: {
-      const renderTable = (t: Block) =>
+      const renderTable = (t: Tree<JSONValue>) =>
         `<pre><code>${escapeHtml(
-          blockToASCII(t, { format: transformConfig.asciiFormat })
+          toASCII(t, { format: transformConfig.asciiFormat })
         )}</code></pre>`;
       return renderHTMLPage(
         "Table",
@@ -71,12 +79,11 @@ export async function createTable(
     }
     case OutputFormat.XLSX:
       return makeWorkBook(pagesTables, {
-        columnWidth: (column, i, m, table) => {
-          const counts = column.map((cell) => cell.count);
+        columnWidth: (counts, _i, tree) => {
           return Math.max(
             Math.ceil(
-              (counts.reduce(sum) / table.height +
-                (counts.reduce(max) * column.length) / table.height) /
+              (counts.reduce(sum) / tree.height +
+                (counts.reduce(max) * counts.length) / tree.height) /
                 2
             ),
             10

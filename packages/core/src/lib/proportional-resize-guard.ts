@@ -1,4 +1,7 @@
-import type { ProportionalResizeGuard } from '../json-table.js';
+export type ProportionalResizeGuard = (
+  lcmValue: number,
+  maxValue: number
+) => boolean;
 
 export function makeProportionalResizeGuard(
   threshold: number

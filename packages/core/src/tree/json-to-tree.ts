@@ -1,4 +1,5 @@
-import { makeProportionalResizeGuard } from "../json-to-table/proportional-resize-guard.js";
+import { makeProportionalResizeGuard } from "../lib/proportional-resize-guard.js";
+import { TO_TABLE } from "../json-table.js";
 import { lcm, max } from "../lib/math.js";
 import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
 import { isObject, isPlainObject, isRecordProto } from "../lib/object.js";
@@ -570,6 +571,12 @@ export function makeTreeFactory<V>({
 
   function transformValue(value: V): Tree<V> {
     if (isObject(value)) {
+      if (
+        TO_TABLE in value &&
+        typeof value[TO_TABLE as keyof object] === "function"
+      ) {
+        return (value as { [TO_TABLE]: () => Tree<V> })[TO_TABLE]();
+      }
       if ("toJSON" in value && typeof value["toJSON"] === "function") {
         return transformValue(value.toJSON() as V);
       }

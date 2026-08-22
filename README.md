@@ -14,26 +14,38 @@ npm install @json-table/core
 ## Usage
 
 ```typescript
-import { makeBlockFactory } from "@json-table/core/json-to-table";
-import { blockToASCII } from "@json-table/core/block-to-ascii";
-import { blockToHTML } from "@json-table/core/block-to-html";
+import { makeTreeFactory, toASCII, toHTML } from "@json-table/core";
 
-const createBlock = makeBlockFactory({
+const createTree = makeTreeFactory({
   cornerCellValue: "№",
+  createHeader: (key) => key,
+  createIndex: (i) => i + 1,
   joinPrimitiveArrayValues: true,
 });
 
-const block = createBlock(data);
+const tree = createTree(data);
 
-const asciiTable = blockToASCII(block);
+const asciiTable = toASCII(tree);
 
 /* Or */
 
-const htmlTable = blockToHTML(block);
+const htmlTable = toHTML(tree);
 ```
 
 > [!TIP]
-> See [block-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/block-to-html.ts) source code to create your own renderer.
+> Writing your own renderer is easy — `cells()` walks the tree and yields
+> every cell with its position and span:
+>
+> ```typescript
+> import { cells } from "@json-table/core";
+>
+> for (const { node, x, y, width, height } of cells(tree)) {
+>   // node.type: "header" | "index" | "corner" | "leaf"
+> }
+> ```
+>
+> See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts)
+> for a complete minimal renderer.
 >
 > [Interactive table example](https://svelte.dev/playground/d77e8d2a2bbb46c0810ee1fa6a05c758).
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { JSONValue } from "../lib/json";
-import { matrixToASCII } from "../block-to-ascii/block-to-ascii";
+import { toASCII } from "../tree-to-ascii";
 import {
   decapitateTree,
   extractHeadersTree,
@@ -11,7 +11,6 @@ import {
 } from "./tree";
 import { makeTreeFactory } from "./json-to-tree";
 import { makePropertiesStabilizer } from "./properties-stabilizer";
-import { treeToMatrix } from "./tree-to-matrix";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
 import emptyArrays from "./__fixtures__/empty-arrays.json";
@@ -69,10 +68,9 @@ describe.each(renderFixtures)("$name", ({ name, options, input }) => {
       ...options,
     } as never);
     const tree = factory(input);
-    stretchLeavesDimensionInPlace(tree, "height");
     expect({
       input,
-      view: `\n${matrixToASCII(treeToMatrix(tree))}`,
+      view: `\n${toASCII(tree)}`,
     }).toMatchSnapshot(name);
   });
 });
@@ -130,7 +128,7 @@ describe("makeTreeFactory", () => {
       });
       expect({
         input: value,
-        view: `\n${matrixToASCII(treeToMatrix(makeTree(value)))}`,
+        view: `\n${toASCII(makeTree(value))}`,
       }).toMatchSnapshot(`primitive ${String(value)}`);
     }
   });
