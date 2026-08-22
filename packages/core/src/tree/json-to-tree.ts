@@ -30,6 +30,8 @@ export interface TreeFactoryOptions<V> {
   proportionalSizeAdjustmentThreshold?: number;
   collapseIndexes?: boolean;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
+  /** lift common headers of array items into a shared band (default true) */
+  deduplicateHeaders?: boolean;
 }
 
 export function makeTreeFactory<V>({
@@ -40,6 +42,7 @@ export function makeTreeFactory<V>({
   proportionalSizeAdjustmentThreshold = 1,
   collapseIndexes,
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
+  deduplicateHeaders = true,
 }: TreeFactoryOptions<V>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold,
@@ -424,7 +427,10 @@ export function makeTreeFactory<V>({
         stretchLeavesDimensionInPlace(item, "width", maxWidth);
       }
     }
-    let common: unknown = extractComponentTree(items[0]!, HEAD_KINDS);
+    let common: unknown =
+      deduplicateHeaders === false
+        ? undefined
+        : extractComponentTree(items[0]!, HEAD_KINDS);
     for (let i = 1; i < items.length; i++) {
       common = extractSubtree(items[i] as never, common as never);
     }

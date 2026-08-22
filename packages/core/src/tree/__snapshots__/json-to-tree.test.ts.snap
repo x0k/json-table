@@ -378,6 +378,33 @@ exports[`'partially deduplicate objects with di…' > renders expected table > p
 }
 `;
 
+exports[`'skip header deduplication' > renders expected table > skip header deduplication 1`] = `
+{
+  "input": [
+    {
+      "a": 1,
+      "b": 2,
+      "c": 3,
+    },
+    {
+      "a": 4,
+      "b": 5,
+      "c": 6,
+    },
+  ],
+  "view": "
++---+---+---+---+
+|   | a | b | c |
+| 1 +---+---+---+
+|   | 1 | 2 | 3 |
++---+---+---+---+
+|   | a | b | c |
+| 2 +---+---+---+
+|   | 4 | 5 | 6 |
++---+---+---+---+",
+}
+`;
+
 exports[`'stabilize order of properties in arra…' > renders expected table > stabilize order of properties in arrays of objects 1`] = `
 {
   "input": [

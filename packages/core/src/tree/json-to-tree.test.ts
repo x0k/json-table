@@ -19,6 +19,7 @@ import formatInBothItems from "./__fixtures__/format-in-both-items.json";
 import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
 import indexesDeduplication from "./__fixtures__/indexes-deduplication.json";
 import multilineHeaders from "./__fixtures__/multiline-headers.json";
+import noHeaderDedup from "./__fixtures__/no-header-dedup.json";
 import nestedArrays from "./__fixtures__/nested-arrays.json";
 import objects from "./__fixtures__/objects.json";
 import parsingError from "./__fixtures__/parsing-error.json";
@@ -51,6 +52,7 @@ const renderFixtures: RenderFixture[] = [
   simpleHeadersDuplication,
   uniqHeaders,
   multilineHeaders,
+  noHeaderDedup,
   partiallyDifferentHeaders,
   shuffledKeys,
   wrongSizes,
