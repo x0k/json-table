@@ -20,13 +20,15 @@ const makeTree = makeTreeFactory<JSONValue>({
 describe("makePropertiesStabilizer", () => {
   it("orders entries by stable first-seen position", () => {
     const stabilize = makePropertiesStabilizer<string>();
-    expect(stabilize({ b: "1", a: "2" }).map((e) => e.key)).toEqual(["b", "a"]);
-    expect(stabilize({ c: "3", a: "4" }).map((e) => e.key)).toEqual(["a", "c"]);
-    expect(stabilize({ b: "0", c: "5", a: "6" }).map((e) => e.key)).toEqual([
-      "b",
-      "a",
-      "c",
-    ]);
+    const first = stabilize({ b: "1", a: "2" });
+    expect(first.entries.map((e) => e.key)).toEqual(["b", "a"]);
+    expect(first.reordered).toBe(false);
+    const second = stabilize({ c: "3", a: "4" });
+    expect(second.entries.map((e) => e.key)).toEqual(["a", "c"]);
+    expect(second.reordered).toBe(true);
+    const third = stabilize({ b: "0", c: "5", a: "6" });
+    expect(third.entries.map((e) => e.key)).toEqual(["b", "a", "c"]);
+    expect(third.reordered).toBe(true);
   });
 });
 

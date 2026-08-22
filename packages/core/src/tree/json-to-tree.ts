@@ -10,6 +10,7 @@ import {
   decapitateTree,
   extractComponentTree,
   extractSubtree,
+  normalizeExtentsInPlace,
   stretchLeavesDimensionInPlace,
   type LeafValue,
   type OptionalTree,
@@ -378,6 +379,31 @@ export function makeTreeFactory<V>({
     return sizedContainer(isRow ? "row" : "col", children);
   }
 
+  /** copies extents from the seed row onto the folded mask: extractSubtree
+   * carries the last-folded row's geometry, the mask was originally seeded
+   * from the first one */
+  function adoptExtents(
+    commonNode: OptionalTree<V>,
+    itemNode: OptionalTree<V>,
+  ): void {
+    if (commonNode === undefined || itemNode === undefined) {
+      return;
+    }
+    commonNode.width = itemNode.width;
+    if ("children" in commonNode && "children" in itemNode) {
+      const len = Math.min(
+        commonNode.children.length,
+        itemNode.children.length,
+      );
+      for (let i = 0; i < len; i++) {
+        adoptExtents(commonNode.children[i], itemNode.children[i]);
+      }
+    }
+  }
+
+  /** copies extents from the seed row onto the folded mask: extractSubtree
+   * carries the last-folded row's geometry, the mask was originally seeded
+   * from the first one */
   /** lifts a header band common to all rows into a single band on top of
    * the table; `indexed` wraps each body with a fresh index cell, otherwise
    * rows are expected to carry their own (collapsed) indexes */
@@ -392,29 +418,12 @@ export function makeTreeFactory<V>({
         : extractComponentTree(rows[0]!, DEDUP_KINDS);
     for (let i = 1; i < rows.length; i++) {
       common = extractSubtree(rows[i]!, common);
+      if (common === undefined) {
+        break;
+      }
     }
     if (common !== undefined) {
-      // extractSubtree carries the last-folded row's geometry: restore
-      // the first row's extents, where the mask was originally seeded
-      const adopt = (
-        commonNode: OptionalTree<V>,
-        itemNode: OptionalTree<V>,
-      ): void => {
-        if (commonNode === undefined || itemNode === undefined) {
-          return;
-        }
-        commonNode.width = itemNode.width;
-        if ("children" in commonNode && "children" in itemNode) {
-          const len = Math.min(
-            commonNode.children.length,
-            itemNode.children.length,
-          );
-          for (let i = 0; i < len; i++) {
-            adopt(commonNode.children[i], itemNode.children[i]);
-          }
-        }
-      };
-      adopt(common, rows[0]);
+      adoptExtents(common, rows[0]);
     }
     if (common === undefined) {
       if (!indexed) {
@@ -542,10 +551,15 @@ export function makeTreeFactory<V>({
         const stabilize = makePropertiesStabilizer<V>();
         const stabilizedValues = new Array<V>(value.length);
         for (let i = 0; i < value.length; i++) {
+          const item = value[i] as Record<string, V>;
+          const { entries, reordered } = stabilize(item);
+          if (!reordered) {
+            // the object's own order already matches the stable order
+            stabilizedValues[i] = item as unknown as V;
+            continue;
+          }
           const stabilized: Record<string, V> = {};
-          for (const { key, value: v } of stabilize(
-            value[i] as Record<string, V>,
-          )) {
+          for (const { key, value: v } of entries) {
             stabilized[key] = v;
           }
           stabilizedValues[i] = stabilized as unknown as V;
@@ -564,20 +578,37 @@ export function makeTreeFactory<V>({
 
   function parseValue(value: V): Tree<V> {
     if (isObject(value)) {
-      if (
-        TO_TABLE in value &&
-        typeof value[TO_TABLE as keyof object] === "function"
-      ) {
-        return (value as { [TO_TABLE]: () => Tree<V> })[TO_TABLE]();
-      }
-      if ("toJSON" in value && typeof value["toJSON"] === "function") {
-        return parseValue(value.toJSON() as V);
-      }
+      // plain records dominate real data: check the cheap structural
+      // discriminants first, protocol symbols/methods last
       if (isRecordProto(value)) {
+        if (
+          TO_TABLE in value &&
+          typeof value[TO_TABLE as keyof object] === "function"
+        ) {
+          // externally built trees may violate layout invariants: normalize
+          const tree = ((value as unknown as { [TO_TABLE]: () => Tree<V> }))[TO_TABLE]();
+          normalizeExtentsInPlace(tree);
+          return tree;
+        }
+        if ("toJSON" in value && typeof value["toJSON"] === "function") {
+          return parseValue(value.toJSON() as V);
+        }
         return transformRecord(value as Record<PropertyKey, V>);
       }
       if (Array.isArray(value)) {
         return transformArray(value);
+      }
+      // exotic objects (class instances, Date, …): protocols only
+      if (
+        TO_TABLE in value &&
+        typeof value[TO_TABLE as keyof object] === "function"
+      ) {
+        const tree = ((value as unknown as { [TO_TABLE]: () => Tree<V> }))[TO_TABLE]();
+        normalizeExtentsInPlace(tree);
+        return tree;
+      }
+      if ("toJSON" in value && typeof value["toJSON"] === "function") {
+        return parseValue(value.toJSON() as V);
       }
     }
     return {

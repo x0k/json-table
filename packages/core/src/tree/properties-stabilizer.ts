@@ -5,6 +5,13 @@ export interface StabilizedEntry<V> {
   value: V;
 }
 
+export interface Stabilization<V> {
+  entries: StabilizedEntry<V>[];
+  /** false when the object's own key order already matches the stable
+   * first-seen order, so the original object can be reused as is */
+  reordered: boolean;
+}
+
 export function makePropertiesStabilizer<V>() {
   const positions = new Map<string, number>();
   const order: string[] = [];
@@ -19,24 +26,31 @@ export function makePropertiesStabilizer<V>() {
     return p;
   };
 
-  return (obj: Record<string, V>): StabilizedEntry<V>[] => {
+  return (obj: Record<string, V>): Stabilization<V> => {
     const pairs: StabilizedEntry<V>[] = [];
+    let reordered = false;
     for (const entry of Object.entries(obj)) {
-      const p = positionOf(entry[0]);
+      const key = entry[0];
+      const p = positionOf(key);
       // binary insertion: minimal shifts for near-sorted sequences
       let lo = 0;
       let hi = pairs.length;
       while (lo < hi) {
         const mid = (lo + hi) >> 1;
-        const midKey = pairs[mid]!.key;
-        if (positionOf(midKey) < p) {
+        if (positions.get(pairs[mid]!.key)! < p) {
           lo = mid + 1;
         } else {
           hi = mid;
         }
       }
-      pairs.splice(lo, 0, { key: entry[0], value: entry[1] as V });
+      const pair = { key, value: entry[1] as V };
+      if (lo === pairs.length) {
+        pairs.push(pair);
+      } else {
+        reordered = true;
+        pairs.splice(lo, 0, pair);
+      }
     }
-    return pairs;
+    return { entries: pairs, reordered };
   };
 }

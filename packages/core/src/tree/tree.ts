@@ -139,12 +139,13 @@ export function extractComponentTree<V>(
   if ("value" in tree) {
     return kinds.has(tree.type) ? tree : undefined;
   }
+  const children: OptionalTree<V>[] = new Array(tree.children.length);
   let isUndefined = true;
-  const children = tree.children.map((c) => {
-    const r = extractComponentTree(c, kinds);
+  for (let i = 0; i < tree.children.length; i++) {
+    const r = extractComponentTree(tree.children[i]!, kinds);
+    children[i] = r;
     isUndefined &&= r === undefined;
-    return r;
-  });
+  }
   if (isUndefined) {
     return undefined;
   }
@@ -169,16 +170,17 @@ export function extractSubtree<V>(
     return undefined;
   }
   if ("children" in tree && "children" in mask) {
-    let children = mask.children;
-    if (tree.children.length !== children.length) {
+    const maskChildren = mask.children;
+    if (tree.children.length !== maskChildren.length) {
       return undefined;
     }
+    const children: OptionalTree<V>[] = new Array(tree.children.length);
     let isUndefined = true;
-    children = tree.children.map((c, i) => {
-      const child = extractSubtree(c, mask.children[i]);
+    for (let i = 0; i < tree.children.length; i++) {
+      const child = extractSubtree(tree.children[i]!, maskChildren[i]);
+      children[i] = child;
       isUndefined &&= child === undefined;
-      return child;
-    });
+    }
     return isUndefined
       ? undefined
       : {
@@ -206,9 +208,11 @@ export function decapitateTree<V>(
   }
   let dimSum = 0;
   let contentMax = 1;
+  let hasNonCorner = false;
   const isRow = tree.type === "row";
-  const children: Tree<V>[] = [];
   const tc = tree.children;
+  const children: Tree<V>[] = new Array(tc.length);
+  let count = 0;
   for (let i = 0; i < tc.length; i++) {
     const m = mask.children[i];
     if (m !== undefined && !("children" in m) && kinds.has(m.type)) {
@@ -222,19 +226,20 @@ export function decapitateTree<V>(
     ) {
       continue;
     }
-    children.push(child);
-  }
-  // a row of nothing but corners has no remaining content
-  if (children.length > 0 && children.every((c) => c.type === "corner")) {
-    return { ...tree, width: 0, height: 0 };
-  }
-  for (const child of children) {
+    children[count++] = child;
     if (child.type !== "corner") {
+      hasNonCorner = true;
       contentMax = max(contentMax, isRow ? child.height : child.width);
     }
   }
+  children.length = count;
+  // a row of nothing but corners has no remaining content
+  if (count > 0 && !hasNonCorner) {
+    return { ...tree, width: 0, height: 0 };
+  }
   // surviving corners span exactly their remaining content region
-  for (const child of children) {
+  for (let i = 0; i < count; i++) {
+    const child = children[i]!;
     if (child.type === "corner") {
       if (isRow) {
         child.height = contentMax;
@@ -245,7 +250,7 @@ export function decapitateTree<V>(
     dimSum += isRow ? child.width : child.height;
   }
   const maxDim = contentMax;
-  if (children.length === 1) {
+  if (count === 1) {
     return children[0]!;
   }
   return {
