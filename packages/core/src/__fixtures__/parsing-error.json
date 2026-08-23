@@ -1,0 +1,16 @@
+{
+  "name": "combine simple values without affecting object values",
+  "options": {
+    "joinPrimitiveArrayValues": true
+  },
+  "input": {
+    "weather": [
+      {
+        "id": 800,
+        "main": "Clear",
+        "description": "clear sky",
+        "icon": "01n"
+      }
+    ]
+  }
+}

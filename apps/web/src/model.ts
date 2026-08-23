@@ -1,9 +1,6 @@
 import type { Schema, UiSchemaRoot } from "@sjsf/form";
 
-import {
-  ASCIITableFormat,
-  ASCII_TABLE_FORMATS,
-} from "@json-table/core/block-to-ascii";
+import { ASCIITableFormat, ASCII_TABLE_FORMATS } from "@json-table/core";
 
 import { OutputFormat, TransformPreset, type TransformConfig } from "./core";
 
@@ -140,16 +137,17 @@ export const TRANSFORM_SCHEMA: Schema = {
               type: "boolean",
               default: true,
             },
-            combineArraysOfObjects: {
-              title: "Combine objects",
-              description: "Combine arrays of objects into a single object",
-              type: "boolean",
-              default: false,
-            },
             stabilizeOrderOfPropertiesInArraysOfObjects: {
               title: "Stabilize order of properties",
               description:
                 "Stabilizing the order in which properties are displayed for arrays of objects",
+              type: "boolean",
+              default: true,
+            },
+            deduplicateHeaders: {
+              title: "Deduplicate headers",
+              description:
+                "Lift common headers of array items into a single shared header band",
               type: "boolean",
               default: true,
             },
@@ -245,8 +243,8 @@ export const TRANSFORM_UI_SCHEMA: UiSchemaRoot = {
       "preset",
       "collapseIndexes",
       "joinPrimitiveArrayValues",
-      "combineArraysOfObjects",
       "stabilizeOrderOfPropertiesInArraysOfObjects",
+      "deduplicateHeaders",
       "proportionalSizeAdjustmentThreshold",
       "cornerCellValue",
       "transform",

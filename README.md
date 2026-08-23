@@ -12,31 +12,68 @@ Set of tools for converting JSON data into tables (HTML, XLSX, ASCII).
 npm install @json-table/core
 ```
 
+## How it works
+
+Every JSON value is drawn as a rectangular block:
+
+- a primitive (`string`, `number`, `boolean`, `null`) is a single cell;
+- an object lays its properties out **side by side**, each key becoming a header above its value;
+- an array stacks its items **vertically**, numbering each one.
+
+Because every block is a rectangle, they compose naturally: a value nested inside another simply takes its place in the parent's layout, and neighbouring blocks align along shared edges — which is why arbitrarily deep JSON always produces a well-formed table.
+
+Finally, repetition is removed: when all items of an array begin with the same header band (or the same index column), it is lifted out and drawn once at the top/left instead of repeating per item.
+
+Rendering then just traces this layout into whatever output you need — ASCII, HTML, XLSX, or your own format.
+
 ## Usage
 
 ```typescript
-import { makeBlockFactory } from "@json-table/core/json-to-table";
-import { blockToASCII } from "@json-table/core/block-to-ascii";
-import { blockToHTML } from "@json-table/core/block-to-html";
+import { makeTreeFactory, toASCII, toHTML } from "@json-table/core";
 
-const createBlock = makeBlockFactory({
+const createTree = makeTreeFactory({
   cornerCellValue: "№",
+  createHeader: (key) => key,
+  createIndex: (i) => i + 1,
   joinPrimitiveArrayValues: true,
 });
 
-const block = createBlock(data);
+const tree = createTree(data);
 
-const asciiTable = blockToASCII(block);
+const asciiTable = toASCII(tree);
 
 /* Or */
 
-const htmlTable = blockToHTML(block);
+const htmlTable = toHTML(tree);
 ```
 
 > [!TIP]
-> See [block-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/block-to-html.ts) source code to create your own renderer.
+> Writing your own renderer is easy — `cells()` walks the tree and yields
+> every cell with its position and span:
 >
-> [Interactive table example](https://svelte.dev/playground/d77e8d2a2bbb46c0810ee1fa6a05c758).
+> ```typescript
+> import { cells } from "@json-table/core";
+>
+> for (const { node, x, y, width, height } of cells(tree)) {
+>   // node.type: "header" | "index" | "corner" | "leaf"
+> }
+> ```
+>
+> For HTML-like renderers, `rows()` groups cells into visual rows
+> (one array per `<tr>`, ordered left-to-right):
+>
+> ```typescript
+> import { rows } from "@json-table/core";
+>
+> for (const row of rows(tree)) {
+>   // each row: cells starting in it, sorted by x
+> }
+> ```
+>
+> See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts)
+> for a complete minimal renderer.
+>
+> [Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
 
 Input data:
 

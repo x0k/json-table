@@ -1,0 +1,14 @@
+{
+  "name": "work with unique headers",
+  "input": [
+    {
+      "description": "name of the ComponentStatus",
+      "in": "path",
+      "name": "name",
+      "required": true,
+      "type": "string",
+      "uniqueItems": true
+    },
+    { "$ref": "#/parameters/pretty-tJGM1-ng" }
+  ]
+}

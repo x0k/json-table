@@ -1,19 +1,20 @@
 import { Workbook } from "exceljs";
-import type { Block } from "@json-table/core";
+import type { Tree } from "@json-table/core";
+import type { JSONValue } from "@json-table/core/lib/json";
 import {
-  renderBlockOnWorksheet,
+  renderOnWorksheet,
   type MakeWorkBookOptions,
-} from "@json-table/block-to-xlsx";
+} from "@json-table/xlsx";
 
 import type { Entry } from "@/lib/entry";
 
 export function makeWorkBook(
-  tables: Entry<Block>[],
-  options?: MakeWorkBookOptions
+  tables: Entry<Tree<JSONValue>>[],
+  options?: MakeWorkBookOptions<JSONValue>
 ): Workbook {
   const wb = new Workbook();
-  tables.forEach(([title, table]) => {
-    renderBlockOnWorksheet(wb.addWorksheet(title), table, options);
+  tables.forEach(([title, tree]) => {
+    renderOnWorksheet(wb.addWorksheet(title), tree, options);
   });
   return wb;
 }

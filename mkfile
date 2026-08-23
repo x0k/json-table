@@ -6,7 +6,7 @@ cs:
   pnpm changeset
 
 t:
-  pnpm run test
+  pnpm run test $@
 
 b:
   pnpm run build
@@ -41,7 +41,7 @@ c/:
   b:
     pnpm run build
   t:
-    pnpm run test
+    pnpm run test $@
   popd
 
 x/:

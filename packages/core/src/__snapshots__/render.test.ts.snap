@@ -1,0 +1,847 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`'combine simple values without affecti…' > renders expected ascii table > combine simple values without affecting object values ascii 1`] = `
+"
++-----------------------------------+
+|              weather              |
++------+-------+-------------+------+
+|  id  | main  | description | icon |
++------+-------+-------------+------+
+|  800 | Clear | clear sky   | 01n  |
++------+-------+-------------+------+"
+`;
+
+exports[`'combine simple values without affecti…' > renders expected html table > combine simple values without affecting object values html 1`] = `
+"<table><tr><td colspan="4" rowspan="1"><b>weather</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>id</b></td>
+<td colspan="1" rowspan="1"><b>main</b></td>
+<td colspan="1" rowspan="1"><b>description</b></td>
+<td colspan="1" rowspan="1"><b>icon</b></td></tr>
+<tr><td colspan="1" rowspan="1">800</td>
+<td colspan="1" rowspan="1">Clear</td>
+<td colspan="1" rowspan="1">clear sky</td>
+<td colspan="1" rowspan="1">01n</td></tr></table>"
+`;
+
+exports[`'combine simple values without affecti…' > renders expected markdown-like ascii table > combine simple values without affecting object values markdown-like 1`] = `
+"
+|              weather              |
+|-----------------------------------|
+|  id  | main  | description | icon |
+|  800 | Clear | clear sky   | 01n  |"
+`;
+
+exports[`'company structure' > renders expected ascii table > company structure ascii 1`] = `
+"
++----------+-------------+-----------------+--------------------------+---+------------------------------------------------------+---+--------------------------------------+
+| company  | yearFounded |    founders     |       headquarters       |   |                     departments                      |   |               projects               |
++----------+-------------+---------+-------+----------------+---------+   +-------------+---+------------------------------------+ # +-----------+---------------+----------+
+|          |             |    1    | Alice |      city      | country | # |             |   |             employees              |   |   title   |     team      | progress |
+|          |             +---------+-------+----------------+---------+   |    name     | # +----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             |   |   name   |        position         |   |           |  1  | Alice   |          |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 1 | Charlie  | Research Scientist      | 1 | Project A |  2  | Charlie |       75 |
+|          |             |         |       |                |         | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 2 | Diana    | Research Analyst        |   |           |  3  | Eva     |          |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             | 1 | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+| TechCorp |        2000 |         |       |                |         | 2 | Development +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |    2    | Bob   | Silicon Valley | USA     |   |             | 2 | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |   |           |  3  | Frank   |          |
+|          |             |         |       |                |         |   |             +---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           +-----+---------+          |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |
++----------+-------------+---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+"
+`;
+
+exports[`'company structure' > renders expected html table > company structure html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>company</b></td>
+<td colspan="1" rowspan="1"><b>yearFounded</b></td>
+<td colspan="2" rowspan="1"><b>founders</b></td>
+<td colspan="2" rowspan="1"><b>headquarters</b></td>
+<td colspan="1" rowspan="3"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>departments</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>projects</b></td></tr>
+<tr><td colspan="1" rowspan="10">TechCorp</td>
+<td colspan="1" rowspan="10">2000</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="1"><b>city</b></td>
+<td colspan="1" rowspan="1"><b>country</b></td>
+<td colspan="1" rowspan="2"><b>name</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="2" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>title</b></td>
+<td colspan="2" rowspan="1"><b>team</b></td>
+<td colspan="1" rowspan="1"><b>progress</b></td></tr>
+<tr><td colspan="1" rowspan="9"><b>2</b></td>
+<td colspan="1" rowspan="9">Bob</td>
+<td colspan="1" rowspan="9">Silicon Valley</td>
+<td colspan="1" rowspan="9">USA</td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>position</b></td>
+<td colspan="1" rowspan="3"><b>1</b></td>
+<td colspan="1" rowspan="3">Project A</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="3">75</td></tr>
+<tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="2">Research</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="1">Research Scientist</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Charlie</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td>
+<td colspan="1" rowspan="1">Research Analyst</td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="2">Development</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Eva</td>
+<td colspan="1" rowspan="1">Software Engineer</td>
+<td colspan="1" rowspan="3"><b>2</b></td>
+<td colspan="1" rowspan="3">Project B</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Bob</td>
+<td colspan="1" rowspan="3">60</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Frank</td>
+<td colspan="1" rowspan="1">UI/UX Designer</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td></tr>
+<tr><td colspan="1" rowspan="4"><b>3</b></td>
+<td colspan="1" rowspan="4">Marketing</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Grace</td>
+<td colspan="1" rowspan="1">Marketing Manager</td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Frank</td></tr>
+<tr><td colspan="1" rowspan="3"><b>2</b></td>
+<td colspan="1" rowspan="3">Harry</td>
+<td colspan="1" rowspan="3">Social Media Specialist</td>
+<td colspan="1" rowspan="3"><b>3</b></td>
+<td colspan="1" rowspan="3">Project C</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="3">90</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Grace</td></tr></table>"
+`;
+
+exports[`'company structure' > renders expected markdown-like ascii table > company structure markdown-like 1`] = `
+"
+| company  | yearFounded |    founders     |       headquarters       |   |                     departments                      | # |               projects               |
+|----------|-------------|-----------------|--------------------------| # |------------------------------------------------------|   |--------------------------------------|
+|          |             |    1    | Alice |      city      | country |   |    name     | # |             employees              |---|   title   |     team      | progress |
+|          |             |         |       |                |         |---|-------------|---|   name   |        position         | 1 | Project A |  1  | Alice   |       75 |
+|          |             |         |       |                |         | 1 | Research    | 1 | Charlie  | Research Scientist      |   |           |  2  | Charlie |          |
+|          |             |         |       |                |         |---|-------------| 2 | Diana    | Research Analyst        |---|-----------|  3  | Eva     |----------|
+| TechCorp |        2000 |         |       |                |         | 2 | Development | 1 | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
+|          |             |    2    | Bob   | Silicon Valley | USA     |---|-------------| 2 | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
+|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |---|-----------|  3  | Frank   |----------|
+|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |"
+`;
+
+exports[`'company structure' transformations > renders expected horizontally mirrored table > company hmirror ascii 1`] = `
+"
++------------------------------------+---+-----------------------------------------------------+---+------------------------------+-------------+-------------+----------+
+|              projects              |   |                     departments                     |   |         headquarters         |  founders   | yearFounded | company  |
++----------+-------------+-----------+ # +-----------------------------------+---+-------------+   +-------------+----------------+---------+---+-------------+----------+
+| progress |    team     |   title   |   |             employees             |   |             | # |   country   |      city      | Alice   | 1 |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+ # |    name     |   +-------------+----------------+---------+---+             |          |
+|          | Alice   | 1 |           |   |        position         |  name   |   |             |   |             |                |         |   |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
+|       75 | Charlie | 2 | Project A | 1 | Research Scientist      | Charlie | 1 |             |   |             |                |         |   |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+ Research    | 1 |             |                |         |   |             |          |
+|          | Eva     | 3 |           |   | Research Analyst        | Diana   | 2 |             |   |             |                |         |   |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
+|          | Bob     | 1 |           |   | Software Engineer       | Eva     | 1 |             |   |             |                |         |   |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+ Development | 2 |             |                |         |   |        2000 | TechCorp |
+|       60 | Diana   | 2 | Project B | 2 | UI/UX Designer          | Frank   | 2 |             |   | USA         | Silicon Valley | Bob     | 2 |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
+|          | Frank   | 3 |           |   | Marketing Manager       | Grace   | 1 |             |   |             |                |         |   |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+---+             |   |             |                |         |   |             |          |
+|          | Charlie | 1 |           |   |                         |         |   |             |   |             |                |         |   |             |          |
+|          +---------+---+           |   |                         |         |   | Marketing   | 3 |             |                |         |   |             |          |
+|       90 | Eva     | 2 | Project C | 3 | Social Media Specialist | Harry   | 2 |             |   |             |                |         |   |             |          |
+|          +---------+---+           |   |                         |         |   |             |   |             |                |         |   |             |          |
+|          | Grace   | 3 |           |   |                         |         |   |             |   |             |                |         |   |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+---+-------------+---+-------------+----------------+---------+---+-------------+----------+"
+`;
+
+exports[`'company structure' transformations > renders expected transposed table > company transpose ascii 1`] = `
+"
++--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|   company    | TechCorp                                                                                                                                                    |
++--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| yearFounded  |                                                                                                                                                        2000 |
++--------------+-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+|              |     1     |                                                                        2                                                                        |
+|   founders   +-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+|              | Alice     | Bob                                                                                                                                             |
++--------------+-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+|              |   city    | Silicon Valley                                                                                                                                  |
+| headquarters +-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
+|              |  country  | USA                                                                                                                                             |
++--------------+-----------+----------+---------------------------------------+------------------------------------+---------------------------------------------------------+
+|                  #                  |                   1                   |                 2                  |                            3                            |
++--------------+----------------------+---------------------------------------+------------------------------------+---------------------------------------------------------+
+|              |         name         | Research                              | Development                        | Marketing                                               |
+|              +----------------------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
+|              |          #           |         1          |        2         |         1         |       2        |         1         |                  2                  |
+| departments  +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
+|              |           |   name   | Charlie            | Diana            | Eva               | Frank          | Grace             | Harry                               |
+|              | employees +----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
+|              |           | position | Research Scientist | Research Analyst | Software Engineer | UI/UX Designer | Marketing Manager | Social Media Specialist             |
++--------------+-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
+|            #             |                        1                         |                           2                            |                  3                  |
++--------------+-----------+--------------------------------------------------+--------------------------------------------------------+-------------------------------------+
+|              |   title   | Project A                                        | Project B                                              | Project C                           |
+|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
+|              |           |    1     |         2          |        3         |         1         |       2        |         3         |           1           |  2  |   3   |
+|   projects   |   team    +----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
+|              |           | Alice    | Charlie            | Eva              | Bob               | Diana          | Frank             | Charlie               | Eva | Grace |
+|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
+|              | progress  |                                               75 |                                                     60 |                                  90 |
++--------------+-----------+--------------------------------------------------+--------------------------------------------------------+-------------------------------------+"
+`;
+
+exports[`'company structure' transformations > renders expected vertically mirrored table > company vmirror ascii 1`] = `
+"
++----------+-------------+---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+| TechCorp |        2000 |    2    | Bob   | Silicon Valley | USA     |   |             | 2 | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |
++----------+-------------+---------+-------+----------------+---------+ 3 | Marketing   +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |    1    | Alice |      city      | country |   |             | 1 | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
+|          |             +---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                          |   |             | 2 | Frank    | UI/UX Designer          |   |           |  1  | Charlie |          |
+|          |             |                 |                          | 2 | Development +---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                          |   |             | 1 | Eva      | Software Engineer       |   |           |  3  | Frank   |          |
+|          |             |                 |                          +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                          |   |             | 2 | Diana    | Research Analyst        | 2 | Project B |  2  | Diana   |       60 |
+|          |             |                 |                          | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                          |   |             | 1 | Charlie  | Research Scientist      |   |           |  1  | Bob     |          |
+| company  | yearFounded |                 |                          +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |    founders     |       headquarters       |   |             |   |   name   |        position         |   |           |  3  | Eva     |          |
+|          |             |                 |                          |   |    name     | # +----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                          |   |             |   |             employees              | 1 | Project A |  2  | Charlie |       75 |
+|          |             |                 |                          |   +-------------+---+------------------------------------+   |           +-----+---------+          |
+|          |             |                 |                          | # |                                                      |   |           |  1  | Alice   |          |
+|          |             |                 |                          |   |                                                      +---+-----------+-----+---------+----------+
+|          |             |                 |                          |   |                     departments                      |   |   title   |     team      | progress |
+|          |             |                 |                          |   |                                                      | # +-----------+---------------+----------+
+|          |             |                 |                          |   |                                                      |   |               projects               |
++----------+-------------+-----------------+--------------------------+---+------------------------------------------------------+---+--------------------------------------+"
+`;
+
+exports[`'create correct tree' > renders expected ascii table > create correct tree ascii 1`] = `
+"
++---+---------------+---------------+---------------------------------+
+|   |    options    |               |                                 |
+|   +---------------+               |                                 |
+| # | reduceOptions | pluginVersion |             targets             |
+|   +---------------+               |                                 |
+|   |    values     |               |                                 |
++---+---------------+---------------+------------------------+--------+
+|   |               |               |          expr          | format |
+| 1 | false         | 7.3.1         +------------------------+--------+
+|   |               |               | loki_build_info        | table  |
++---+---------------+---------------+------------------------+--------+
+|   |               |               |              expr               |
+| 2 | false         | 7.3.1         +---------------------------------+
+|   |               |               | sum(log_messages_total)         |
++---+---------------+---------------+---------------------------------+"
+`;
+
+exports[`'create correct tree' > renders expected html table > create correct tree html 1`] = `
+"<table><tr><td colspan="1" rowspan="3"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>options</b></td>
+<td colspan="1" rowspan="3"><b>pluginVersion</b></td>
+<td colspan="2" rowspan="3"><b>targets</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>values</b></td></tr>
+<tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="2">false</td>
+<td colspan="1" rowspan="2">7.3.1</td>
+<td colspan="1" rowspan="1"><b>expr</b></td>
+<td colspan="1" rowspan="1"><b>format</b></td></tr>
+<tr><td colspan="1" rowspan="1">loki_build_info</td>
+<td colspan="1" rowspan="1">table</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="2">false</td>
+<td colspan="1" rowspan="2">7.3.1</td>
+<td colspan="2" rowspan="1"><b>expr</b></td></tr>
+<tr><td colspan="2" rowspan="1">sum(log_messages_total)</td></tr></table>"
+`;
+
+exports[`'create correct tree' > renders expected markdown-like ascii table > create correct tree markdown-like 1`] = `
+"
+|   |    options    |               |                                 |
+| # |---------------| pluginVersion |             targets             |
+|   | reduceOptions |               |                                 |
+|---|    values     |---------------|---------------------------------|
+| 1 | false         | 7.3.1         |          expr          | format |
+|---|---------------|---------------| loki_build_info        | table  |
+| 2 | false         | 7.3.1         |              expr               |
+|   |               |               | sum(log_messages_total)         |"
+`;
+
+exports[`'create tree for arrays with indexes c…' > renders expected ascii table > create tree for arrays with indexes collapse ascii 1`] = `
+"
++-----+----+
+| 1.1 |  1 |
++-----+----+
+| 1.2 |  2 |
++-----+----+
+| 2.1 | 11 |
++-----+----+
+| 2.2 | 22 |
++-----+----+"
+`;
+
+exports[`'create tree for arrays with indexes c…' > renders expected html table > create tree for arrays with indexes collapse html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>1.1</b></td>
+<td colspan="1" rowspan="1">1</td></tr>
+<tr><td colspan="1" rowspan="1"><b>1.2</b></td>
+<td colspan="1" rowspan="1">2</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2.1</b></td>
+<td colspan="1" rowspan="1">11</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2.2</b></td>
+<td colspan="1" rowspan="1">22</td></tr></table>"
+`;
+
+exports[`'create tree for arrays with indexes c…' > renders expected markdown-like ascii table > create tree for arrays with indexes collapse markdown-like 1`] = `
+"
+| 1.1 |  1 |
+|-----|----|
+| 1.2 |  2 |
+| 2.1 | 11 |
+| 2.2 | 22 |"
+`;
+
+exports[`'create tree for arrays' > renders expected ascii table > create tree for arrays ascii 1`] = `
+"
++---+--------+
+| 1 |      1 |
++---+--------+
+| 2 |      2 |
++---+---+----+
+|   | 1 | 11 |
+| 3 +---+----+
+|   | 2 | 22 |
++---+---+----+"
+`;
+
+exports[`'create tree for arrays' > renders expected html table > create tree for arrays html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="2" rowspan="1">1</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="2" rowspan="1">2</td></tr>
+<tr><td colspan="1" rowspan="2"><b>3</b></td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">11</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">22</td></tr></table>"
+`;
+
+exports[`'create tree for arrays' > renders expected markdown-like ascii table > create tree for arrays markdown-like 1`] = `
+"
+| 1 |      1 |
+|---|--------|
+| 2 |      2 |
+| 3 | 1 | 11 |
+|   | 2 | 22 |"
+`;
+
+exports[`'create tree for objects' > renders expected ascii table > create tree for objects ascii 1`] = `
+"
++---+---+---------+
+| a | b |    c    |
++---+---+----+----+
+|   |   | aa | bb |
+| 1 | 2 +----+----+
+|   |   | 11 | 22 |
++---+---+----+----+"
+`;
+
+exports[`'create tree for objects' > renders expected html table > create tree for objects html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="2" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="2">1</td>
+<td colspan="1" rowspan="2">2</td>
+<td colspan="1" rowspan="1"><b>aa</b></td>
+<td colspan="1" rowspan="1"><b>bb</b></td></tr>
+<tr><td colspan="1" rowspan="1">11</td>
+<td colspan="1" rowspan="1">22</td></tr></table>"
+`;
+
+exports[`'create tree for objects' > renders expected markdown-like ascii table > create tree for objects markdown-like 1`] = `
+"
+| a | b |    c    |
+|---|---|---------|
+| 1 | 2 | aa | bb |
+|   |   | 11 | 22 |"
+`;
+
+exports[`'deduplicate headers with format in bo…' > renders expected ascii table > deduplicate headers with format in both items ascii 1`] = `
+"
++---+---------------+---------------+--------------------------+
+|   |    options    |               |         targets          |
+|   +---------------+               +-----------------+--------+
+| # | reduceOptions | pluginVersion |                 |        |
+|   +---------------+               |      expr       | format |
+|   |    values     |               |                 |        |
++---+---------------+---------------+-----------------+--------+
+| 1 | false         | 7.3.1         | loki_build_info | table  |
++---+---------------+---------------+-----------------+--------+
+| 2 | false         | 7.3.2         | sum_messages    | json   |
++---+---------------+---------------+-----------------+--------+"
+`;
+
+exports[`'deduplicate headers with format in bo…' > renders expected html table > deduplicate headers with format in both items html 1`] = `
+"<table><tr><td colspan="1" rowspan="3"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>options</b></td>
+<td colspan="1" rowspan="3"><b>pluginVersion</b></td>
+<td colspan="2" rowspan="1"><b>targets</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
+<td colspan="1" rowspan="2"><b>expr</b></td>
+<td colspan="1" rowspan="2"><b>format</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>values</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">false</td>
+<td colspan="1" rowspan="1">7.3.1</td>
+<td colspan="1" rowspan="1">loki_build_info</td>
+<td colspan="1" rowspan="1">table</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">false</td>
+<td colspan="1" rowspan="1">7.3.2</td>
+<td colspan="1" rowspan="1">sum_messages</td>
+<td colspan="1" rowspan="1">json</td></tr></table>"
+`;
+
+exports[`'deduplicate headers with format in bo…' > renders expected markdown-like ascii table > deduplicate headers with format in both items markdown-like 1`] = `
+"
+|   |    options    |               |         targets          |
+| # |---------------| pluginVersion |--------------------------|
+|   | reduceOptions |               |      expr       | format |
+|---|    values     |---------------|-----------------|--------|
+| 1 | false         | 7.3.1         | loki_build_info | table  |
+| 2 | false         | 7.3.2         | sum_messages    | json   |"
+`;
+
+exports[`'deduplicate multiline tree headers' > renders expected ascii table > deduplicate multiline tree headers ascii 1`] = `
+"
++---+---+---+
+|   | a | b |
+| # +---+---+
+|   | x | y |
++---+---+---+
+| 1 | 1 | 2 |
++---+---+---+
+| 2 | 3 | 4 |
++---+---+---+"
+`;
+
+exports[`'deduplicate multiline tree headers' > renders expected html table > deduplicate multiline tree headers html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>x</b></td>
+<td colspan="1" rowspan="1"><b>y</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">3</td>
+<td colspan="1" rowspan="1">4</td></tr></table>"
+`;
+
+exports[`'deduplicate multiline tree headers' > renders expected markdown-like ascii table > deduplicate multiline tree headers markdown-like 1`] = `
+"
+| # | a | b |
+|   |---|---|
+|---| x | y |
+| 1 | 1 | 2 |
+| 2 | 3 | 4 |"
+`;
+
+exports[`'deduplicate nested arrays of objects' > renders expected ascii table > deduplicate nested arrays of objects ascii 1`] = `
+"
++-----+-----+-----+-----+
+|  #  |  a  |  b  |  c  |
++-----+-----+-----+-----+
+| 1.1 | 1.1 | 1.2 | 1.3 |
++-----+-----+-----+-----+
+| 1.2 | 1.4 | 1.5 | 1.6 |
++-----+-----+-----+-----+
+| 1.3 | 1.7 | 1.8 | 1.9 |
++-----+-----+-----+-----+
+| 2.1 | 2.1 | 2.2 | 2.3 |
++-----+-----+-----+-----+
+| 2.2 | 2.4 | 2.5 | 2.6 |
++-----+-----+-----+-----+
+| 2.3 | 2.7 | 2.8 | 2.9 |
++-----+-----+-----+-----+"
+`;
+
+exports[`'deduplicate nested arrays of objects' > renders expected html table > deduplicate nested arrays of objects html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1.1</b></td>
+<td colspan="1" rowspan="1">1.1</td>
+<td colspan="1" rowspan="1">1.2</td>
+<td colspan="1" rowspan="1">1.3</td></tr>
+<tr><td colspan="1" rowspan="1"><b>1.2</b></td>
+<td colspan="1" rowspan="1">1.4</td>
+<td colspan="1" rowspan="1">1.5</td>
+<td colspan="1" rowspan="1">1.6</td></tr>
+<tr><td colspan="1" rowspan="1"><b>1.3</b></td>
+<td colspan="1" rowspan="1">1.7</td>
+<td colspan="1" rowspan="1">1.8</td>
+<td colspan="1" rowspan="1">1.9</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2.1</b></td>
+<td colspan="1" rowspan="1">2.1</td>
+<td colspan="1" rowspan="1">2.2</td>
+<td colspan="1" rowspan="1">2.3</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2.2</b></td>
+<td colspan="1" rowspan="1">2.4</td>
+<td colspan="1" rowspan="1">2.5</td>
+<td colspan="1" rowspan="1">2.6</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2.3</b></td>
+<td colspan="1" rowspan="1">2.7</td>
+<td colspan="1" rowspan="1">2.8</td>
+<td colspan="1" rowspan="1">2.9</td></tr></table>"
+`;
+
+exports[`'deduplicate nested arrays of objects' > renders expected markdown-like ascii table > deduplicate nested arrays of objects markdown-like 1`] = `
+"
+|  #  |  a  |  b  |  c  |
+|-----|-----|-----|-----|
+| 1.1 | 1.1 | 1.2 | 1.3 |
+| 1.2 | 1.4 | 1.5 | 1.6 |
+| 1.3 | 1.7 | 1.8 | 1.9 |
+| 2.1 | 2.1 | 2.2 | 2.3 |
+| 2.2 | 2.4 | 2.5 | 2.6 |
+| 2.3 | 2.7 | 2.8 | 2.9 |"
+`;
+
+exports[`'deduplicate tree headers' > renders expected ascii table > deduplicate tree headers ascii 1`] = `
+"
++---+---+---+---+
+| # | a | b | c |
++---+---+---+---+
+| 1 | 1 | 2 | 3 |
++---+---+---+---+
+| 2 | 4 | 5 | 6 |
++---+---+---+---+
+| 3 | 7 | 8 | 9 |
++---+---+---+---+"
+`;
+
+exports[`'deduplicate tree headers' > renders expected html table > deduplicate tree headers html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">3</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">4</td>
+<td colspan="1" rowspan="1">5</td>
+<td colspan="1" rowspan="1">6</td></tr>
+<tr><td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">7</td>
+<td colspan="1" rowspan="1">8</td>
+<td colspan="1" rowspan="1">9</td></tr></table>"
+`;
+
+exports[`'deduplicate tree headers' > renders expected markdown-like ascii table > deduplicate tree headers markdown-like 1`] = `
+"
+| # | a | b | c |
+|---|---|---|---|
+| 1 | 1 | 2 | 3 |
+| 2 | 4 | 5 | 6 |
+| 3 | 7 | 8 | 9 |"
+`;
+
+exports[`'deduplicate tree indexes' > renders expected ascii table > deduplicate tree indexes ascii 1`] = `
+"
++---+---+---+---+
+| # | a | b | c |
++---+---+---+---+
+| 1 | 1 | 2 | 3 |
++---+---+---+---+
+| 2 | 4 | 5 | 6 |
++---+---+---+---+
+| 3 | 7 | 8 | 9 |
++---+---+---+---+"
+`;
+
+exports[`'deduplicate tree indexes' > renders expected html table > deduplicate tree indexes html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">3</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">4</td>
+<td colspan="1" rowspan="1">5</td>
+<td colspan="1" rowspan="1">6</td></tr>
+<tr><td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">7</td>
+<td colspan="1" rowspan="1">8</td>
+<td colspan="1" rowspan="1">9</td></tr></table>"
+`;
+
+exports[`'deduplicate tree indexes' > renders expected markdown-like ascii table > deduplicate tree indexes markdown-like 1`] = `
+"
+| # | a | b | c |
+|---|---|---|---|
+| 1 | 1 | 2 | 3 |
+| 2 | 4 | 5 | 6 |
+| 3 | 7 | 8 | 9 |"
+`;
+
+exports[`'fully deduplicate common headers' > renders expected ascii table > fully deduplicate common headers ascii 1`] = `
+"
++---+---+---+
+|   |   | b |
+| # | a +---+
+|   |   | c |
++---+---+---+
+| 1 | 1 | 1 |
++---+---+---+
+| 2 | 2 | 2 |
++---+---+---+"
+`;
+
+exports[`'fully deduplicate common headers' > renders expected html table > fully deduplicate common headers html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="1" rowspan="2"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">1</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">2</td></tr></table>"
+`;
+
+exports[`'fully deduplicate common headers' > renders expected markdown-like ascii table > fully deduplicate common headers markdown-like 1`] = `
+"
+| # | a | b |
+|   |   |---|
+|---|---| c |
+| 1 | 1 | 1 |
+| 2 | 2 | 2 |"
+`;
+
+exports[`'handle empty arrays' > renders expected ascii table > handle empty arrays ascii 1`] = `
+"
++---+---------------------------------------------------+
+|   |                       tasks                       |
+| # +-----------------------+---+-----------------------+
+|   |           n           | d |           a           |
++---+-----------------------+---+-----------------------+
+| 1 | UspYpi-8NwmZZR7FJprSb |   | aCx8zMrOjqW6K55TMokHD |
++---+-----------------------+---+-----------------------+
+| 2 |                       |   | gwT5xfbxgkPCq_VDyoBO3 |
++---+-----------------------+---+-----------------------+"
+`;
+
+exports[`'handle empty arrays' > renders expected html table > handle empty arrays html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="3" rowspan="1"><b>tasks</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>n</b></td>
+<td colspan="1" rowspan="1"><b>d</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">UspYpi-8NwmZZR7FJprSb</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">aCx8zMrOjqW6K55TMokHD</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">gwT5xfbxgkPCq_VDyoBO3</td></tr></table>"
+`;
+
+exports[`'handle empty arrays' > renders expected markdown-like ascii table > handle empty arrays markdown-like 1`] = `
+"
+| # |                       tasks                       |
+|   |---------------------------------------------------|
+|---|           n           | d |           a           |
+| 1 | UspYpi-8NwmZZR7FJprSb |   | aCx8zMrOjqW6K55TMokHD |
+| 2 |                       |   | gwT5xfbxgkPCq_VDyoBO3 |"
+`;
+
+exports[`'partially deduplicate objects with di…' > renders expected ascii table > partially deduplicate objects with different headers ascii 1`] = `
+"
++---+---------------------+-----------------------+
+|   |    character_id     |        item_id        |
+| 1 +---------------------+-----------------------+
+|   | 5428010618020694593 |                    95 |
++---+---------------------+---------+-------------+
+|   |    character_id     | item_id | stack_count |
+| 2 +---------------------+---------+-------------+
+|   | 5428010618020694593 |     101 |           4 |
++---+---------------------+---------+-------------+"
+`;
+
+exports[`'partially deduplicate objects with di…' > renders expected html table > partially deduplicate objects with different headers html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>character_id</b></td>
+<td colspan="2" rowspan="1"><b>item_id</b></td></tr>
+<tr><td colspan="1" rowspan="1">5428010618020694593</td>
+<td colspan="2" rowspan="1">95</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>character_id</b></td>
+<td colspan="1" rowspan="1"><b>item_id</b></td>
+<td colspan="1" rowspan="1"><b>stack_count</b></td></tr>
+<tr><td colspan="1" rowspan="1">5428010618020694593</td>
+<td colspan="1" rowspan="1">101</td>
+<td colspan="1" rowspan="1">4</td></tr></table>"
+`;
+
+exports[`'partially deduplicate objects with di…' > renders expected markdown-like ascii table > partially deduplicate objects with different headers markdown-like 1`] = `
+"
+| 1 |    character_id     |        item_id        |
+|   |---------------------|-----------------------|
+|---| 5428010618020694593 |                    95 |
+| 2 |    character_id     | item_id | stack_count |
+|   | 5428010618020694593 |     101 |           4 |"
+`;
+
+exports[`'skip header deduplication' > renders expected ascii table > skip header deduplication ascii 1`] = `
+"
++---+---+---+---+
+|   | a | b | c |
+| 1 +---+---+---+
+|   | 1 | 2 | 3 |
++---+---+---+---+
+|   | a | b | c |
+| 2 +---+---+---+
+|   | 4 | 5 | 6 |
++---+---+---+---+"
+`;
+
+exports[`'skip header deduplication' > renders expected html table > skip header deduplication html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">3</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1">4</td>
+<td colspan="1" rowspan="1">5</td>
+<td colspan="1" rowspan="1">6</td></tr></table>"
+`;
+
+exports[`'skip header deduplication' > renders expected markdown-like ascii table > skip header deduplication markdown-like 1`] = `
+"
+| 1 | a | b | c |
+|   |---|---|---|
+|---| 1 | 2 | 3 |
+| 2 | a | b | c |
+|   | 4 | 5 | 6 |"
+`;
+
+exports[`'stabilize order of properties in arra…' > renders expected ascii table > stabilize order of properties in arrays of objects ascii 1`] = `
+"
++---+---+---+
+|   | b | a |
+| 1 +---+---+
+|   | 2 | 1 |
++---+---+---+
+|   | a | c |
+| 2 +---+---+
+|   | 4 | 3 |
++---+---+---+"
+`;
+
+exports[`'stabilize order of properties in arra…' > renders expected html table > stabilize order of properties in arrays of objects html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td></tr>
+<tr><td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">1</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td></tr>
+<tr><td colspan="1" rowspan="1">4</td>
+<td colspan="1" rowspan="1">3</td></tr></table>"
+`;
+
+exports[`'stabilize order of properties in arra…' > renders expected markdown-like ascii table > stabilize order of properties in arrays of objects markdown-like 1`] = `
+"
+| 1 | b | a |
+|   |---|---|
+|---| 2 | 1 |
+| 2 | a | c |
+|   | 4 | 3 |"
+`;
+
+exports[`'work with unique headers' > renders expected ascii table > work with unique headers ascii 1`] = `
+"
++---+-----------------------------+------+------+----------+--------+-------------+
+|   |         description         |  in  | name | required |  type  | uniqueItems |
+| 1 +-----------------------------+------+------+----------+--------+-------------+
+|   | name of the ComponentStatus | path | name | true     | string | true        |
++---+-----------------------------+------+------+----------+--------+-------------+
+|   |                                    $ref                                     |
+| 2 +-----------------------------------------------------------------------------+
+|   | #/parameters/pretty-tJGM1-ng                                                |
++---+-----------------------------------------------------------------------------+"
+`;
+
+exports[`'work with unique headers' > renders expected html table > work with unique headers html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>description</b></td>
+<td colspan="1" rowspan="1"><b>in</b></td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>required</b></td>
+<td colspan="1" rowspan="1"><b>type</b></td>
+<td colspan="1" rowspan="1"><b>uniqueItems</b></td></tr>
+<tr><td colspan="1" rowspan="1">name of the ComponentStatus</td>
+<td colspan="1" rowspan="1">path</td>
+<td colspan="1" rowspan="1">name</td>
+<td colspan="1" rowspan="1">true</td>
+<td colspan="1" rowspan="1">string</td>
+<td colspan="1" rowspan="1">true</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="6" rowspan="1"><b>$ref</b></td></tr>
+<tr><td colspan="6" rowspan="1">#/parameters/pretty-tJGM1-ng</td></tr></table>"
+`;
+
+exports[`'work with unique headers' > renders expected markdown-like ascii table > work with unique headers markdown-like 1`] = `
+"
+| 1 |         description         |  in  | name | required |  type  | uniqueItems |
+|   |-----------------------------|------|------|----------|--------|-------------|
+|---| name of the ComponentStatus | path | name | true     | string | true        |
+| 2 |                                    $ref                                     |
+|   | #/parameters/pretty-tJGM1-ng                                                |"
+`;

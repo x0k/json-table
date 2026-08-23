@@ -1,13 +1,12 @@
 {
-  "name": "@json-table/core",
+  "name": "@json-table/xlsx",
   "version": "0.3.0",
-  "description": "Library for creating tables from JSON data",
+  "description": "Library for rendering JSON Table trees to XLSX",
   "license": "MIT",
   "keywords": [
     "json",
     "table",
-    "ascii",
-    "html-table"
+    "xlsx"
   ],
   "type": "module",
   "files": [
@@ -21,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/x0k/json-table.git",
-    "directory": "packages/core"
+    "directory": "packages/xlsx"
   },
   "bugs": "https://github.com/x0k/json-table/issues",
   "homepage": "https://x0k.github.io/json-table/",
@@ -30,16 +29,17 @@
     "test": "vitest --run"
   },
   "exports": {
-    "./lib/*": {
-      "types": "./dist/lib/*.d.ts",
-      "import": "./dist/lib/*.js"
-    },
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/tree-to-xlsx.d.ts",
+      "import": "./dist/tree-to-xlsx.js"
     }
   },
+  "peerDependencies": {
+    "exceljs": "^4.4.0",
+    "@json-table/core": "workspace:^"
+  },
   "devDependencies": {
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@json-table/core": "workspace:^0.3.0"
   }
 }

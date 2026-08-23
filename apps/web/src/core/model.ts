@@ -1,13 +1,12 @@
+import { type JSONPrimitive } from "@json-table/core/lib/json";
 import {
-  horizontalMirror,
-  transpose,
-  verticalMirror,
-} from "@json-table/core/lib/matrix";
-import type { JSONPrimitive } from "@json-table/core/lib/json";
-import type { Block } from "@json-table/core";
-import { createMatrix, fromMatrix } from "@json-table/core/block-matrix";
-import { ASCIITableFormat } from "@json-table/core/block-to-ascii";
-import type { TableFactoryOptions } from "@json-table/core/json-to-table";
+  ASCIITableFormat,
+  type Tree,
+  type TreeFactoryOptions,
+  horizontalMirrorInPlace,
+  transposeTree,
+  verticalMirrorInPlace,
+} from "@json-table/core";
 
 export enum TransformPreset {
   Default = "Default",
@@ -37,7 +36,7 @@ export type TransformConfig = {
     | { preset: TransformPreset.Default }
     | ({
         preset: TransformPreset.Manual;
-      } & TableFactoryOptions<JSONPrimitive>)
+      } & TreeFactoryOptions<JSONPrimitive>)
   ) &
   (
     | { transform: false }
@@ -49,35 +48,42 @@ export type TransformConfig = {
       }
   );
 
+const TREE_FACTORY_HEADER = (key: string) => key;
+const TREE_FACTORY_INDEX = (i: number) => `${i + 1}`;
+
 export function extractTableFactoryOptions(
   config: TransformConfig
-): TableFactoryOptions<JSONPrimitive> {
+): TreeFactoryOptions<JSONPrimitive> {
   switch (config.preset) {
     case TransformPreset.Default:
       return {
         cornerCellValue: "№",
+        createHeader: TREE_FACTORY_HEADER,
+        createIndex: TREE_FACTORY_INDEX,
         joinPrimitiveArrayValues: true,
-        combineArraysOfObjects: false,
         proportionalSizeAdjustmentThreshold: 1,
         collapseIndexes: true,
         stabilizeOrderOfPropertiesInArraysOfObjects: true,
+        deduplicateHeaders: true,
       };
     case TransformPreset.Manual: {
       const {
         collapseIndexes,
         joinPrimitiveArrayValues,
-        combineArraysOfObjects,
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue,
+        deduplicateHeaders,
       } = config;
       return {
         collapseIndexes,
         joinPrimitiveArrayValues,
-        combineArraysOfObjects,
         stabilizeOrderOfPropertiesInArraysOfObjects,
         proportionalSizeAdjustmentThreshold,
         cornerCellValue: cornerCellValue ?? "",
+        deduplicateHeaders,
+        createHeader: TREE_FACTORY_HEADER,
+        createIndex: TREE_FACTORY_INDEX,
       };
     }
     default: {
@@ -88,24 +94,19 @@ export function extractTableFactoryOptions(
 }
 
 export function makeTransformApplicator(config: TransformConfig) {
-  return (block: Block) => {
+  return (tree: Tree<JSONPrimitive>): Tree<JSONPrimitive> => {
     if (!config.transform) {
-      return block;
+      return tree;
     }
-    let matrix = createMatrix(block, ({ type, value }) => ({ type, value }));
     if (config.horizontalReflect) {
-      matrix = horizontalMirror(matrix);
+      horizontalMirrorInPlace(tree);
     }
     if (config.verticalReflect) {
-      matrix = verticalMirror(matrix);
+      verticalMirrorInPlace(tree);
     }
     if (config.transpose) {
-      matrix = transpose(matrix);
+      return transposeTree(tree);
     }
-    return fromMatrix(
-      matrix,
-      ({ type }) => type,
-      ({ value }) => value
-    );
+    return tree;
   };
 }

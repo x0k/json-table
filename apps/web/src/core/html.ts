@@ -1,5 +1,6 @@
-import type { Block } from '@json-table/core';
-import { blockToHTML } from '@json-table/core/block-to-html';
+import type { Tree } from '@json-table/core';
+import type { JSONValue } from "@json-table/core/lib/json";
+import { toHTML } from '@json-table/core';
 
 import type { Entry } from '@/lib/entry';
 
@@ -25,10 +26,10 @@ export const renderHTMLPage = (
 </body>
 </html>`;
 
-export function makeHTMLPageContent(tables: Entry<Block>[]) {
+export function makeHTMLPageContent(tables: Entry<Tree<JSONValue>>[]) {
   return tables.length > 1
     ? tables
-        .map(([title, table]) => `<h2>${title}</h2>${blockToHTML(table)}`)
+        .map(([title, table]) => `<h2>${title}</h2>${toHTML(table)}`)
         .join("<br />")
-    : blockToHTML(tables[0]![1]);
+    : toHTML(tables[0]![1]);
 }
