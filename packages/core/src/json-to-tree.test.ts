@@ -5,6 +5,7 @@ import {
   decapitateTree,
   extractHeadersTree,
   extractSubtree,
+  rows,
   stretchLeavesDimensionInPlace,
   Tree,
 } from "./model";
@@ -29,6 +30,107 @@ describe("makePropertiesStabilizer", () => {
     const third = stabilize({ b: "0", c: "5", a: "6" });
     expect(third.entries.map((e) => e.key)).toEqual(["b", "a", "c"]);
     expect(third.reordered).toBe(true);
+  });
+});
+
+describe("rows", () => {
+  it("groups cells into gap-free left-ordered visual rows", () => {
+    // 2x2 table: col[header "h", leaf "v"] beside a tall leaf
+    const tree: Tree<JSONValue> = {
+      type: "row",
+      width: 2,
+      height: 2,
+      children: [
+        {
+          type: "col",
+          width: 1,
+          height: 2,
+          children: [
+            { type: "header", value: "h", width: 1, height: 1 },
+            { type: "leaf", value: "v", width: 1, height: 1 },
+          ],
+        },
+        { type: "leaf", value: "tall", width: 1, height: 2 },
+      ],
+    };
+    const result = rows(tree);
+    expect(result.length).toBe(tree.height);
+    expect(
+      result.map((row) =>
+        row.map((c) => `${c.node.value}@${c.x},${c.y} ${c.width}x${c.height}`),
+      ),
+    ).toEqual([
+      ["h@0,0 1x1", "tall@1,0 1x2"],
+      ["v@0,1 1x1"],
+    ]);
+  });
+
+  it("yields an empty row when it is fully covered by rowspans", () => {
+    const tree: Tree<JSONValue> = {
+      type: "col",
+      width: 1,
+      height: 2,
+      children: [{ type: "leaf", value: 1, width: 1, height: 2 }],
+    };
+    const result = rows(tree);
+    expect(result.map((row) => row.length)).toEqual([1, 0]);
+  });
+
+  it("yields cells in ascending x order per row for nested layouts", () => {
+    // row[ col[ row[a,b], c ], col[d, col[e,f]] ]
+    const leaf = (value: number): Tree<JSONValue> => ({
+      type: "leaf",
+      value,
+      width: 1,
+      height: 1,
+    });
+    const tree: Tree<JSONValue> = {
+      type: "row",
+      width: 4,
+      height: 3,
+      children: [
+        {
+          type: "col",
+          width: 2,
+          height: 3,
+          children: [
+            {
+              type: "row",
+              width: 2,
+              height: 1,
+              children: [leaf(0), leaf(1)],
+            },
+            leaf(2),
+          ],
+        },
+        {
+          type: "col",
+          width: 2,
+          height: 3,
+          children: [
+            leaf(3),
+            {
+              type: "col",
+              width: 2,
+              height: 2,
+              children: [
+                {
+                  type: "row",
+                  width: 2,
+                  height: 1,
+                  children: [leaf(4), leaf(5)],
+                },
+                leaf(6),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    for (const row of rows(tree)) {
+      const xs = row.map((cell) => cell.x);
+      expect([...xs].sort((a, b) => a - b)).toEqual(xs);
+    }
   });
 });
 

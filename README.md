@@ -44,10 +44,21 @@ const htmlTable = toHTML(tree);
 > }
 > ```
 >
+> For HTML-like renderers, `rows()` groups cells into visual rows
+> (one array per `<tr>`, ordered left-to-right):
+>
+> ```typescript
+> import { rows } from "@json-table/core";
+>
+> for (const row of rows(tree)) {
+>   // each row: cells starting in it, sorted by x
+> }
+> ```
+>
 > See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts)
 > for a complete minimal renderer.
 >
-> [Interactive table example](https://svelte.dev/playground/d77e8d2a2bbb46c0810ee1fa6a05c758).
+> [Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
 
 Input data:
 

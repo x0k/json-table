@@ -12,6 +12,7 @@ export interface Sized extends Height, Width {}
  * returns its prebuilt `Tree` representation, bypassing default parsing */
 export const TO_TABLE = Symbol("TO_TABLE");
 
+import { array } from "./lib/array.js";
 import { max } from "./lib/math.js";
 
 export interface LeafNode<V> extends Sized {
@@ -110,6 +111,20 @@ export function* cells<V>(
     default:
       throw neverError(node, "unexpected node type");
   }
+}
+
+/** groups cells into visual rows: exactly `tree.height` arrays (rows fully
+ * covered by rowspans are present but empty), each holding the cells that
+ * start in it in ascending x order — a property of the `cells()` traversal
+ * for layout-consistent trees */
+export function rows<V>(
+  tree: Tree<V>,
+): TreeCell<LeafValue<V>>[][] {
+  const result = array<TreeCell<LeafValue<V>>[]>(tree.height, () => []);
+  for (const cell of cells(tree)) {
+    result[cell.y]!.push(cell);
+  }
+  return result;
 }
 
 export type OptionalNode<V> =
