@@ -1,6 +1,6 @@
 # @json-table/xlsx
 
-The [exceljs](https://github.com/exceljs/exceljs) based XLSX renderer for [JSON Table](https://github.com/x0k/json-table) trees.
+The [@office-kit/xlsx](https://github.com/office-kit/xlsx) based XLSX renderer for [JSON Table](https://github.com/x0k/json-table) trees.
 
 ## Install
 
@@ -12,8 +12,7 @@ npm install @json-table/core @json-table/xlsx
 
 ```typescript
 import { makeTreeFactory } from "@json-table/core";
-import { renderOnWorksheet } from "@json-table/xlsx";
-import { Workbook } from "exceljs";
+import { treesToWorkbook, treesToXlsxBytes } from "@json-table/xlsx";
 
 const createTree = makeTreeFactory({
   cornerCellValue: "№",
@@ -21,9 +20,13 @@ const createTree = makeTreeFactory({
   createIndex: (i) => i + 1,
 });
 
-const wb = new Workbook();
-renderOnWorksheet(wb.addWorksheet("Table"), createTree(data));
+const wb = treesToWorkbook([["Table", createTree(data)]]);
+const bytes = await treesToXlsxBytes([["Table", createTree(data)]]);
 ```
+
+Column widths and row heights are computed with a two-pass autofit algorithm
+(p90-based column widths with wrap-aware row heights), configurable via
+`cellMinWidth` and `cellMinHeight` options.
 
 ## License
 

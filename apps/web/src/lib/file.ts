@@ -1,4 +1,4 @@
-export function createXLSBlob(data: ArrayBuffer) {
+export function createXLSBlob(data: BlobPart) {
   return new Blob([data], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8',
   })

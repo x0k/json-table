@@ -4,16 +4,13 @@ import {
   type JSONValue,
   isJsonPrimitive,
 } from "@json-table/core/lib/json";
-import { max, sum } from "@json-table/core/lib/math";
 import { type Tree, type TreeFactoryOptions, makeTreeFactory, toASCII } from "@json-table/core";
 
 import { type Entry, transformValue } from "@/lib/entry";
-import { createFileURL, createXLSBlob } from "@/lib/file";
 import { JSONParseStatus, jsonTryParse } from "@/lib/json-parser";
 
 import { renderHTMLPage, HTML_TABLE_STYLES, makeHTMLPageContent } from "./html";
 import { makeWorkBook } from "./xlsx";
-
 import {
   OutputFormat,
   type TransformConfig,
@@ -78,21 +75,7 @@ export async function createTable(
       );
     }
     case OutputFormat.XLSX:
-      return makeWorkBook(pagesTables, {
-        columnWidth: (counts, _i, tree) => {
-          return Math.max(
-            Math.ceil(
-              (counts.reduce(sum) / tree.height +
-                (counts.reduce(max) * counts.length) / tree.height) /
-                2
-            ),
-            10
-          );
-        },
-      })
-        .xlsx.writeBuffer()
-        .then(createXLSBlob)
-        .then(createFileURL);
+      return makeWorkBook(pagesTables);
     default:
       throw new Error(`Unexpected output format`);
   }
