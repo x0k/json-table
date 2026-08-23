@@ -11,6 +11,20 @@ Set of tools for converting JSON data into tables (HTML, XLSX, ASCII).
 npm install @json-table/core
 ```
 
+## How it works
+
+Every JSON value is drawn as a rectangular block:
+
+- a primitive (`string`, `number`, `boolean`, `null`) is a single cell;
+- an object lays its properties out **side by side**, each key becoming a header above its value;
+- an array stacks its items **vertically**, numbering each one.
+
+Because every block is a rectangle, they compose naturally: a value nested inside another simply takes its place in the parent's layout, and neighbouring blocks align along shared edges — which is why arbitrarily deep JSON always produces a well-formed table.
+
+Finally, repetition is removed: when all items of an array begin with the same header band (or the same index column), it is lifted out and drawn once at the top/left instead of repeating per item.
+
+Rendering then just traces this layout into whatever output you need — ASCII, HTML, XLSX, or your own format.
+
 ## Usage
 
 ```typescript
