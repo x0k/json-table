@@ -1,5 +1,5 @@
 import { escapeHtml } from "./lib/html.js";
-import { type Tree, cells } from "./tree/tree.js";
+import { type Tree, cells } from "./model.js";
 
 /** renders a tree as an HTML table */
 export function toHTML<V>(tree: Tree<V>): string {

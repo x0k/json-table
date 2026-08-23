@@ -7,8 +7,8 @@ import {
   horizontalMirrorInPlace,
   transposeTree,
   verticalMirrorInPlace,
-} from "./tree/tree";
-import { makeTreeFactory } from "./tree/json-to-tree";
+} from "./model";
+import { makeTreeFactory } from "./json-to-tree";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
 import company from "./__fixtures__/company.json";

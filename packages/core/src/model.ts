@@ -1,5 +1,18 @@
-import type { Sized } from "../json-table.js";
-import { max } from "../lib/math.js";
+export interface Height {
+  height: number;
+}
+
+export interface Width {
+  width: number;
+}
+
+export interface Sized extends Height, Width {}
+
+/** protocol symbol: an object may expose a function under this key that
+ * returns its prebuilt `Tree` representation, bypassing default parsing */
+export const TO_TABLE = Symbol("TO_TABLE");
+
+import { max } from "./lib/math.js";
 
 export interface LeafNode<V> extends Sized {
   type: "leaf" | "header" | "index" | "corner";

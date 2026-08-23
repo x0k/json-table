@@ -9,17 +9,19 @@ The legacy `Block`/`Table` pipeline has been removed. JSON is now converted into
 
 Migration guide:
 
-| Removed                                                                                                  | Replacement                                         |
-| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| `makeBlockFactory` / `makeTableFactory`                                                                  | `makeTreeFactory`                                   |
-| `Block`, `Table`, `ComposedTable`, `Cell`, `CellType` types                                              | `Tree`                                              |
-| `blockToASCII(block)`                                                                                    | `toASCII(tree)`                                     |
-| `blockToHTML(block)`                                                                                     | `toHTML(tree)`                                      |
-| `ASCIIToBlock`                                                                                           | removed                                             |
-| `createMatrix` / `fromMatrix` / `@json-table/core/block-matrix`                                          | `cells(tree)`                                       |
-| `treeToMatrix` / `Matrix<Cell>` interchange                                                              | renderers consume `Tree` directly                   |
-| `@json-table/core/json-to-table`, `/block`, `/tree`, `/block-to-ascii`, `/block-to-html` subpath exports | single root export `@json-table/core` (+ `./lib/*`) |
-| `renderBlockOnWorksheet(block)` (block-to-xlsx)                                                          | `renderOnWorksheet(tree)`                           |
+| Removed                                                                                         | Replacement                                         |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `makeBlockFactory` / `makeTableFactory`                                                         | `makeTreeFactory`                                   |
+| `Block`, `Table`, `ComposedTable`, `Cell`, `CellType` types                                     | `Tree`                                              |
+| `blockToASCII(block)`                                                                           | `toASCII(tree)`                                     |
+| `blockToHTML(block)`                                                                            | `toHTML(tree)`                                      |
+| `ASCIIToBlock`                                                                                  | removed                                             |
+| `createMatrix` / `fromMatrix` / `@json-table/core/block-matrix`                                 | `cells(tree)`                                       |
+| `treeToMatrix` / `Matrix<Cell>` interchange                                                     | renderers consume `Tree` directly                   |
+| `@json-table/core/json-to-table`, `/block`, `/block-to-ascii`, `/block-to-html` subpath exports | single root export `@json-table/core` (+ `./lib/*`) |
+| `renderBlockOnWorksheet(block)` (block-to-xlsx)                                                 | `renderOnWorksheet(tree)`                           |
+| `@json-table/core/lib/binary-tree`, `/lib/guards`                                               | removed (unused utilities)                          |
+| `@json-table/core/lib/proportional-resize-guard`                                                | `ProportionalResizeGuard` type from root export     |
 
 - `combineArraysOfObjects` option dropped; use explicit object merging before rendering
 

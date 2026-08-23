@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { JSONValue } from "../lib/json";
+import type { JSONValue } from "./lib/json";
 import {
   decapitateTree,
   extractHeadersTree,
   extractSubtree,
   stretchLeavesDimensionInPlace,
   Tree,
-} from "./tree";
+} from "./model";
 import { makeTreeFactory } from "./json-to-tree";
 import { makePropertiesStabilizer } from "./properties-stabilizer";
 

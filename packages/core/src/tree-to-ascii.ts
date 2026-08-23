@@ -1,7 +1,7 @@
 import { array } from "./lib/array.js";
 import { matrix } from "./lib/matrix.js";
 
-import { type Tree, cells } from "./tree/tree.js";
+import { type Tree, cells } from "./model.js";
 
 function getMaxLineLength(rows: string[]) {
   let max = 0;

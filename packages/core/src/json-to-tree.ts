@@ -1,22 +1,34 @@
-import { makeProportionalResizeGuard } from "../lib/proportional-resize-guard.js";
-import { TO_TABLE } from "../json-table.js";
-import { lcm, max } from "../lib/math.js";
-import { isJsonPrimitive, type JSONValue } from "../lib/json.js";
-import { isObject, isPlainObject, isRecordProto } from "../lib/object.js";
+import { TO_TABLE } from "./model.js";
+import { lcm, max } from "./lib/math.js";
+import { isJsonPrimitive, type JSONValue } from "./lib/json.js";
+import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
 import { makePropertiesStabilizer } from "./properties-stabilizer.js";
+
+/** proportional size adjustment guard: allows the lcm-based extent only
+ * when it exceeds the plain maximum by at most the configured threshold */
+export type ProportionalResizeGuard = (
+  lcmValue: number,
+  maxValue: number,
+) => boolean;
+
+function makeProportionalResizeGuard(
+  threshold: number,
+): ProportionalResizeGuard {
+  return (lcmValue: number, maxValue: number) =>
+    (lcmValue - maxValue) / maxValue <= threshold;
+}
 
 import {
   type ComponentKind,
   decapitateTree,
   extractComponentTree,
   extractSubtree,
-  normalizeExtentsInPlace,
   stretchLeavesDimensionInPlace,
   type LeafValue,
   type OptionalTree,
   type Tree,
   INDEX_KINDS,
-} from "./tree.js";
+} from "./model.js";
 
 const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
   "header",
@@ -578,37 +590,22 @@ export function makeTreeFactory<V>({
 
   function parseValue(value: V): Tree<V> {
     if (isObject(value)) {
-      // plain records dominate real data: check the cheap structural
-      // discriminants first, protocol symbols/methods last
-      if (isRecordProto(value)) {
-        if (
-          TO_TABLE in value &&
-          typeof value[TO_TABLE as keyof object] === "function"
-        ) {
-          // externally built trees may violate layout invariants: normalize
-          const tree = ((value as unknown as { [TO_TABLE]: () => Tree<V> }))[TO_TABLE]();
-          normalizeExtentsInPlace(tree);
-          return tree;
-        }
-        if ("toJSON" in value && typeof value["toJSON"] === "function") {
-          return parseValue(value.toJSON() as V);
-        }
-        return transformRecord(value as Record<PropertyKey, V>);
-      }
-      if (Array.isArray(value)) {
-        return transformArray(value);
-      }
-      // exotic objects (class instances, Date, …): protocols only
       if (
         TO_TABLE in value &&
         typeof value[TO_TABLE as keyof object] === "function"
       ) {
-        const tree = ((value as unknown as { [TO_TABLE]: () => Tree<V> }))[TO_TABLE]();
-        normalizeExtentsInPlace(tree);
-        return tree;
+        return (value as unknown as { [TO_TABLE]: () => Tree<V> })[
+          TO_TABLE
+        ]();
       }
       if ("toJSON" in value && typeof value["toJSON"] === "function") {
         return parseValue(value.toJSON() as V);
+      }
+      if (isRecordProto(value)) {
+        return transformRecord(value as Record<PropertyKey, V>);
+      }
+      if (Array.isArray(value)) {
+        return transformArray(value);
       }
     }
     return {
