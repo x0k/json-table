@@ -36,7 +36,7 @@
   },
   "peerDependencies": {
     "exceljs": "^4.4.0",
-    "@json-table/core": "workspace:^"
+    "@json-table/core": ">=0.3.0 <1"
   },
   "devDependencies": {
     "vitest": "catalog:",
