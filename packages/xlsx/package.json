@@ -1,7 +1,7 @@
 {
-  "name": "@json-table/block-to-xlsx",
+  "name": "@json-table/xlsx",
   "version": "0.3.0",
-  "description": "Library for rendering JSON Table to XLSX",
+  "description": "Library for rendering JSON Table trees to XLSX",
   "license": "MIT",
   "keywords": [
     "json",
@@ -20,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/x0k/json-table.git",
-    "directory": "packages/block-to-xlsx"
+    "directory": "packages/xlsx"
   },
   "bugs": "https://github.com/x0k/json-table/issues",
   "homepage": "https://x0k.github.io/json-table/",
@@ -36,7 +36,7 @@
   },
   "peerDependencies": {
     "exceljs": "^4.4.0",
-    "@json-table/core": "workspace:0.3.0"
+    "@json-table/core": "workspace:^"
   },
   "devDependencies": {
     "vitest": "catalog:",

@@ -4,7 +4,7 @@ import type { JSONValue } from "@json-table/core/lib/json";
 import {
   renderOnWorksheet,
   type MakeWorkBookOptions,
-} from "@json-table/block-to-xlsx";
+} from "@json-table/xlsx";
 
 import type { Entry } from "@/lib/entry";
 

@@ -43,8 +43,8 @@ export default defineConfig({
               link: "/",
             },
             {
-              label: "@json-table/block-to-xlsx",
-              link: "/block-to-xlsx/",
+              label: "@json-table/xlsx",
+              link: "/xlsx/",
             },
           ],
         },

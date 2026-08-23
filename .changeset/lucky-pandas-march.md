@@ -1,6 +1,6 @@
 ---
 "@json-table/core": minor
-"@json-table/block-to-xlsx": minor
+"@json-table/xlsx": minor
 ---
 
 Replace the `Block` model with the `Tree` model (**breaking change**)
@@ -19,7 +19,8 @@ Migration guide:
 | `createMatrix` / `fromMatrix` / `@json-table/core/block-matrix`                                 | `cells(tree)`                                       |
 | `treeToMatrix` / `Matrix<Cell>` interchange                                                     | renderers consume `Tree` directly                   |
 | `@json-table/core/json-to-table`, `/block`, `/block-to-ascii`, `/block-to-html` subpath exports | single root export `@json-table/core` (+ `./lib/*`) |
-| `renderBlockOnWorksheet(block)` (block-to-xlsx)                                                 | `renderOnWorksheet(tree)`                           |
+| `renderBlockOnWorksheet(block)` (block-to-xlsx)                                                          | `renderOnWorksheet(tree)`                           |
+| `@json-table/block-to-xlsx` package                                                                      | `@json-table/xlsx`                                  |
 | `@json-table/core/lib/binary-tree`, `/lib/guards`                                               | removed (unused utilities)                          |
 | `@json-table/core/lib/proportional-resize-guard`                                                | `ProportionalResizeGuard` type from root export     |
 

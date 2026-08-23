@@ -1,0 +1,50 @@
+---
+title: XLSX
+---
+
+import { Code, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+import Npm from '@/components/npm.astro';
+
+Library for rendering [JSON Table](/core/) trees to XLSX worksheets.
+
+## Installation
+
+<Npm pkg='@json-table/xlsx exceljs' />
+
+## Usage
+
+```typescript
+import { makeTreeFactory } from "@json-table/core";
+import { renderOnWorksheet } from "@json-table/xlsx";
+import { Workbook } from "exceljs";
+import { max, sum } from "@json-table/core/lib/math";
+
+const createTree = makeTreeFactory({
+  cornerCellValue: "№",
+  createHeader: (key) => key,
+  createIndex: (i) => i + 1,
+});
+
+const wb = new Workbook();
+
+/* Render table on the `Table` sheet */
+renderOnWorksheet(wb.addWorksheet("Table"), createTree(data), {
+  columnWidth: (counts, columnIndex, tree) => {
+    return Math.max(
+      Math.ceil(
+        (counts.reduce(sum) / tree.height +
+          (counts.reduce(max) * counts.length) / tree.height) /
+          2
+      ),
+      10
+    );
+  },
+});
+```
+
+Every cell of the tree is placed on the worksheet with `rowspan`/`colspan`-equivalent merges; header, index and corner cells are rendered in bold.
+
+## License
+
+MIT
