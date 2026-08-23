@@ -29,28 +29,40 @@ import Npm from '@/components/npm.astro';
 ## Usage
 
 ```typescript
-import { makeBlockFactory } from "@json-table/core/json-to-table";
-import { blockToASCII } from "@json-table/core/block-to-ascii";
-import { blockToHTML } from '@json-table/core/block-to-html';
+import {
+  makeTreeFactory,
+  toASCII,
+  toHTML,
+} from "@json-table/core";
 
-const createBlock = makeBlockFactory({
+const createTree = makeTreeFactory({
   cornerCellValue: "№",
+  createHeader: (key) => key,
+  createIndex: (i) => i + 1,
   joinPrimitiveArrayValues: true,
 });
 
-const block = createBlock(data)
+const tree = createTree(data)
 
-const asciiTable = blockToASCII(block);
+const asciiTable = toASCII(tree);
 
 /* Or */
 
-const htmlTable = blockToHTML(block);
+const htmlTable = toHTML(tree);
 ```
 
 :::tip
-See [block-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/block-to-html.ts) source code to create your own renderer.
+Writing your own renderer is easy — `cells()` walks the tree and yields
+every cell with its position and span, `rows()` groups cells into visual
+rows:
 
-[Interactive table example](https://svelte.dev/playground/d77e8d2a2bbb46c0810ee1fa6a05c758).
+```typescript
+import { cells, rows } from "@json-table/core";
+```
+
+See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts) source code to create your own renderer.
+
+[Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
 :::
 
 Input data:
