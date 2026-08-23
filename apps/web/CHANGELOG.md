@@ -1,5 +1,13 @@
 # web
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`a26a918`](https://github.com/x0k/json-table/commit/a26a918ebf134cbe3e9fb2e50bd6203b92fe5017), [`a26a918`](https://github.com/x0k/json-table/commit/a26a918ebf134cbe3e9fb2e50bd6203b92fe5017), [`c7bae1d`](https://github.com/x0k/json-table/commit/c7bae1d159e242f59ce69353c9668463dd1178be)]:
+  - @json-table/xlsx@0.4.0
+  - @json-table/core@0.4.0
+
 ## 0.1.2
 
 ### Patch Changes
