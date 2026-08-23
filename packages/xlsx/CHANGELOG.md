@@ -1,5 +1,38 @@
 # @json-table/block-to-xlsx
 
+## 0.4.0
+
+### Minor Changes
+
+- [`a26a918`](https://github.com/x0k/json-table/commit/a26a918ebf134cbe3e9fb2e50bd6203b92fe5017) Thanks [@x0k](https://github.com/x0k)! - Rename `@json-table/block-to-xlsx` to `@json-table/xlsx` (**breaking change**)
+
+  The package now consumes the `Tree` model from `@json-table/core` directly via `cells()`.
+
+  Migration guide:
+
+  | Removed                                         | Replacement               |
+  | ----------------------------------------------- | ------------------------- |
+  | `@json-table/block-to-xlsx` package             | `@json-table/xlsx`        |
+  | `renderBlockOnWorksheet(block)` (block-to-xlsx) | `renderOnWorksheet(tree)` |
+
+  `renderOnWorksheet` consumes a `Tree` and traverses it with `cells()`, which yields every cell once together with its matrix position (`x`, `y`) and span (`width`, `height`).
+
+- [#16](https://github.com/x0k/json-table/pull/16) [`c7bae1d`](https://github.com/x0k/json-table/commit/c7bae1d159e242f59ce69353c9668463dd1178be) Thanks [@x0k](https://github.com/x0k)! - Two-pass autofit sizing and migration from `exceljs` to `@office-kit/xlsx` (**breaking changes**)
+
+  Column widths and row heights are no longer computed by user-supplied heuristics.
+  The new algorithm mirrors Excel's AutoFit:
+  1. Column widths come from the p90 of content lengths of single-row cells per column plus one character of padding (outliers wrap instead of widening the column), floored at `cellMinWidth`.
+  2. Row heights are derived from estimated wrapped-line counts using those widths, spread across merged rows, floored at `cellMinHeight`.
+
+  Migration guide:
+
+  | Removed                                                         | Replacement                                            |
+  | --------------------------------------------------------------- | ------------------------------------------------------ |
+  | `columnWidth` / `rowHeight` callbacks                           | built-in autofit (`cellMinWidth`, `cellMinHeight`)     |
+  | `renderOnWorksheet(sheet, tree, options)` (exceljs `Worksheet`) | `renderOnWorksheet(ws, wb, tree, options)`             |
+  | `modifyCell` / `modifyRow` / `modifyColumn`                     | none (post-process the workbook yourself)              |
+  | exceljs `Workbook` + `writeBuffer()`                            | `treesToWorkbook(tables)` / `treesToXlsxBytes(tables)` |
+
 ## 0.3.0
 
 ### Patch Changes

@@ -69,7 +69,7 @@ importers:
   apps/web:
     dependencies:
       '@json-table/core':
-        specifier: workspace:^0.3.0
+        specifier: workspace:^0.4.0
         version: link:../../packages/core
       '@json-table/xlsx':
         specifier: workspace:^
@@ -130,7 +130,7 @@ importers:
   packages/xlsx:
     devDependencies:
       '@json-table/core':
-        specifier: workspace:^0.3.0
+        specifier: workspace:^0.4.0
         version: link:../core
       '@office-kit/xlsx':
         specifier: 0.9.0
