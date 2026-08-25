@@ -12,6 +12,7 @@ import { makeTreeFactory } from "./json-to-tree";
 
 import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
 import company from "./__fixtures__/company.json";
+import companyMixedEmployees from "./__fixtures__/company-mixed-employees.json";
 import deduplication from "./__fixtures__/deduplication.json";
 import emptyArrays from "./__fixtures__/empty-arrays.json";
 import formatInBothItems from "./__fixtures__/format-in-both-items.json";
@@ -37,6 +38,7 @@ interface RenderFixture {
 const renderFixtures = [
   collapsedIndexes,
   company,
+  companyMixedEmployees,
   deduplication,
   emptyArrays,
   formatInBothItems,

@@ -25,6 +25,7 @@ import {
   extractSubtree,
   stretchLeavesDimensionInPlace,
   type LeafValue,
+  type NodeKind,
   type OptionalTree,
   type Tree,
   INDEX_KINDS,
@@ -391,7 +392,7 @@ export function makeTreeFactory<V>({
     return sizedContainer(isRow ? "row" : "col", children);
   }
 
-  /** copies extents from the seed row onto the folded mask: extractSubtree
+  /** copies widths from the seed row onto the folded mask: extractSubtree
    * carries the last-folded row's geometry, the mask was originally seeded
    * from the first one */
   function adoptExtents(
@@ -413,9 +414,27 @@ export function makeTreeFactory<V>({
     }
   }
 
-  /** copies extents from the seed row onto the folded mask: extractSubtree
-   * carries the last-folded row's geometry, the mask was originally seeded
-   * from the first one */
+  /** total count of liftable component nodes in a tree: mirrors the
+   * semantics of counting an `extractComponentTree` copy (kind-tested
+   * leaves, containers contribute only when a descendant survives)
+   * without allocating one */
+  function countKindNodes(
+    node: OptionalTree<V>,
+    kinds: ReadonlySet<NodeKind> = DEDUP_KINDS,
+  ): number {
+    if (node === undefined) {
+      return 0;
+    }
+    if (!("children" in node)) {
+      return kinds.has(node.type) ? 1 : 0;
+    }
+    let count = 0;
+    for (const child of node.children) {
+      count += countKindNodes(child, kinds);
+    }
+    return count > 0 ? 1 + count : 0;
+  }
+
   /** lifts a header band common to all rows into a single band on top of
    * the table; `indexed` wraps each body with a fresh index cell, otherwise
    * rows are expected to carry their own (collapsed) indexes */
@@ -424,14 +443,28 @@ export function makeTreeFactory<V>({
     value: V[],
     indexed: boolean,
   ): Tree<V>[] {
-    let common: OptionalTree<V> =
+    const seed =
       deduplicateHeaders === false || rows.length === 0
         ? undefined
         : extractComponentTree(rows[0]!, DEDUP_KINDS);
+    let common: OptionalTree<V> = seed;
     for (let i = 1; i < rows.length; i++) {
       common = extractSubtree(rows[i]!, common);
       if (common === undefined) {
         break;
+      }
+    }
+    // if any row carries header/corner components that the structural
+    // intersection dropped (heterogeneous shapes), lifting would produce a
+    // partial, misleading band — skip lifting entirely and keep per-row
+    // headers instead
+    if (common !== undefined) {
+      let fullest = seed === undefined ? 0 : countKindNodes(rows[0]!);
+      for (let i = 1; i < rows.length; i++) {
+        fullest = max(fullest, countKindNodes(rows[i]!));
+      }
+      if (countKindNodes(common) < fullest) {
+        common = undefined;
       }
     }
     if (common !== undefined) {

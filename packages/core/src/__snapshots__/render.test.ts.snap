@@ -31,6 +31,130 @@ exports[`'combine simple values without affecti…' > renders expected markdown-
 |  800 | Clear | clear sky   | 01n  |"
 `;
 
+exports[`'company mixed employees' > renders expected ascii table > company mixed employees ascii 1`] = `
+"
++----------+-------------+-----------------+--------------------------+----------------------------------------------------------------------+---+--------------------------------------+
+| company  | yearFounded |    founders     |       headquarters       |                             departments                              |   |               projects               |
++----------+-------------+---------+-------+----------------+---------+---------+-------------+----------------------------------------------+ # +-----------+---------------+----------+
+|          |             |    1    | Alice |      city      | country |         |    name     |                  employees                   |   |   title   |     team      | progress |
+|          |             +---------+-------+----------------+---------+    1    +-------------+----------------------------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |         | Research    | 2 items                                      |   |           |  1  | Alice   |          |
+|          |             |         |       |                |         +---------+-------------+---------+------------------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |         |    name     |         |             employees              | 1 | Project A |  2  | Charlie |       75 |
+|          |             |         |       |                |         |         +-------------+    #    +----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |         |             |         |   name   |        position         |   |           |  3  | Eva     |          |
+|          |             |         |       |                |         |    2    |             +---------+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |         | Development |    1    | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+| TechCorp |        2000 |         |       |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |    2    | Bob   | Silicon Valley | USA     |         |             |    2    | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+|          |             |         |       |                |         +---------+-------------+---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |         |    name     |         |             employees              |   |           |  3  | Frank   |          |
+|          |             |         |       |                |         |         +-------------+    #    +----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |         |       |                |         |         |             |         |   name   |        position         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         |    3    |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |         |       |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |
++----------+-------------+---------+-------+----------------+---------+---------+-------------+---------+----------+-------------------------+---+-----------+-----+---------+----------+"
+`;
+
+exports[`'company mixed employees' > renders expected html table > company mixed employees html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>company</b></td>
+<td colspan="1" rowspan="1"><b>yearFounded</b></td>
+<td colspan="2" rowspan="1"><b>founders</b></td>
+<td colspan="2" rowspan="1"><b>headquarters</b></td>
+<td colspan="5" rowspan="1"><b>departments</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>projects</b></td></tr>
+<tr><td colspan="1" rowspan="10">TechCorp</td>
+<td colspan="1" rowspan="10">2000</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="1"><b>city</b></td>
+<td colspan="1" rowspan="1"><b>country</b></td>
+<td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="3" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>title</b></td>
+<td colspan="2" rowspan="1"><b>team</b></td>
+<td colspan="1" rowspan="1"><b>progress</b></td></tr>
+<tr><td colspan="1" rowspan="9"><b>2</b></td>
+<td colspan="1" rowspan="9">Bob</td>
+<td colspan="1" rowspan="9">Silicon Valley</td>
+<td colspan="1" rowspan="9">USA</td>
+<td colspan="1" rowspan="1">Research</td>
+<td colspan="3" rowspan="1">2 items</td>
+<td colspan="1" rowspan="3"><b>1</b></td>
+<td colspan="1" rowspan="3">Project A</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="3">75</td></tr>
+<tr><td colspan="1" rowspan="4"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="2" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Charlie</td></tr>
+<tr><td colspan="1" rowspan="3">Development</td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>position</b></td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Eva</td>
+<td colspan="1" rowspan="1">Software Engineer</td>
+<td colspan="1" rowspan="3"><b>2</b></td>
+<td colspan="1" rowspan="3">Project B</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Bob</td>
+<td colspan="1" rowspan="3">60</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Frank</td>
+<td colspan="1" rowspan="1">UI/UX Designer</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td></tr>
+<tr><td colspan="1" rowspan="4"><b>3</b></td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="2" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Frank</td></tr>
+<tr><td colspan="1" rowspan="3">Marketing</td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>position</b></td>
+<td colspan="1" rowspan="3"><b>3</b></td>
+<td colspan="1" rowspan="3">Project C</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="3">90</td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Grace</td>
+<td colspan="1" rowspan="1">Marketing Manager</td>
+<td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Eva</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Harry</td>
+<td colspan="1" rowspan="1">Social Media Specialist</td>
+<td colspan="1" rowspan="1"><b>3</b></td>
+<td colspan="1" rowspan="1">Grace</td></tr></table>"
+`;
+
+exports[`'company mixed employees' > renders expected markdown-like ascii table > company mixed employees markdown-like 1`] = `
+"
+| company  | yearFounded |    founders     |       headquarters       |                             departments                              | # |               projects               |
+|----------|-------------|-----------------|--------------------------|----------------------------------------------------------------------|   |--------------------------------------|
+|          |             |    1    | Alice |      city      | country |    1    |    name     |                  employees                   |---|   title   |     team      | progress |
+|          |             |         |       |                |         |---------| Research    | 2 items                                      | 1 | Project A |  1  | Alice   |       75 |
+|          |             |         |       |                |         |         |    name     |    #    |             employees              |   |           |  2  | Charlie |          |
+|          |             |         |       |                |         |    2    | Development |---------|   name   |        position         |---|-----------|  3  | Eva     |----------|
+| TechCorp |        2000 |         |       |                |         |         |             |    1    | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
+|          |             |    2    | Bob   | Silicon Valley | USA     |---------|-------------|    2    | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
+|          |             |         |       |                |         |         |    name     |    #    |             employees              |---|-----------|  3  | Frank   |----------|
+|          |             |         |       |                |         |    3    |             |---------|   name   |        position         |   |           |  1  | Charlie |          |
+|          |             |         |       |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
+|          |             |         |       |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |"
+`;
+
 exports[`'company structure' > renders expected ascii table > company structure ascii 1`] = `
 "
 +----------+-------------+-----------------+--------------------------+---+------------------------------------------------------+---+--------------------------------------+
@@ -248,53 +372,60 @@ exports[`'company structure' transformations > renders expected vertically mirro
 exports[`'create correct tree' > renders expected ascii table > create correct tree ascii 1`] = `
 "
 +---+---------------+---------------+---------------------------------+
-|   |    options    |               |                                 |
-|   +---------------+               |                                 |
-| # | reduceOptions | pluginVersion |             targets             |
-|   +---------------+               |                                 |
-|   |    values     |               |                                 |
+|   |    options    | pluginVersion |             targets             |
+|   +---------------+---------------+------------------------+--------+
+|   | reduceOptions |               |          expr          | format |
+| 1 +---------------+               +------------------------+--------+
+|   |    values     | 7.3.1         |                        |        |
+|   +---------------+               | loki_build_info        | table  |
+|   | false         |               |                        |        |
 +---+---------------+---------------+------------------------+--------+
-|   |               |               |          expr          | format |
-| 1 | false         | 7.3.1         +------------------------+--------+
-|   |               |               | loki_build_info        | table  |
-+---+---------------+---------------+------------------------+--------+
-|   |               |               |              expr               |
-| 2 | false         | 7.3.1         +---------------------------------+
-|   |               |               | sum(log_messages_total)         |
+|   |    options    | pluginVersion |             targets             |
+|   +---------------+---------------+---------------------------------+
+|   | reduceOptions |               |              expr               |
+| 2 +---------------+               +---------------------------------+
+|   |    values     | 7.3.1         |                                 |
+|   +---------------+               | sum(log_messages_total)         |
+|   | false         |               |                                 |
 +---+---------------+---------------+---------------------------------+"
 `;
 
 exports[`'create correct tree' > renders expected html table > create correct tree html 1`] = `
-"<table><tr><td colspan="1" rowspan="3"><b>#</b></td>
+"<table><tr><td colspan="1" rowspan="4"><b>1</b></td>
 <td colspan="1" rowspan="1"><b>options</b></td>
-<td colspan="1" rowspan="3"><b>pluginVersion</b></td>
-<td colspan="2" rowspan="3"><b>targets</b></td></tr>
-<tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td></tr>
-<tr><td colspan="1" rowspan="1"><b>values</b></td></tr>
-<tr><td colspan="1" rowspan="2"><b>1</b></td>
-<td colspan="1" rowspan="2">false</td>
-<td colspan="1" rowspan="2">7.3.1</td>
+<td colspan="1" rowspan="1"><b>pluginVersion</b></td>
+<td colspan="2" rowspan="1"><b>targets</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
+<td colspan="1" rowspan="3">7.3.1</td>
 <td colspan="1" rowspan="1"><b>expr</b></td>
 <td colspan="1" rowspan="1"><b>format</b></td></tr>
-<tr><td colspan="1" rowspan="1">loki_build_info</td>
-<td colspan="1" rowspan="1">table</td></tr>
-<tr><td colspan="1" rowspan="2"><b>2</b></td>
-<td colspan="1" rowspan="2">false</td>
-<td colspan="1" rowspan="2">7.3.1</td>
+<tr><td colspan="1" rowspan="1"><b>values</b></td>
+<td colspan="1" rowspan="2">loki_build_info</td>
+<td colspan="1" rowspan="2">table</td></tr>
+<tr><td colspan="1" rowspan="1">false</td></tr>
+<tr><td colspan="1" rowspan="4"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>options</b></td>
+<td colspan="1" rowspan="1"><b>pluginVersion</b></td>
+<td colspan="2" rowspan="1"><b>targets</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
+<td colspan="1" rowspan="3">7.3.1</td>
 <td colspan="2" rowspan="1"><b>expr</b></td></tr>
-<tr><td colspan="2" rowspan="1">sum(log_messages_total)</td></tr></table>"
+<tr><td colspan="1" rowspan="1"><b>values</b></td>
+<td colspan="2" rowspan="2">sum(log_messages_total)</td></tr>
+<tr><td colspan="1" rowspan="1">false</td></tr></table>"
 `;
 
 exports[`'create correct tree' > renders expected markdown-like ascii table > create correct tree markdown-like 1`] = `
 "
-|   |    options    |               |                                 |
-| # |---------------| pluginVersion |             targets             |
-|   | reduceOptions |               |                                 |
-|---|    values     |---------------|---------------------------------|
-| 1 | false         | 7.3.1         |          expr          | format |
-|---|---------------|---------------| loki_build_info        | table  |
-| 2 | false         | 7.3.1         |              expr               |
-|   |               |               | sum(log_messages_total)         |"
+|   |    options    | pluginVersion |             targets             |
+| 1 |---------------|---------------|---------------------------------|
+|   | reduceOptions | 7.3.1         |          expr          | format |
+|   |    values     |               | loki_build_info        | table  |
+|---| false         |---------------|------------------------|--------|
+|   |    options    | pluginVersion |             targets             |
+| 2 | reduceOptions |               |              expr               |
+|   |    values     | 7.3.1         | sum(log_messages_total)         |
+|   | false         |               |                                 |"
 `;
 
 exports[`'create tree for arrays with indexes c…' > renders expected ascii table > create tree for arrays with indexes collapse ascii 1`] = `
