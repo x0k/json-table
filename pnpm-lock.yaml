@@ -130,7 +130,7 @@ importers:
   packages/xlsx:
     devDependencies:
       '@json-table/core':
-        specifier: workspace:^0.4.0
+        specifier: workspace:^0.4.1
         version: link:../core
       '@office-kit/xlsx':
         specifier: 0.9.0
