@@ -1,5 +1,11 @@
 # @json-table/core
 
+## 0.4.1
+
+### Patch Changes
+
+- [`dbd44da`](https://github.com/x0k/json-table/commit/dbd44dabbb382853df9cae8862a66e0ebc264820) Thanks [@x0k](https://github.com/x0k)! - Skip header deduplication for arrays with heterogeneous rows instead of rendering a misleading partial header band
+
 ## 0.4.0
 
 ### Minor Changes
