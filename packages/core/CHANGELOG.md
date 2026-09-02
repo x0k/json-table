@@ -1,5 +1,11 @@
 # @json-table/core
 
+## 0.4.2
+
+### Patch Changes
+
+- [#18](https://github.com/x0k/json-table/pull/18) [`acde5a8`](https://github.com/x0k/json-table/commit/acde5a8311301fd1e03de26fe9fe2844e74cc0e9) Thanks [@x0k](https://github.com/x0k)! - Update README to reflect current API
+
 ## 0.4.1
 
 ### Patch Changes
