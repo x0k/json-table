@@ -1,5 +1,11 @@
 # @json-table/core
 
+## 0.4.3
+
+### Patch Changes
+
+- [#20](https://github.com/x0k/json-table/pull/20) [`6e74d32`](https://github.com/x0k/json-table/commit/6e74d32e9660b8b0f9f2dc3c830347d9351b0c2c) Thanks [@x0k](https://github.com/x0k)! - Stop stretching the last data row over missing rows/columns. Side-by-side record columns and array rows are now equalized band/body separately: scalar-only blocks span (they read as "applies to all rows/columns"), data blocks scale by a uniform multiplier while the proportional resize guard allows it, and anything left over becomes an explicit empty cell instead of a misleading rowspan/colspan.
+
 ## 0.4.2
 
 ### Patch Changes
