@@ -394,13 +394,6 @@ export function makeTreeFactory<V>({
     return { band, body: decapitateTree(child, mask, DEDUP_KINDS) };
   }
 
-  /** whether a subtree holds tabular data rows (vs plain scalar attributes) */
-  function containsIndex(node: Tree<V>): boolean {
-    return "children" in node
-      ? node.children.some(containsIndex)
-      : node.type === "index";
-  }
-
   /** equalizes side-by-side record columns: bands stay top-aligned and are
    * never scaled; scalar-only bodies stretch, data bodies scale uniformly
    * while the resize guard allows it, and any remainder becomes a trailing
@@ -431,7 +424,9 @@ export function makeTreeFactory<V>({
         continue;
       }
       let fittedBody = body;
-      if (!containsIndex(body)) {
+      // A single-row body cannot misattribute anything by spanning, so it
+      // stretches; multi-row bodies scale uniformly or take a blank.
+      if (body.height <= 1) {
         stretchLeavesDimensionInPlace(body, "height", target);
       } else {
         const multiplier = Math.floor(target / body.height);
