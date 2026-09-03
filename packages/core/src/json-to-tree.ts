@@ -1,23 +1,3 @@
-import { TO_TABLE } from "./model.js";
-import { lcm, max } from "./lib/math.js";
-import { isJsonPrimitive, type JSONValue } from "./lib/json.js";
-import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
-import { makePropertiesStabilizer } from "./properties-stabilizer.js";
-
-/** proportional size adjustment guard: allows the lcm-based extent only
- * when it exceeds the plain maximum by at most the configured threshold */
-export type ProportionalResizeGuard = (
-  lcmValue: number,
-  maxValue: number,
-) => boolean;
-
-function makeProportionalResizeGuard(
-  threshold: number,
-): ProportionalResizeGuard {
-  return (lcmValue: number, maxValue: number) =>
-    (lcmValue - maxValue) / maxValue <= threshold;
-}
-
 import {
   type ComponentKind,
   decapitateTree,
@@ -25,11 +5,16 @@ import {
   extractSubtree,
   stretchLeavesDimensionInPlace,
   type LeafValue,
-  type NodeKind,
   type OptionalTree,
   type Tree,
   INDEX_KINDS,
+  TO_TABLE,
 } from "./model.js";
+import { lcm, max } from "./lib/math.js";
+import { isJsonPrimitive, type JSONValue } from "./lib/json.js";
+import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
+import { makePropertiesStabilizer } from "./properties-stabilizer.js";
+import { makeProportionalResizeGuard } from "./proportional-resize-guard.js";
 
 const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
   "header",
@@ -63,10 +48,7 @@ export function makeTreeFactory<V>({
     proportionalSizeAdjustmentThreshold,
   );
 
-  /** creates a container whose extents are derived from its actual
-   * children: sequential extent is the exact sum, cross extent the max.
-   * Deriving instead of declaring keeps layout invariants intact whatever
-   * the children's shapes are */
+  /** extents derive from children: sequential sums, cross takes the max */
   function sizedContainer(type: "row" | "col", children: Tree<V>[]): Tree<V> {
     const isRow = type === "row";
     let sequential = 0;
@@ -125,8 +107,6 @@ export function makeTreeFactory<V>({
     }
   }
 
-
-
   function transformRecord(
     value: Record<PropertyKey, V>,
     insideArrayItem: boolean,
@@ -156,33 +136,26 @@ export function makeTreeFactory<V>({
     if (children.length === 1) {
       return children[0]!;
     }
-    // Side-by-side record columns are equalized band/body separately (see
-    // `splitBandBody`): bodies scale proportionally or take an empty-cell
-    // pad, bands absorb vertical stretch like 0.3.0 heads did. Headers are
-    // never scaled (e.g. heights 2 vs 3 must not explode to 6), and the
-    // height remainder never lands on a data row. Skipped inside array
-    // items: item subtrees undergo common-header lifting
-    // (`stackRowsWithHeaders`), which re-aligns their decapitated bodies
-    // itself — fitting them here would inflate item bodies with filler
-    // that survives decapitation and misaligns the outer index column.
+    // Equalize side-by-side columns band/body separately, never scaling
+    // headers. Skipped inside array items: header lifting re-aligns their
+    // bodies itself, and filler added here would survive decapitation.
     if (!insideArrayItem) {
       equalizeRecordColumns(children);
     }
     return sizedContainer("row", children);
   }
 
-  /** mirror of `headerBand` for the leftmost index band */
+  /** leftmost index band of a subtree, if any */
   function indexBand(node: OptionalTree<V>): Tree<V> | undefined {
     if (node === undefined) {
       return undefined;
     }
-    const n = node;
-    if (!("children" in n)) {
-      return n.type === "index" ? n : undefined;
+    if (!("children" in node)) {
+      return node.type === "index" ? node : undefined;
     }
-    if (n.type === "col") {
+    if (node.type === "col") {
       const children: Tree<V>[] = [];
-      for (const c of n.children) {
+      for (const c of node.children) {
         const band = indexBand(c);
         if (band !== undefined) {
           children.push(band);
@@ -197,7 +170,7 @@ export function makeTreeFactory<V>({
       return sizedContainer("col", children);
     }
     const bands: Tree<V>[] = [];
-    for (const child of n.children) {
+    for (const child of node.children) {
       const band = indexBand(child);
       if (band === undefined) {
         break;
@@ -221,17 +194,16 @@ export function makeTreeFactory<V>({
     if (node === undefined) {
       return undefined;
     }
-    const n = node;
-    if (!("children" in n)) {
-      if (n.type !== "leaf") {
+    if (!("children" in node)) {
+      if (node.type !== "leaf") {
         return undefined;
       }
-      rows.push([n]);
+      rows.push([node]);
       return rows;
     }
-    if (n.type === "row") {
+    if (node.type === "row") {
       const row: Tree<V>[] = [];
-      for (const c of n.children) {
+      for (const c of node.children) {
         if (c === undefined || "children" in c) {
           return undefined;
         }
@@ -240,7 +212,7 @@ export function makeTreeFactory<V>({
       rows.push(row);
       return rows;
     }
-    for (const child of n.children) {
+    for (const child of node.children) {
       if (flattenBodyRows(child, rows) === undefined) {
         return undefined;
       }
@@ -310,10 +282,6 @@ export function makeTreeFactory<V>({
       width: 1,
       height: 1,
     };
-    const sizedHeaders = headers.map((h) => ({
-      ...h,
-      width: rowWidth,
-    }));
     const headerRow = sizedContainer("row", [
       corner,
       ...headers.map((h) => ({ ...h, width: rowWidth })),
@@ -344,8 +312,7 @@ export function makeTreeFactory<V>({
     ]);
   }
 
-  /** appends a trailing blank to reach the target height, keeping existing
-   * content top-aligned instead of stretching its last row */
+  /** trailing blank filling the gap to the target height */
   function padHeightWithEmpty(node: Tree<V>, targetHeight: number): Tree<V> {
     const deficit = targetHeight - node.height;
     if (deficit <= 0) {
@@ -360,11 +327,9 @@ export function makeTreeFactory<V>({
     return sizedContainer("col", [node, filler]);
   }
 
-  /** fits a lifted result row to the target width: a scalar value spanning
-   * its row (`row[index, leaf]`) and header bands (corner/header cells
-   * only) stretch to fill — horizontal centering is the norm there, so no
-   * misattribution. Anything else (a data row over missing columns) gets
-   * an explicit trailing blank instead. */
+  /** fits a lifted result row to the target width: scalar values spanning
+   * their row and header bands stretch (horizontal centering misattributes
+   * nothing); data rows over missing columns get a trailing blank */
   function fitRowWidth(row: Tree<V>, targetWidth: number): Tree<V> {
     if (row.width >= targetWidth) {
       return row;
@@ -380,7 +345,8 @@ export function makeTreeFactory<V>({
         !("children" in second) &&
         second.type === "leaf";
       const isHeaderBand = row.children.every(
-        (c) => !("children" in c) && (c.type === "header" || c.type === "corner"),
+        (c) =>
+          !("children" in c) && (c.type === "header" || c.type === "corner"),
       );
       if (isIndexedScalar || isHeaderBand) {
         stretchLeavesDimensionInPlace(row, "width", targetWidth);
@@ -390,10 +356,8 @@ export function makeTreeFactory<V>({
     return padWidthWithEmpty(row, targetWidth);
   }
 
-  /** appends a trailing blank to reach the target width, keeping existing
-   * content left-aligned instead of stretching its last column. Rows absorb
-   * the filler as a new trailing cell (preserving their flat shape for
-   * downstream header lifting); other nodes are wrapped. */
+  /** trailing blank filling the gap to the target width; rows absorb it as
+   * a new trailing cell so their flat shape survives header lifting */
   function padWidthWithEmpty(node: Tree<V>, targetWidth: number): Tree<V> {
     const deficit = targetWidth - node.width;
     if (deficit <= 0) {
@@ -413,11 +377,8 @@ export function makeTreeFactory<V>({
     return sizedContainer("row", [node, filler]);
   }
 
-  /** splits a record column into its header band and pure data body using
-   * the same component machinery as array header lifting: the band keeps
-   * every header/corner cell, the body keeps leaves and indexes.
-   * Columns without any header/corner keep a missing band and equalize as
-   * a whole (their stretch is a plain scalar rowspan). */
+  /** splits a column into its header band and pure data body (leaves and
+   * indexes); bandless columns equalize as a whole */
   function splitBandBody(child: Tree<V>): {
     band: Tree<V> | undefined;
     body: Tree<V>;
@@ -433,53 +394,36 @@ export function makeTreeFactory<V>({
     return { band, body: decapitateTree(child, mask, DEDUP_KINDS) };
   }
 
-  /** whether a subtree holds tabular data rows (as opposed to plain scalar
-   * attributes): uniform proportional scaling preserves index structure,
-   * but dumping leftover height onto one data row misattributes it */
+  /** whether a subtree holds tabular data rows (vs plain scalar attributes) */
   function containsIndex(node: Tree<V>): boolean {
-    if (!("children" in node)) {
-      return node.type === "index";
-    }
-    for (const child of node.children) {
-      if (containsIndex(child)) {
-        return true;
-      }
-    }
-    return false;
+    return "children" in node
+      ? node.children.some(containsIndex)
+      : node.type === "index";
   }
 
-  /** equalizes side-by-side record columns: header bands stay top-aligned
-   * and are never scaled; each body is fitted into the space below its own
-   * band (column total minus band height). Scalar-only bodies stretch to
-   * fill — a spanning attribute reads as "applies to all rows", mirroring
-   * how 0.3.0 scaled body blocks apart from heads. Bodies holding data
-   * rows scale by a uniform integer multiplier only when the proportional
-   * resize guard allows it, with any remainder (or the whole deficit on
-   * guard rejection) going to a trailing empty cell, so no single data
-   * row absorbs the slack. */
+  /** equalizes side-by-side record columns: bands stay top-aligned and are
+   * never scaled; scalar-only bodies stretch, data bodies scale uniformly
+   * while the resize guard allows it, and any remainder becomes a trailing
+   * blank — never dumped onto one data row */
   function equalizeRecordColumns(children: Tree<V>[]): void {
-    // NOTE: the target height derives from the original column heights.
-    // Band height plus body height can exceed the column height because
-    // nested headers sit beside data (interleaved) rather than above it;
-    // summing them would inflate the total with phantom rows and force
-    // spurious filler/stretching onto innocent columns.
+    // NOTE: the target derives from original column heights. Band plus body
+    // can exceed it (nested headers sit beside data, not above it), so
+    // summing them would inflate the total with phantom rows.
     let totalHeight = 1;
     for (let i = 0; i < children.length; i++) {
       totalHeight = max(totalHeight, children[i]!.height);
     }
     for (let i = 0; i < children.length; i++) {
-      if (children[i]!.height >= totalHeight) {
-        // Already at full height: keep the original subtree untouched so
-        // split/reassemble restructuring (band flattening via
-        // `maskToBand`/`decapitateTree`) cannot relocate nested header
-        // chains that needed no fitting.
+      const child = children[i]!;
+      // Full-height columns keep their subtree untouched: reassembly would
+      // needlessly relocate nested header chains.
+      if (child.height >= totalHeight) {
         continue;
       }
-      const { band, body } = splitBandBody(children[i]!);
+      const { band, body } = splitBandBody(child);
       const target = totalHeight - (band?.height ?? 0);
       if (body.height >= target) {
-        // Band and body overlap vertically (interleaved headers): the
-        // column already spans the full height, nothing to fit.
+        // Interleaved band/body already span the full height.
         continue;
       }
       let fittedBody = body;
@@ -487,8 +431,10 @@ export function makeTreeFactory<V>({
         stretchLeavesDimensionInPlace(body, "height", target);
       } else {
         const multiplier = Math.floor(target / body.height);
-        const scaledHeight = body.height * multiplier;
-        if (multiplier > 1 && isProportionalResize(scaledHeight, body.height)) {
+        if (
+          multiplier > 1 &&
+          isProportionalResize(body.height * multiplier, body.height)
+        ) {
           scaleHeightsInPlace(body, multiplier);
         }
         if (body.height < target) {
@@ -502,9 +448,8 @@ export function makeTreeFactory<V>({
     }
   }
 
-  /** equalizes heights of side-by-side children: LCM-scales when the guard
-   * allows it, otherwise top-aligns content and pads the gap with an empty
-   * cell instead of stretching the last row */
+  /** equalizes heights: LCM-scales while the guard allows it, otherwise
+   * pads short children with a trailing blank */
   function equalizeSiblingHeights(children: Tree<V>[]): number {
     let lcmHeight = children[0]!.height;
     let maxHeight = lcmHeight;
@@ -514,29 +459,22 @@ export function makeTreeFactory<V>({
     }
     if (!isProportionalResize(lcmHeight, maxHeight)) {
       for (let i = 0; i < children.length; i++) {
-        // single-cell scalars keep the old rowspan stretch ("applies to
-        // all rows"); only taller blocks get a trailing empty cell
+        // single-cell scalars keep their rowspan stretch
         if (children[i]!.height > 1) {
           children[i] = padHeightWithEmpty(children[i]!, maxHeight);
         }
       }
       return maxHeight;
     }
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i]!;
-      const multiplier = Math.floor(lcmHeight / child.height);
-      if (multiplier > 1) {
-        scaleHeightsInPlace(child, multiplier);
-      }
-      if (child.height < lcmHeight) {
-        stretchLeavesDimensionInPlace(child, "height", lcmHeight);
-      }
+    for (const child of children) {
+      // lcmHeight is divisible by every child height, so scaling is exact
+      // and no remainder is left to stretch
+      scaleHeightsInPlace(child, Math.floor(lcmHeight / child.height));
     }
     return lcmHeight;
   }
 
-  /** header chain of a record key column: plain col[header, X] nesting only;
-   * corner-merged wrappers contribute their single inner header and stop */
+  /** equalizes the columns of one array-item body left after lifting */
   function equalizeBodyHeights(body: Tree<V>): void {
     if (
       body.type !== "row" ||
@@ -549,8 +487,7 @@ export function makeTreeFactory<V>({
     body.height = finalHeight;
   }
 
-  /** converts a header mask into a renderable band tree:
-   * undefined holes are dropped, sizes recomputed from kept children */
+  /** renders a header mask as a band tree, dropping undefined holes */
   function maskToBand(mask: OptionalTree<V>): Tree<V> | undefined {
     if (mask === undefined) {
       return undefined;
@@ -583,9 +520,7 @@ export function makeTreeFactory<V>({
     return sizedContainer(isRow ? "row" : "col", children);
   }
 
-  /** copies widths from the seed row onto the folded mask: extractSubtree
-   * carries the last-folded row's geometry, the mask was originally seeded
-   * from the first one */
+  /** copies the seed row widths onto the folded header mask */
   function adoptExtents(
     commonNode: OptionalTree<V>,
     itemNode: OptionalTree<V>,
@@ -605,30 +540,24 @@ export function makeTreeFactory<V>({
     }
   }
 
-  /** total count of liftable component nodes in a tree: mirrors the
-   * semantics of counting an `extractComponentTree` copy (kind-tested
-   * leaves, containers contribute only when a descendant survives)
-   * without allocating one */
-  function countKindNodes(
-    node: OptionalTree<V>,
-    kinds: ReadonlySet<NodeKind> = DEDUP_KINDS,
-  ): number {
+  /** counts header/corner nodes without allocating an extracted copy */
+  function countKindNodes(node: OptionalTree<V>): number {
     if (node === undefined) {
       return 0;
     }
     if (!("children" in node)) {
-      return kinds.has(node.type) ? 1 : 0;
+      return node.type === "header" || node.type === "corner" ? 1 : 0;
     }
     let count = 0;
     for (const child of node.children) {
-      count += countKindNodes(child, kinds);
+      count += countKindNodes(child);
     }
     return count > 0 ? 1 + count : 0;
   }
 
-  /** lifts a header band common to all rows into a single band on top of
-   * the table; `indexed` wraps each body with a fresh index cell, otherwise
-   * rows are expected to carry their own (collapsed) indexes */
+  /** lifts the header band common to all rows on top of the table; with
+   * `indexed`, each body gets a fresh index cell, otherwise rows carry
+   * their own (collapsed) indexes */
   function stackRowsWithHeaders(
     rows: Tree<V>[],
     value: V[],
@@ -645,10 +574,8 @@ export function makeTreeFactory<V>({
         break;
       }
     }
-    // if any row carries header/corner components that the structural
-    // intersection dropped (heterogeneous shapes), lifting would produce a
-    // partial, misleading band — skip lifting entirely and keep per-row
-    // headers instead
+    // Heterogeneous rows share only part of the band: lifting it would
+    // mislead, so keep per-row headers instead.
     if (common !== undefined) {
       let fullest = seed === undefined ? 0 : countKindNodes(rows[0]!);
       for (let i = 1; i < rows.length; i++) {
@@ -691,8 +618,8 @@ export function makeTreeFactory<V>({
         "children" in body &&
         body.children[0]?.type === "index"
       ) {
-        // a collapsed index spans its original (pre-strip) row height:
-        // resize it to the remaining body once the common band is lifted
+        // A lifted band shrinks the body: resize its leading collapsed
+        // index to the remaining height.
         const indexCell = body.children[0];
         let restHeight = 1;
         for (let j = 1; j < body.children.length; j++) {
@@ -713,19 +640,19 @@ export function makeTreeFactory<V>({
   }
 
   function dedupIndexedRows(value: V[]): Tree<V>[] {
-    // NOTE: unlike heights, widths are logical grid units that renderers
-    // size by content — integer width scaling only reshuffles grid borders
-    // without alignment benefit, so narrow items are never scaled. Short
-    // result rows get an explicit trailing blank instead of stretching
-    // their last column over missing ones. Header lifting below is
-    // structure- and value-based (width-blind), hence unaffected.
+    // Widths are grid units sized by content at render time, so narrow
+    // items are never scaled: short rows get a trailing blank instead.
+    // (Lifting below is width-blind, hence unaffected.)
     const items = value.map((v) => parseValue(v, true));
     const rows = stackRowsWithHeaders(items, value, true);
     let rowWidth = 1;
     for (const row of rows) {
       rowWidth = max(rowWidth, row.width);
     }
-    return rows.map((row) => fitRowWidth(row, rowWidth));
+    for (let i = 0; i < rows.length; i++) {
+      rows[i] = fitRowWidth(rows[i]!, rowWidth);
+    }
+    return rows;
   }
 
   function collapseRows(
@@ -765,13 +692,7 @@ export function makeTreeFactory<V>({
       return parseValue(value[0]!, true);
     }
     if (joinPrimitiveArrayValues) {
-      let isPrimitives = true;
-      for (let i = 0; i < value.length; i++) {
-        if (!isJsonPrimitive(value[i] as JSONValue)) {
-          isPrimitives = false;
-          break;
-        }
-      }
+      const isPrimitives = value.every((v) => isJsonPrimitive(v as JSONValue));
       if (isPrimitives) {
         return {
           type: "leaf",
@@ -782,31 +703,19 @@ export function makeTreeFactory<V>({
       }
     }
     if (stabilizeOrderOfPropertiesInArraysOfObjects) {
-      let isPlainObjects = true;
-      for (let i = 0; i < value.length; i++) {
-        if (!isPlainObject(value[i])) {
-          isPlainObjects = false;
-          break;
-        }
-      }
-      if (isPlainObjects) {
+      if (value.every(isPlainObject)) {
         const stabilize = makePropertiesStabilizer<V>();
-        const stabilizedValues = new Array<V>(value.length);
-        for (let i = 0; i < value.length; i++) {
-          const item = value[i] as Record<string, V>;
-          const { entries, reordered } = stabilize(item);
+        value = value.map((item) => {
+          const { entries, reordered } = stabilize(item as Record<string, V>);
           if (!reordered) {
-            // the object's own order already matches the stable order
-            stabilizedValues[i] = item as unknown as V;
-            continue;
+            return item;
           }
           const stabilized: Record<string, V> = {};
           for (const { key, value: v } of entries) {
             stabilized[key] = v;
           }
-          stabilizedValues[i] = stabilized as unknown as V;
-        }
-        value = stabilizedValues;
+          return stabilized as unknown as V;
+        });
       }
     }
     const children: Tree<V>[] = collapseIndexes
@@ -824,15 +733,16 @@ export function makeTreeFactory<V>({
         TO_TABLE in value &&
         typeof value[TO_TABLE as keyof object] === "function"
       ) {
-        return (value as unknown as { [TO_TABLE]: () => Tree<V> })[
-          TO_TABLE
-        ]();
+        return (value as unknown as { [TO_TABLE]: () => Tree<V> })[TO_TABLE]();
       }
       if ("toJSON" in value && typeof value["toJSON"] === "function") {
         return parseValue(value.toJSON() as V, insideArrayItem);
       }
       if (isRecordProto(value)) {
-        return transformRecord(value as Record<PropertyKey, V>, insideArrayItem);
+        return transformRecord(
+          value as Record<PropertyKey, V>,
+          insideArrayItem,
+        );
       }
       if (Array.isArray(value)) {
         return transformArray(value);
