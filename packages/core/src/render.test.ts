@@ -28,6 +28,8 @@ import shuffledKeys from "./__fixtures__/shuffled-keys.json";
 import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
 import uniqHeaders from "./__fixtures__/uniq-headers.json";
 import wrongSizes from "./__fixtures__/wrong-sizes.json";
+import departmentsProjects from "./__fixtures__/departments-projects.json";
+import widthNonProportional from "./__fixtures__/width-non-proportional.json";
 
 interface RenderFixture {
   name: string;
@@ -40,6 +42,8 @@ const renderFixtures = [
   company,
   companyMixedEmployees,
   deduplication,
+  departmentsProjects,
+  widthNonProportional,
   emptyArrays,
   formatInBothItems,
   fullyDeduplicated,

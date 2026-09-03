@@ -38,24 +38,24 @@ exports[`'company mixed employees' > renders expected ascii table > company mixe
 +----------+-------------+---------+-------+----------------+---------+---------+-------------+----------------------------------------------+ # +-----------+---------------+----------+
 |          |             |    1    | Alice |      city      | country |         |    name     |                  employees                   |   |   title   |     team      | progress |
 |          |             +---------+-------+----------------+---------+    1    +-------------+----------------------------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |         | Research    | 2 items                                      |   |           |  1  | Alice   |          |
-|          |             |         |       |                |         +---------+-------------+---------+------------------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |         |    name     |         |             employees              | 1 | Project A |  2  | Charlie |       75 |
-|          |             |         |       |                |         |         +-------------+    #    +----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |         |             |         |   name   |        position         |   |           |  3  | Eva     |          |
-|          |             |         |       |                |         |    2    |             +---------+----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |         | Development |    1    | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
-| TechCorp |        2000 |         |       |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
-|          |             |    2    | Bob   | Silicon Valley | USA     |         |             |    2    | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
-|          |             |         |       |                |         +---------+-------------+---------+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |         |    name     |         |             employees              |   |           |  3  | Frank   |          |
-|          |             |         |       |                |         |         +-------------+    #    +----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |         |             |         |   name   |        position         |   |           |  1  | Charlie |          |
-|          |             |         |       |                |         |    3    |             +---------+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
-|          |             |         |       |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |
-+----------+-------------+---------+-------+----------------+---------+---------+-------------+---------+----------+-------------------------+---+-----------+-----+---------+----------+"
+|          |             |    2    | Bob   |                |         |         | Research    | 2 items                                      |   |           |  1  | Alice   |          |
+|          |             +---------+-------+                |         +---------+-------------+---------+------------------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |         |    name     |         |             employees              | 1 | Project A |  2  | Charlie |       75 |
+|          |             |                 |                |         |         +-------------+    #    +----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |         |             |         |   name   |        position         |   |           |  3  | Eva     |          |
+|          |             |                 |                |         |    2    |             +---------+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |         | Development |    1    | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+| TechCorp |        2000 |                 |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 | Silicon Valley | USA     |         |             |    2    | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+|          |             |                 |                |         +---------+-------------+---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |         |    name     |         |             employees              |   |           |  3  | Frank   |          |
+|          |             |                 |                |         |         +-------------+    #    +----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |         |             |         |   name   |        position         |   |           |  1  | Charlie |          |
+|          |             |                 |                |         |    3    |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
+|          |             |                 |                |         |         |             +---------+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |
++----------+-------------+-----------------+----------------+---------+---------+-------------+---------+----------+-------------------------+---+-----------+-----+---------+----------+"
 `;
 
 exports[`'company mixed employees' > renders expected html table > company mixed employees html 1`] = `
@@ -78,8 +78,8 @@ exports[`'company mixed employees' > renders expected html table > company mixed
 <td colspan="1" rowspan="1"><b>title</b></td>
 <td colspan="2" rowspan="1"><b>team</b></td>
 <td colspan="1" rowspan="1"><b>progress</b></td></tr>
-<tr><td colspan="1" rowspan="9"><b>2</b></td>
-<td colspan="1" rowspan="9">Bob</td>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Bob</td>
 <td colspan="1" rowspan="9">Silicon Valley</td>
 <td colspan="1" rowspan="9">USA</td>
 <td colspan="1" rowspan="1">Research</td>
@@ -89,7 +89,8 @@ exports[`'company mixed employees' > renders expected html table > company mixed
 <td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">Alice</td>
 <td colspan="1" rowspan="3">75</td></tr>
-<tr><td colspan="1" rowspan="4"><b>2</b></td>
+<tr><td colspan="2" rowspan="8"></td>
+<td colspan="1" rowspan="4"><b>2</b></td>
 <td colspan="1" rowspan="1"><b>name</b></td>
 <td colspan="1" rowspan="2"><b>#</b></td>
 <td colspan="2" rowspan="1"><b>employees</b></td>
@@ -144,15 +145,15 @@ exports[`'company mixed employees' > renders expected markdown-like ascii table 
 | company  | yearFounded |    founders     |       headquarters       |                             departments                              | # |               projects               |
 |----------|-------------|-----------------|--------------------------|----------------------------------------------------------------------|   |--------------------------------------|
 |          |             |    1    | Alice |      city      | country |    1    |    name     |                  employees                   |---|   title   |     team      | progress |
-|          |             |         |       |                |         |---------| Research    | 2 items                                      | 1 | Project A |  1  | Alice   |       75 |
-|          |             |         |       |                |         |         |    name     |    #    |             employees              |   |           |  2  | Charlie |          |
-|          |             |         |       |                |         |    2    | Development |---------|   name   |        position         |---|-----------|  3  | Eva     |----------|
-| TechCorp |        2000 |         |       |                |         |         |             |    1    | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
-|          |             |    2    | Bob   | Silicon Valley | USA     |---------|-------------|    2    | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
-|          |             |         |       |                |         |         |    name     |    #    |             employees              |---|-----------|  3  | Frank   |----------|
-|          |             |         |       |                |         |    3    |             |---------|   name   |        position         |   |           |  1  | Charlie |          |
-|          |             |         |       |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
-|          |             |         |       |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |"
+|          |             |    2    | Bob   |                |         |---------| Research    | 2 items                                      | 1 | Project A |  1  | Alice   |       75 |
+|          |             |                 |                |         |         |    name     |    #    |             employees              |   |           |  2  | Charlie |          |
+|          |             |                 |                |         |    2    | Development |---------|   name   |        position         |---|-----------|  3  | Eva     |----------|
+| TechCorp |        2000 |                 |                |         |         |             |    1    | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
+|          |             |                 | Silicon Valley | USA     |---------|-------------|    2    | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
+|          |             |                 |                |         |         |    name     |    #    |             employees              |---|-----------|  3  | Frank   |----------|
+|          |             |                 |                |         |    3    |             |---------|   name   |        position         |   |           |  1  | Charlie |          |
+|          |             |                 |                |         |         | Marketing   |    1    | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
+|          |             |                 |                |         |         |             |    2    | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |"
 `;
 
 exports[`'company structure' > renders expected ascii table > company structure ascii 1`] = `
@@ -162,24 +163,24 @@ exports[`'company structure' > renders expected ascii table > company structure 
 +----------+-------------+---------+-------+----------------+---------+   +-------------+---+------------------------------------+ # +-----------+---------------+----------+
 |          |             |    1    | Alice |      city      | country | # |             |   |             employees              |   |   title   |     team      | progress |
 |          |             +---------+-------+----------------+---------+   |    name     | # +----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |   |             |   |   name   |        position         |   |           |  1  | Alice   |          |
-|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |   |             | 1 | Charlie  | Research Scientist      | 1 | Project A |  2  | Charlie |       75 |
-|          |             |         |       |                |         | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |   |             | 2 | Diana    | Research Analyst        |   |           |  3  | Eva     |          |
-|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |   |             | 1 | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
-| TechCorp |        2000 |         |       |                |         | 2 | Development +---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |    2    | Bob   | Silicon Valley | USA     |   |             | 2 | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
-|          |             |         |       |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |   |           |  3  | Frank   |          |
-|          |             |         |       |                |         |   |             +---+----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |         |       |                |         |   |             |   |          |                         |   |           |  1  | Charlie |          |
-|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           +-----+---------+          |
-|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
-|          |             |         |       |                |         |   |             |   |          |                         |   |           +-----+---------+          |
-|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |
-+----------+-------------+---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+"
+|          |             |    2    | Bob   |                |         |   |             |   |   name   |        position         |   |           |  1  | Alice   |          |
+|          |             +---------+-------+                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 1 | Charlie  | Research Scientist      | 1 | Project A |  2  | Charlie |       75 |
+|          |             |                 |                |         | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 2 | Diana    | Research Analyst        |   |           |  3  | Eva     |          |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |   |             | 1 | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+| TechCorp |        2000 |                 |                |         | 2 | Development +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 | Silicon Valley | USA     |   |             | 2 | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 1 | Grace    | Marketing Manager       |   |           |  3  | Frank   |          |
+|          |             |                 |                |         | 3 | Marketing   +---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |   |             | 2 | Harry    | Social Media Specialist |   |           |  1  | Charlie |          |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |                                                          | 3 | Project C |  2  | Eva     |       90 |
+|          |             |                 |                |         |                                                          |   |           +-----+---------+          |
+|          |             |                 |                |         |                                                          |   |           |  3  | Grace   |          |
++----------+-------------+-----------------+----------------+---------+----------------------------------------------------------+---+-----------+-----+---------+----------+"
 `;
 
 exports[`'company structure' > renders expected html table > company structure html 1`] = `
@@ -203,8 +204,8 @@ exports[`'company structure' > renders expected html table > company structure h
 <td colspan="1" rowspan="1"><b>title</b></td>
 <td colspan="2" rowspan="1"><b>team</b></td>
 <td colspan="1" rowspan="1"><b>progress</b></td></tr>
-<tr><td colspan="1" rowspan="9"><b>2</b></td>
-<td colspan="1" rowspan="9">Bob</td>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Bob</td>
 <td colspan="1" rowspan="9">Silicon Valley</td>
 <td colspan="1" rowspan="9">USA</td>
 <td colspan="1" rowspan="1"><b>name</b></td>
@@ -214,7 +215,8 @@ exports[`'company structure' > renders expected html table > company structure h
 <td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">Alice</td>
 <td colspan="1" rowspan="3">75</td></tr>
-<tr><td colspan="1" rowspan="2"><b>1</b></td>
+<tr><td colspan="2" rowspan="8"></td>
+<td colspan="1" rowspan="2"><b>1</b></td>
 <td colspan="1" rowspan="2">Research</td>
 <td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">Charlie</td>
@@ -241,22 +243,23 @@ exports[`'company structure' > renders expected html table > company structure h
 <td colspan="1" rowspan="1">UI/UX Designer</td>
 <td colspan="1" rowspan="1"><b>2</b></td>
 <td colspan="1" rowspan="1">Diana</td></tr>
-<tr><td colspan="1" rowspan="4"><b>3</b></td>
-<td colspan="1" rowspan="4">Marketing</td>
+<tr><td colspan="1" rowspan="2"><b>3</b></td>
+<td colspan="1" rowspan="2">Marketing</td>
 <td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">Grace</td>
 <td colspan="1" rowspan="1">Marketing Manager</td>
 <td colspan="1" rowspan="1"><b>3</b></td>
 <td colspan="1" rowspan="1">Frank</td></tr>
-<tr><td colspan="1" rowspan="3"><b>2</b></td>
-<td colspan="1" rowspan="3">Harry</td>
-<td colspan="1" rowspan="3">Social Media Specialist</td>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Harry</td>
+<td colspan="1" rowspan="1">Social Media Specialist</td>
 <td colspan="1" rowspan="3"><b>3</b></td>
 <td colspan="1" rowspan="3">Project C</td>
 <td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">Charlie</td>
 <td colspan="1" rowspan="3">90</td></tr>
-<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<tr><td colspan="5" rowspan="2"></td>
+<td colspan="1" rowspan="1"><b>2</b></td>
 <td colspan="1" rowspan="1">Eva</td></tr>
 <tr><td colspan="1" rowspan="1"><b>3</b></td>
 <td colspan="1" rowspan="1">Grace</td></tr></table>"
@@ -267,15 +270,15 @@ exports[`'company structure' > renders expected markdown-like ascii table > comp
 | company  | yearFounded |    founders     |       headquarters       |   |                     departments                      | # |               projects               |
 |----------|-------------|-----------------|--------------------------| # |------------------------------------------------------|   |--------------------------------------|
 |          |             |    1    | Alice |      city      | country |   |    name     | # |             employees              |---|   title   |     team      | progress |
-|          |             |         |       |                |         |---|-------------|---|   name   |        position         | 1 | Project A |  1  | Alice   |       75 |
-|          |             |         |       |                |         | 1 | Research    | 1 | Charlie  | Research Scientist      |   |           |  2  | Charlie |          |
-|          |             |         |       |                |         |---|-------------| 2 | Diana    | Research Analyst        |---|-----------|  3  | Eva     |----------|
-| TechCorp |        2000 |         |       |                |         | 2 | Development | 1 | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
-|          |             |    2    | Bob   | Silicon Valley | USA     |---|-------------| 2 | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
-|          |             |         |       |                |         |   |             | 1 | Grace    | Marketing Manager       |---|-----------|  3  | Frank   |----------|
-|          |             |         |       |                |         | 3 | Marketing   |   |          |                         |   |           |  1  | Charlie |          |
-|          |             |         |       |                |         |   |             | 2 | Harry    | Social Media Specialist | 3 | Project C |  2  | Eva     |       90 |
-|          |             |         |       |                |         |   |             |   |          |                         |   |           |  3  | Grace   |          |"
+|          |             |    2    | Bob   |                |         |---|-------------|---|   name   |        position         | 1 | Project A |  1  | Alice   |       75 |
+|          |             |                 |                |         | 1 | Research    | 1 | Charlie  | Research Scientist      |   |           |  2  | Charlie |          |
+|          |             |                 |                |         |---|-------------| 2 | Diana    | Research Analyst        |---|-----------|  3  | Eva     |----------|
+| TechCorp |        2000 |                 |                |         | 2 | Development | 1 | Eva      | Software Engineer       | 2 | Project B |  1  | Bob     |       60 |
+|          |             |                 | Silicon Valley | USA     |---|-------------| 2 | Frank    | UI/UX Designer          |   |           |  2  | Diana   |          |
+|          |             |                 |                |         | 3 | Marketing   | 1 | Grace    | Marketing Manager       |---|-----------|  3  | Frank   |----------|
+|          |             |                 |                |         |---|-------------| 2 | Harry    | Social Media Specialist |   |           |  1  | Charlie |          |
+|          |             |                 |                |         |                                                          | 3 | Project C |  2  | Eva     |       90 |
+|          |             |                 |                |         |                                                          |   |           |  3  | Grace   |          |"
 `;
 
 exports[`'company structure' transformations > renders expected horizontally mirrored table > company hmirror ascii 1`] = `
@@ -285,109 +288,109 @@ exports[`'company structure' transformations > renders expected horizontally mir
 +----------+-------------+-----------+ # +-----------------------------------+---+-------------+   +-------------+----------------+---------+---+-------------+----------+
 | progress |    team     |   title   |   |             employees             |   |             | # |   country   |      city      | Alice   | 1 |             |          |
 +----------+---------+---+-----------+---+-------------------------+---------+ # |    name     |   +-------------+----------------+---------+---+             |          |
-|          | Alice   | 1 |           |   |        position         |  name   |   |             |   |             |                |         |   |             |          |
-|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
-|       75 | Charlie | 2 | Project A | 1 | Research Scientist      | Charlie | 1 |             |   |             |                |         |   |             |          |
-|          +---------+---+           |   +-------------------------+---------+---+ Research    | 1 |             |                |         |   |             |          |
-|          | Eva     | 3 |           |   | Research Analyst        | Diana   | 2 |             |   |             |                |         |   |             |          |
-+----------+---------+---+-----------+---+-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
-|          | Bob     | 1 |           |   | Software Engineer       | Eva     | 1 |             |   |             |                |         |   |             |          |
-|          +---------+---+           |   +-------------------------+---------+---+ Development | 2 |             |                |         |   |        2000 | TechCorp |
-|       60 | Diana   | 2 | Project B | 2 | UI/UX Designer          | Frank   | 2 |             |   | USA         | Silicon Valley | Bob     | 2 |             |          |
-|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |         |   |             |          |
-|          | Frank   | 3 |           |   | Marketing Manager       | Grace   | 1 |             |   |             |                |         |   |             |          |
-+----------+---------+---+-----------+---+-------------------------+---------+---+             |   |             |                |         |   |             |          |
-|          | Charlie | 1 |           |   |                         |         |   |             |   |             |                |         |   |             |          |
-|          +---------+---+           |   |                         |         |   | Marketing   | 3 |             |                |         |   |             |          |
-|       90 | Eva     | 2 | Project C | 3 | Social Media Specialist | Harry   | 2 |             |   |             |                |         |   |             |          |
-|          +---------+---+           |   |                         |         |   |             |   |             |                |         |   |             |          |
-|          | Grace   | 3 |           |   |                         |         |   |             |   |             |                |         |   |             |          |
-+----------+---------+---+-----------+---+-------------------------+---------+---+-------------+---+-------------+----------------+---------+---+-------------+----------+"
+|          | Alice   | 1 |           |   |        position         |  name   |   |             |   |             |                | Bob     | 2 |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                +---------+---+             |          |
+|       75 | Charlie | 2 | Project A | 1 | Research Scientist      | Charlie | 1 |             |   |             |                |             |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+ Research    | 1 |             |                |             |             |          |
+|          | Eva     | 3 |           |   | Research Analyst        | Diana   | 2 |             |   |             |                |             |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+---+-------------+---+             |                |             |             |          |
+|          | Bob     | 1 |           |   | Software Engineer       | Eva     | 1 |             |   |             |                |             |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+ Development | 2 |             |                |             |        2000 | TechCorp |
+|       60 | Diana   | 2 | Project B | 2 | UI/UX Designer          | Frank   | 2 |             |   | USA         | Silicon Valley |             |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |             |             |          |
+|          | Frank   | 3 |           |   | Marketing Manager       | Grace   | 1 |             |   |             |                |             |             |          |
++----------+---------+---+-----------+---+-------------------------+---------+---+ Marketing   | 3 |             |                |             |             |          |
+|          | Charlie | 1 |           |   | Social Media Specialist | Harry   | 2 |             |   |             |                |             |             |          |
+|          +---------+---+           |   +-------------------------+---------+---+-------------+---+             |                |             |             |          |
+|       90 | Eva     | 2 | Project C | 3 |                                                         |             |                |             |             |          |
+|          +---------+---+           |   |                                                         |             |                |             |             |          |
+|          | Grace   | 3 |           |   |                                                         |             |                |             |             |          |
++----------+---------+---+-----------+---+---------------------------------------------------------+-------------+----------------+-------------+-------------+----------+"
 `;
 
 exports[`'company structure' transformations > renders expected transposed table > company transpose ascii 1`] = `
 "
-+--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|   company    | TechCorp                                                                                                                                                    |
-+--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| yearFounded  |                                                                                                                                                        2000 |
-+--------------+-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
-|              |     1     |                                                                        2                                                                        |
-|   founders   +-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
-|              | Alice     | Bob                                                                                                                                             |
-+--------------+-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
-|              |   city    | Silicon Valley                                                                                                                                  |
-| headquarters +-----------+-------------------------------------------------------------------------------------------------------------------------------------------------+
-|              |  country  | USA                                                                                                                                             |
-+--------------+-----------+----------+---------------------------------------+------------------------------------+---------------------------------------------------------+
-|                  #                  |                   1                   |                 2                  |                            3                            |
-+--------------+----------------------+---------------------------------------+------------------------------------+---------------------------------------------------------+
-|              |         name         | Research                              | Development                        | Marketing                                               |
-|              +----------------------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
-|              |          #           |         1          |        2         |         1         |       2        |         1         |                  2                  |
-| departments  +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
-|              |           |   name   | Charlie            | Diana            | Eva               | Frank          | Grace             | Harry                               |
-|              | employees +----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
-|              |           | position | Research Scientist | Research Analyst | Software Engineer | UI/UX Designer | Marketing Manager | Social Media Specialist             |
-+--------------+-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------------------+
-|            #             |                        1                         |                           2                            |                  3                  |
-+--------------+-----------+--------------------------------------------------+--------------------------------------------------------+-------------------------------------+
-|              |   title   | Project A                                        | Project B                                              | Project C                           |
-|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
-|              |           |    1     |         2          |        3         |         1         |       2        |         3         |           1           |  2  |   3   |
-|   projects   |   team    +----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
-|              |           | Alice    | Charlie            | Eva              | Bob               | Diana          | Frank             | Charlie               | Eva | Grace |
-|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-----------------------+-----+-------+
-|              | progress  |                                               75 |                                                     60 |                                  90 |
-+--------------+-----------+--------------------------------------------------+--------------------------------------------------------+-------------------------------------+"
++--------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|   company    | TechCorp                                                                                                                                                      |
++--------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| yearFounded  |                                                                                                                                                          2000 |
++--------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------------------------+
+|              |     1     |    2     |                                                                                                                                        |
+|   founders   +-----------+----------+                                                                                                                                        |
+|              | Alice     | Bob      |                                                                                                                                        |
++--------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------------------------+
+|              |   city    | Silicon Valley                                                                                                                                    |
+| headquarters +-----------+---------------------------------------------------------------------------------------------------------------------------------------------------+
+|              |  country  | USA                                                                                                                                               |
++--------------+-----------+----------+---------------------------------------+------------------------------------+---------------------------------------------+-------------+
+|                  #                  |                   1                   |                 2                  |                      3                      |             |
++--------------+----------------------+---------------------------------------+------------------------------------+---------------------------------------------+             |
+|              |         name         | Research                              | Development                        | Marketing                                   |             |
+|              +----------------------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+             |
+|              |          #           |         1          |        2         |         1         |       2        |         1         |            2            |             |
+| departments  +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+             |
+|              |           |   name   | Charlie            | Diana            | Eva               | Frank          | Grace             | Harry                   |             |
+|              | employees +----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+             |
+|              |           | position | Research Scientist | Research Analyst | Software Engineer | UI/UX Designer | Marketing Manager | Social Media Specialist |             |
++--------------+-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+-------------+
+|            #             |                        1                         |                           2                            |                   3                   |
++--------------+-----------+--------------------------------------------------+--------------------------------------------------------+---------------------------------------+
+|              |   title   | Project A                                        | Project B                                              | Project C                             |
+|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+-----+-------+
+|              |           |    1     |         2          |        3         |         1         |       2        |         3         |            1            |  2  |   3   |
+|   projects   |   team    +----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+-----+-------+
+|              |           | Alice    | Charlie            | Eva              | Bob               | Diana          | Frank             | Charlie                 | Eva | Grace |
+|              +-----------+----------+--------------------+------------------+-------------------+----------------+-------------------+-------------------------+-----+-------+
+|              | progress  |                                               75 |                                                     60 |                                    90 |
++--------------+-----------+--------------------------------------------------+--------------------------------------------------------+---------------------------------------+"
 `;
 
 exports[`'company structure' transformations > renders expected vertically mirrored table > company vmirror ascii 1`] = `
 "
-+----------+-------------+---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
-| TechCorp |        2000 |    2    | Bob   | Silicon Valley | USA     |   |             | 2 | Harry    | Social Media Specialist |   |           |  3  | Grace   |          |
-+----------+-------------+---------+-------+----------------+---------+ 3 | Marketing   +---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |    1    | Alice |      city      | country |   |             | 1 | Grace    | Marketing Manager       | 3 | Project C |  2  | Eva     |       90 |
-|          |             +---------+-------+----------------+---------+---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |                 |                          |   |             | 2 | Frank    | UI/UX Designer          |   |           |  1  | Charlie |          |
-|          |             |                 |                          | 2 | Development +---+----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |                 |                          |   |             | 1 | Eva      | Software Engineer       |   |           |  3  | Frank   |          |
-|          |             |                 |                          +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |                 |                          |   |             | 2 | Diana    | Research Analyst        | 2 | Project B |  2  | Diana   |       60 |
-|          |             |                 |                          | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
-|          |             |                 |                          |   |             | 1 | Charlie  | Research Scientist      |   |           |  1  | Bob     |          |
-| company  | yearFounded |                 |                          +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
-|          |             |    founders     |       headquarters       |   |             |   |   name   |        position         |   |           |  3  | Eva     |          |
-|          |             |                 |                          |   |    name     | # +----------+-------------------------+   |           +-----+---------+          |
-|          |             |                 |                          |   |             |   |             employees              | 1 | Project A |  2  | Charlie |       75 |
-|          |             |                 |                          |   +-------------+---+------------------------------------+   |           +-----+---------+          |
-|          |             |                 |                          | # |                                                      |   |           |  1  | Alice   |          |
-|          |             |                 |                          |   |                                                      +---+-----------+-----+---------+----------+
-|          |             |                 |                          |   |                     departments                      |   |   title   |     team      | progress |
-|          |             |                 |                          |   |                                                      | # +-----------+---------------+----------+
-|          |             |                 |                          |   |                                                      |   |               projects               |
++----------+-------------+-----------------+----------------+---------+----------------------------------------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |                                                          |   |           |  3  | Grace   |          |
+|          |             |                 |                |         |                                                          |   |           +-----+---------+          |
+|          |             |                 |                |         |                                                          | 3 | Project C |  2  | Eva     |       90 |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 2 | Harry    | Social Media Specialist |   |           |  1  | Charlie |          |
+|          |             |                 |                |         | 3 | Marketing   +---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |   |             | 1 | Grace    | Marketing Manager       |   |           |  3  | Frank   |          |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 | Silicon Valley | USA     |   |             | 2 | Frank    | UI/UX Designer          | 2 | Project B |  2  | Diana   |       60 |
+| TechCorp |        2000 |                 |                |         | 2 | Development +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 1 | Eva      | Software Engineer       |   |           |  1  | Bob     |          |
+|          |             |                 |                |         +---+-------------+---+----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |                 |                |         |   |             | 2 | Diana    | Research Analyst        |   |           |  3  | Eva     |          |
+|          |             |                 |                |         | 1 | Research    +---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |                 |                |         |   |             | 1 | Charlie  | Research Scientist      | 1 | Project A |  2  | Charlie |       75 |
+|          |             +---------+-------+                |         +---+-------------+---+----------+-------------------------+   |           +-----+---------+          |
+|          |             |    2    | Bob   |                |         |   |             |   |   name   |        position         |   |           |  1  | Alice   |          |
+|          |             +---------+-------+----------------+---------+   |    name     | # +----------+-------------------------+---+-----------+-----+---------+----------+
+|          |             |    1    | Alice |      city      | country | # |             |   |             employees              |   |   title   |     team      | progress |
++----------+-------------+---------+-------+----------------+---------+   +-------------+---+------------------------------------+ # +-----------+---------------+----------+
+| company  | yearFounded |    founders     |       headquarters       |   |                     departments                      |   |               projects               |
 +----------+-------------+-----------------+--------------------------+---+------------------------------------------------------+---+--------------------------------------+"
 `;
 
 exports[`'create correct tree' > renders expected ascii table > create correct tree ascii 1`] = `
 "
-+---+---------------+---------------+---------------------------------+
-|   |    options    | pluginVersion |             targets             |
-|   +---------------+---------------+------------------------+--------+
-|   | reduceOptions |               |          expr          | format |
-| 1 +---------------+               +------------------------+--------+
-|   |    values     | 7.3.1         |                        |        |
-|   +---------------+               | loki_build_info        | table  |
-|   | false         |               |                        |        |
-+---+---------------+---------------+------------------------+--------+
-|   |    options    | pluginVersion |             targets             |
-|   +---------------+---------------+---------------------------------+
-|   | reduceOptions |               |              expr               |
-| 2 +---------------+               +---------------------------------+
-|   |    values     | 7.3.1         |                                 |
-|   +---------------+               | sum(log_messages_total)         |
-|   | false         |               |                                 |
-+---+---------------+---------------+---------------------------------+"
++---+---------------+---------------+----------------------------------+
+|   |    options    | pluginVersion |             targets              |
+|   +---------------+---------------+-------------------------+--------+
+|   | reduceOptions |               |          expr           | format |
+| 1 +---------------+               +-------------------------+--------+
+|   |    values     | 7.3.1         |                         |        |
+|   +---------------+               | loki_build_info         | table  |
+|   | false         |               |                         |        |
++---+---------------+---------------+-------------------------+--------+
+|   |    options    | pluginVersion |         targets         |        |
+|   +---------------+---------------+-------------------------+        |
+|   | reduceOptions |               |          expr           |        |
+| 2 +---------------+               +-------------------------+        |
+|   |    values     | 7.3.1         |                         |        |
+|   +---------------+               | sum(log_messages_total) |        |
+|   | false         |               |                         |        |
++---+---------------+---------------+-------------------------+--------+"
 `;
 
 exports[`'create correct tree' > renders expected html table > create correct tree html 1`] = `
@@ -406,26 +409,27 @@ exports[`'create correct tree' > renders expected html table > create correct tr
 <tr><td colspan="1" rowspan="4"><b>2</b></td>
 <td colspan="1" rowspan="1"><b>options</b></td>
 <td colspan="1" rowspan="1"><b>pluginVersion</b></td>
-<td colspan="2" rowspan="1"><b>targets</b></td></tr>
+<td colspan="1" rowspan="1"><b>targets</b></td>
+<td colspan="1" rowspan="4"></td></tr>
 <tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
 <td colspan="1" rowspan="3">7.3.1</td>
-<td colspan="2" rowspan="1"><b>expr</b></td></tr>
+<td colspan="1" rowspan="1"><b>expr</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>values</b></td>
-<td colspan="2" rowspan="2">sum(log_messages_total)</td></tr>
+<td colspan="1" rowspan="2">sum(log_messages_total)</td></tr>
 <tr><td colspan="1" rowspan="1">false</td></tr></table>"
 `;
 
 exports[`'create correct tree' > renders expected markdown-like ascii table > create correct tree markdown-like 1`] = `
 "
-|   |    options    | pluginVersion |             targets             |
-| 1 |---------------|---------------|---------------------------------|
-|   | reduceOptions | 7.3.1         |          expr          | format |
-|   |    values     |               | loki_build_info        | table  |
-|---| false         |---------------|------------------------|--------|
-|   |    options    | pluginVersion |             targets             |
-| 2 | reduceOptions |               |              expr               |
-|   |    values     | 7.3.1         | sum(log_messages_total)         |
-|   | false         |               |                                 |"
+|   |    options    | pluginVersion |             targets              |
+| 1 |---------------|---------------|----------------------------------|
+|   | reduceOptions | 7.3.1         |          expr           | format |
+|   |    values     |               | loki_build_info         | table  |
+|---| false         |---------------|-------------------------|--------|
+|   |    options    | pluginVersion |         targets         |        |
+| 2 | reduceOptions |               |          expr           |        |
+|   |    values     | 7.3.1         | sum(log_messages_total) |        |
+|   | false         |               |                         |        |"
 `;
 
 exports[`'create tree for arrays with indexes c…' > renders expected ascii table > create tree for arrays with indexes collapse ascii 1`] = `
@@ -752,6 +756,95 @@ exports[`'deduplicate tree indexes' > renders expected markdown-like ascii table
 | 3 | 7 | 8 | 9 |"
 `;
 
+exports[`'departments and projects with primiti…' > renders expected ascii table > departments and projects with primitive join ascii 1`] = `
+"
++---+------------------------------------------------------+---+--------------------------------------------+
+|   |                     departments                      |   |                  projects                  |
+|   +-------------+---+------------------------------------+ # +-----------+---------------------+----------+
+| # |             |   |             employees              |   |   title   |        team         | progress |
+|   |    name     | # +----------+-------------------------+---+-----------+---------------------+----------+
+|   |             |   |   name   |        position         |   |           |                     |          |
++---+-------------+---+----------+-------------------------+ 1 | Project A | Alice, Charlie, Eva |       75 |
+|   |             | 1 | Charlie  | Research Scientist      |   |           |                     |          |
+| 1 | Research    +---+----------+-------------------------+---+-----------+---------------------+----------+
+|   |             | 2 | Diana    | Research Analyst        |   |           |                     |          |
++---+-------------+---+----------+-------------------------+ 2 | Project B | Bob, Diana, Frank   |       60 |
+|   |             | 1 | Eva      | Software Engineer       |   |           |                     |          |
+| 2 | Development +---+----------+-------------------------+---+-----------+---------------------+----------+
+|   |             | 2 | Frank    | UI/UX Designer          |   |           |                     |          |
++---+-------------+---+----------+-------------------------+ 3 | Project C | Charlie, Eva, Grace |       90 |
+|   |             | 1 | Grace    | Marketing Manager       |   |           |                     |          |
+| 3 | Marketing   +---+----------+-------------------------+---+-----------+---------------------+----------+
+|   |             | 2 | Harry    | Social Media Specialist |                                                |
++---+-------------+---+----------+-------------------------+------------------------------------------------+"
+`;
+
+exports[`'departments and projects with primiti…' > renders expected html table > departments and projects with primitive join html 1`] = `
+"<table><tr><td colspan="1" rowspan="3"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>departments</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="3" rowspan="1"><b>projects</b></td></tr>
+<tr><td colspan="1" rowspan="2"><b>name</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="2" rowspan="1"><b>employees</b></td>
+<td colspan="1" rowspan="1"><b>title</b></td>
+<td colspan="1" rowspan="1"><b>team</b></td>
+<td colspan="1" rowspan="1"><b>progress</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>position</b></td>
+<td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="2">Project A</td>
+<td colspan="1" rowspan="2">Alice, Charlie, Eva</td>
+<td colspan="1" rowspan="2">75</td></tr>
+<tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="2">Research</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Charlie</td>
+<td colspan="1" rowspan="1">Research Scientist</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Diana</td>
+<td colspan="1" rowspan="1">Research Analyst</td>
+<td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="2">Project B</td>
+<td colspan="1" rowspan="2">Bob, Diana, Frank</td>
+<td colspan="1" rowspan="2">60</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="2">Development</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Eva</td>
+<td colspan="1" rowspan="1">Software Engineer</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Frank</td>
+<td colspan="1" rowspan="1">UI/UX Designer</td>
+<td colspan="1" rowspan="2"><b>3</b></td>
+<td colspan="1" rowspan="2">Project C</td>
+<td colspan="1" rowspan="2">Charlie, Eva, Grace</td>
+<td colspan="1" rowspan="2">90</td></tr>
+<tr><td colspan="1" rowspan="2"><b>3</b></td>
+<td colspan="1" rowspan="2">Marketing</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Grace</td>
+<td colspan="1" rowspan="1">Marketing Manager</td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Harry</td>
+<td colspan="1" rowspan="1">Social Media Specialist</td>
+<td colspan="4" rowspan="1"></td></tr></table>"
+`;
+
+exports[`'departments and projects with primiti…' > renders expected markdown-like ascii table > departments and projects with primitive join markdown-like 1`] = `
+"
+|   |                     departments                      | # |                  projects                  |
+| # |------------------------------------------------------|   |--------------------------------------------|
+|   |    name     | # |             employees              |---|   title   |        team         | progress |
+|---|-------------|---|   name   |        position         | 1 | Project A | Alice, Charlie, Eva |       75 |
+| 1 | Research    | 1 | Charlie  | Research Scientist      |---|-----------|---------------------|----------|
+|---|-------------| 2 | Diana    | Research Analyst        | 2 | Project B | Bob, Diana, Frank   |       60 |
+| 2 | Development | 1 | Eva      | Software Engineer       |---|-----------|---------------------|----------|
+|---|-------------| 2 | Frank    | UI/UX Designer          | 3 | Project C | Charlie, Eva, Grace |       90 |
+| 3 | Marketing   | 1 | Grace    | Marketing Manager       |---|-----------|---------------------|----------|
+|   |             | 2 | Harry    | Social Media Specialist |                                                |"
+`;
+
 exports[`'fully deduplicate common headers' > renders expected ascii table > fully deduplicate common headers ascii 1`] = `
 "
 +---+---+---+
@@ -827,10 +920,10 @@ exports[`'handle empty arrays' > renders expected markdown-like ascii table > ha
 
 exports[`'partially deduplicate objects with di…' > renders expected ascii table > partially deduplicate objects with different headers ascii 1`] = `
 "
-+---+---------------------+-----------------------+
-|   |    character_id     |        item_id        |
-| 1 +---------------------+-----------------------+
-|   | 5428010618020694593 |                    95 |
++---+---------------------+---------+-------------+
+|   |    character_id     | item_id |             |
+| 1 +---------------------+---------+             |
+|   | 5428010618020694593 |      95 |             |
 +---+---------------------+---------+-------------+
 |   |    character_id     | item_id | stack_count |
 | 2 +---------------------+---------+-------------+
@@ -841,9 +934,10 @@ exports[`'partially deduplicate objects with di…' > renders expected ascii tab
 exports[`'partially deduplicate objects with di…' > renders expected html table > partially deduplicate objects with different headers html 1`] = `
 "<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
 <td colspan="1" rowspan="1"><b>character_id</b></td>
-<td colspan="2" rowspan="1"><b>item_id</b></td></tr>
+<td colspan="1" rowspan="1"><b>item_id</b></td>
+<td colspan="1" rowspan="2"></td></tr>
 <tr><td colspan="1" rowspan="1">5428010618020694593</td>
-<td colspan="2" rowspan="1">95</td></tr>
+<td colspan="1" rowspan="1">95</td></tr>
 <tr><td colspan="1" rowspan="2"><b>2</b></td>
 <td colspan="1" rowspan="1"><b>character_id</b></td>
 <td colspan="1" rowspan="1"><b>item_id</b></td>
@@ -855,9 +949,9 @@ exports[`'partially deduplicate objects with di…' > renders expected html tabl
 
 exports[`'partially deduplicate objects with di…' > renders expected markdown-like ascii table > partially deduplicate objects with different headers markdown-like 1`] = `
 "
-| 1 |    character_id     |        item_id        |
-|   |---------------------|-----------------------|
-|---| 5428010618020694593 |                    95 |
+| 1 |    character_id     | item_id |             |
+|   |---------------------|---------|             |
+|---| 5428010618020694593 |      95 |-------------|
 | 2 |    character_id     | item_id | stack_count |
 |   | 5428010618020694593 |     101 |           4 |"
 `;
@@ -936,17 +1030,59 @@ exports[`'stabilize order of properties in arra…' > renders expected markdown-
 |   | 4 | 3 |"
 `;
 
+exports[`'width non-proportional' > renders expected ascii table > width non-proportional ascii 1`] = `
+"
++---+---+---+---+---+
+|   | a | b | c |   |
+| 1 +---+---+---+   |
+|   | 1 | 2 | 3 |   |
++---+---+---+---+---+
+|   | a | b | c | d |
+| 2 +---+---+---+---+
+|   | 1 | 2 | 3 | 4 |
++---+---+---+---+---+"
+`;
+
+exports[`'width non-proportional' > renders expected html table > width non-proportional html 1`] = `
+"<table><tr><td colspan="1" rowspan="2"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td>
+<td colspan="1" rowspan="2"></td></tr>
+<tr><td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">3</td></tr>
+<tr><td colspan="1" rowspan="2"><b>2</b></td>
+<td colspan="1" rowspan="1"><b>a</b></td>
+<td colspan="1" rowspan="1"><b>b</b></td>
+<td colspan="1" rowspan="1"><b>c</b></td>
+<td colspan="1" rowspan="1"><b>d</b></td></tr>
+<tr><td colspan="1" rowspan="1">1</td>
+<td colspan="1" rowspan="1">2</td>
+<td colspan="1" rowspan="1">3</td>
+<td colspan="1" rowspan="1">4</td></tr></table>"
+`;
+
+exports[`'width non-proportional' > renders expected markdown-like ascii table > width non-proportional markdown-like 1`] = `
+"
+| 1 | a | b | c |   |
+|   |---|---|---|   |
+|---| 1 | 2 | 3 |---|
+| 2 | a | b | c | d |
+|   | 1 | 2 | 3 | 4 |"
+`;
+
 exports[`'work with unique headers' > renders expected ascii table > work with unique headers ascii 1`] = `
 "
-+---+-----------------------------+------+------+----------+--------+-------------+
-|   |         description         |  in  | name | required |  type  | uniqueItems |
-| 1 +-----------------------------+------+------+----------+--------+-------------+
-|   | name of the ComponentStatus | path | name | true     | string | true        |
-+---+-----------------------------+------+------+----------+--------+-------------+
-|   |                                    $ref                                     |
-| 2 +-----------------------------------------------------------------------------+
-|   | #/parameters/pretty-tJGM1-ng                                                |
-+---+-----------------------------------------------------------------------------+"
++---+------------------------------+------+------+----------+--------+-------------+
+|   |         description          |  in  | name | required |  type  | uniqueItems |
+| 1 +------------------------------+------+------+----------+--------+-------------+
+|   | name of the ComponentStatus  | path | name | true     | string | true        |
++---+------------------------------+------+------+----------+--------+-------------+
+|   |             $ref             |                                               |
+| 2 +------------------------------+                                               |
+|   | #/parameters/pretty-tJGM1-ng |                                               |
++---+------------------------------+-----------------------------------------------+"
 `;
 
 exports[`'work with unique headers' > renders expected html table > work with unique headers html 1`] = `
@@ -964,15 +1100,16 @@ exports[`'work with unique headers' > renders expected html table > work with un
 <td colspan="1" rowspan="1">string</td>
 <td colspan="1" rowspan="1">true</td></tr>
 <tr><td colspan="1" rowspan="2"><b>2</b></td>
-<td colspan="6" rowspan="1"><b>$ref</b></td></tr>
-<tr><td colspan="6" rowspan="1">#/parameters/pretty-tJGM1-ng</td></tr></table>"
+<td colspan="1" rowspan="1"><b>$ref</b></td>
+<td colspan="5" rowspan="2"></td></tr>
+<tr><td colspan="1" rowspan="1">#/parameters/pretty-tJGM1-ng</td></tr></table>"
 `;
 
 exports[`'work with unique headers' > renders expected markdown-like ascii table > work with unique headers markdown-like 1`] = `
 "
-| 1 |         description         |  in  | name | required |  type  | uniqueItems |
-|   |-----------------------------|------|------|----------|--------|-------------|
-|---| name of the ComponentStatus | path | name | true     | string | true        |
-| 2 |                                    $ref                                     |
-|   | #/parameters/pretty-tJGM1-ng                                                |"
+| 1 |         description          |  in  | name | required |  type  | uniqueItems |
+|   |------------------------------|------|------|----------|--------|-------------|
+|---| name of the ComponentStatus  | path | name | true     | string | true        |
+| 2 |             $ref             |                                               |
+|   | #/parameters/pretty-tJGM1-ng |                                               |"
 `;
