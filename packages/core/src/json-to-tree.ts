@@ -423,7 +423,11 @@ export function makeTreeFactory<V>({
       const { band, body } = splitBandBody(child);
       const target = totalHeight - (band?.height ?? 0);
       if (body.height >= target) {
-        // Interleaved band/body already span the full height.
+        // Interleaved band/body, yet the column is short: pad below the
+        // whole column instead of leaving the remainder to implicit
+        // last-row stretch, which could land on a data row. Internals
+        // stay untouched (no restructuring).
+        children[i] = padHeightWithEmpty(child, totalHeight);
         continue;
       }
       let fittedBody = body;
