@@ -199,7 +199,7 @@ describe("extractHeadersTree", () => {
             },
             undefined,
           ],
-          height: 2,
+          height: 3,
           type: "col",
           width: 1,
         },
@@ -254,7 +254,7 @@ describe("extractSubtree", () => {
             },
             undefined,
           ],
-          height: 2,
+          height: 3,
           type: "col",
           width: 1,
         },
@@ -287,7 +287,7 @@ describe("decapitateTree", () => {
     expect(decapitateTree(tree, mask, new Set(["header"]))).toEqual({
       children: [
         {
-          height: 1,
+          height: 2,
           type: "leaf",
           value: "bar",
           width: 1,
@@ -299,7 +299,7 @@ describe("decapitateTree", () => {
           width: 1,
         },
       ],
-      height: 1,
+      height: 2,
       type: "row",
       width: 2,
     });
