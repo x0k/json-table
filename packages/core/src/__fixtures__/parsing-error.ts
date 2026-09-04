@@ -1,7 +1,9 @@
-{
+import { joinPrimitiveArrayValues } from "../json-to-tree.js";
+
+export default {
   "name": "combine simple values without affecting object values",
   "options": {
-    "joinPrimitiveArrayValues": true
+    "joinArrayValues": joinPrimitiveArrayValues
   },
   "input": {
     "weather": [
@@ -13,4 +15,4 @@
       }
     ]
   }
-}
+};

@@ -1,4 +1,4 @@
-{
+export default {
   "name": "company mixed employees",
   "options": {
     "collapseIndexes": true
@@ -37,4 +37,4 @@
       { "title": "Project C", "team": ["Charlie", "Eva", "Grace"], "progress": 90 }
     ]
   }
-}
+};

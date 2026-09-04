@@ -1,4 +1,4 @@
-{
+export default {
   "name": "width non-proportional",
   "options": {},
   "input": [
@@ -14,4 +14,4 @@
       "d": 4
     }
   ]
-}
+};

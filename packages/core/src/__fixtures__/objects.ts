@@ -1,4 +1,4 @@
-{
+export default {
   "name": "create tree for objects",
   "input": { "a": 1, "b": 2, "c": { "aa": 11, "bb": 22 } }
-}
+};

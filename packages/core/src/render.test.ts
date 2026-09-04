@@ -14,26 +14,26 @@ import {
 } from "./model";
 import { makeTreeFactory } from "./json-to-tree";
 
-import collapsedIndexes from "./__fixtures__/collapsed-indexes.json";
-import company from "./__fixtures__/company.json";
-import companyMixedEmployees from "./__fixtures__/company-mixed-employees.json";
-import deduplication from "./__fixtures__/deduplication.json";
-import emptyArrays from "./__fixtures__/empty-arrays.json";
-import formatInBothItems from "./__fixtures__/format-in-both-items.json";
-import fullyDeduplicated from "./__fixtures__/fully-deduplicated.json";
-import indexesDeduplication from "./__fixtures__/indexes-deduplication.json";
-import joinPrimitiveValues from "./__fixtures__/parsing-error.json";
-import multilineHeaders from "./__fixtures__/multiline-headers.json";
-import nestedArrays from "./__fixtures__/nested-arrays.json";
-import noHeaderDedup from "./__fixtures__/no-header-dedup.json";
-import objects from "./__fixtures__/objects.json";
-import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.json";
-import shuffledKeys from "./__fixtures__/shuffled-keys.json";
-import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.json";
-import uniqHeaders from "./__fixtures__/uniq-headers.json";
-import wrongSizes from "./__fixtures__/wrong-sizes.json";
-import departmentsProjects from "./__fixtures__/departments-projects.json";
-import widthNonProportional from "./__fixtures__/width-non-proportional.json";
+import collapsedIndexes from "./__fixtures__/collapsed-indexes.js";
+import company from "./__fixtures__/company.js";
+import companyMixedEmployees from "./__fixtures__/company-mixed-employees.js";
+import deduplication from "./__fixtures__/deduplication.js";
+import emptyArrays from "./__fixtures__/empty-arrays.js";
+import formatInBothItems from "./__fixtures__/format-in-both-items.js";
+import fullyDeduplicated from "./__fixtures__/fully-deduplicated.js";
+import indexesDeduplication from "./__fixtures__/indexes-deduplication.js";
+import joinPrimitiveValues from "./__fixtures__/parsing-error.js";
+import multilineHeaders from "./__fixtures__/multiline-headers.js";
+import nestedArrays from "./__fixtures__/nested-arrays.js";
+import noHeaderDedup from "./__fixtures__/no-header-dedup.js";
+import objects from "./__fixtures__/objects.js";
+import partiallyDifferentHeaders from "./__fixtures__/partially-different-headers.js";
+import shuffledKeys from "./__fixtures__/shuffled-keys.js";
+import simpleHeadersDuplication from "./__fixtures__/simple-headers-duplication.js";
+import uniqHeaders from "./__fixtures__/uniq-headers.js";
+import wrongSizes from "./__fixtures__/wrong-sizes.js";
+import departmentsProjects from "./__fixtures__/departments-projects.js";
+import widthNonProportional from "./__fixtures__/width-non-proportional.js";
 
 interface RenderFixture {
   name: string;

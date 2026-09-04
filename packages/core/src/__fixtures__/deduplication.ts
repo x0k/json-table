@@ -1,4 +1,4 @@
-{
+export default {
   "name": "deduplicate nested arrays of objects",
   "options": {
     "collapseIndexes": true
@@ -75,4 +75,4 @@
       }
     ]
   ]
-}
+};
