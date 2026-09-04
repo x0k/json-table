@@ -1,5 +1,4 @@
 import { array } from "./lib/array.js";
-import { matrix } from "./lib/matrix.js";
 
 import { type Tree, cells } from "./model.js";
 
@@ -71,16 +70,16 @@ function collectInputCells<V>(tree: Tree<V>): InputCell[] {
 function populateShifts(
   inputCells: InputCell[],
   xShift: number[],
-  yShift: number[]
+  yShift: number[],
 ) {
   for (const cell of inputCells) {
     xShift[cell.x + 1] = Math.max(
       xShift[cell.x + 1]!,
-      Math.max(cell.maxRowLength - cell.width, 0) + 1
+      Math.max(cell.maxRowLength - cell.width, 0) + 1,
     );
     yShift[cell.y + 1] = Math.max(
       yShift[cell.y + 1]!,
-      Math.max(cell.lines.length - cell.height, 0) + 1
+      Math.max(cell.lines.length - cell.height, 0) + 1,
     );
   }
 }
@@ -88,7 +87,7 @@ function populateShifts(
 function populateMySqlShifts(
   inputCells: InputCell[],
   xShift: number[],
-  yShift: number[]
+  yShift: number[],
 ) {
   xShift[0] = yShift[0] = 1;
   populateShifts(inputCells, xShift, yShift);
@@ -98,7 +97,7 @@ function populateMarkdownLikeShifts(
   inputCells: InputCell[],
   xShift: number[],
   yShift: number[],
-  height: number
+  height: number,
 ) {
   xShift[0] = 1;
   populateShifts(inputCells, xShift, yShift);
@@ -110,7 +109,7 @@ function populateMarkdownLikeShifts(
 function drawMySqlBorder(
   outMatrix: (string | null)[][],
   width: number,
-  height: number
+  height: number,
 ) {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
@@ -151,7 +150,7 @@ function drawMySqlBorder(
 function drawMarkdownLikeBorder(
   outMatrix: (string | null)[][],
   width: number,
-  height: number
+  height: number,
 ) {
   outMatrix.splice(height - 1, 1);
   for (let i = 0; i < height - 1; i++) {
@@ -179,7 +178,7 @@ const SHIFTS_POPULATORS = {
     inputCells: InputCell[],
     xShift: number[],
     yShift: number[],
-    height: number
+    height: number,
   ) => populateMarkdownLikeShifts(inputCells, xShift, yShift, height),
 };
 
@@ -191,7 +190,7 @@ const BORDER_DRAWERS = {
 /** renders a tree as an ASCII table */
 export function toASCII<V>(
   tree: Tree<V>,
-  { format = ASCIITableFormat.MySQL }: ToASCIIOptions = {}
+  { format = ASCIITableFormat.MySQL }: ToASCIIOptions = {},
 ) {
   const inputCells = collectInputCells(tree);
   const height = tree.height;
@@ -208,7 +207,9 @@ export function toASCII<V>(
   }
   const outHeight = height + yShift[height]!;
   const outWidth = width + xShift[width]!;
-  const outMatrix = matrix<string | null>(outHeight, outWidth, () => null);
+  const outMatrix = array(outHeight, () =>
+    array<string | null>(outWidth, () => null),
+  );
   for (const cell of inputCells) {
     const { lines } = cell;
     const rowIndex = cell.y + yShift[cell.y]!;
