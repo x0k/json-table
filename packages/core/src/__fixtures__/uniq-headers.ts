@@ -1,4 +1,4 @@
-{
+export default {
   "name": "work with unique headers",
   "input": [
     {
@@ -11,4 +11,4 @@
     },
     { "$ref": "#/parameters/pretty-tJGM1-ng" }
   ]
-}
+};

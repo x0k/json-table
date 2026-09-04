@@ -45,7 +45,7 @@ c/:
   popd
 
 x/:
-  pushd packages/block-to-xlsx
+  pushd packages/xlsx
   b:
     pnpm run build
   t:

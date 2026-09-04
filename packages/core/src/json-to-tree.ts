@@ -1,3 +1,7 @@
+import { lcm, max } from "./lib/math.js";
+import { isJsonPrimitive, type JSONValue } from "./lib/json.js";
+import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
+import { identity } from "./lib/function.js";
 import {
   type ComponentKind,
   decapitateTree,
@@ -10,24 +14,38 @@ import {
   INDEX_KINDS,
   TO_TABLE,
 } from "./model.js";
-import { lcm, max } from "./lib/math.js";
-import { isJsonPrimitive, type JSONValue } from "./lib/json.js";
-import { isObject, isPlainObject, isRecordProto } from "./lib/object.js";
 import { makePropertiesStabilizer } from "./properties-stabilizer.js";
-import { makeProportionalResizeGuard } from "./proportional-resize-guard.js";
+import {
+  makeProportionalResizeGuard,
+  type ProportionalResizeGuard,
+} from "./proportional-resize-guard.js";
 
 const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
   "header",
   "corner",
 ] as const);
 
+export interface EmptyCellInfo {
+  /** why the blank exists: sizing gap filler or an empty array */
+  type: "gap" | "empty-array";
+  width: number;
+  height: number;
+}
+
 export interface TreeFactoryOptions<V> {
   cornerCellValue: LeafValue<V>;
   createHeader: (k: string, record: Record<PropertyKey, V>) => LeafValue<V>;
   createIndex: (i: number, array: V[]) => LeafValue<V>;
-  joinPrimitiveArrayValues?: boolean;
-  /** proportional size adjustment threshold */
-  proportionalSizeAdjustmentThreshold?: number;
+  /** formats a data leaf value, joined strings included; headers, indexes,
+   * corners, gap filler and empty arrays never pass here */
+  createLeaf?: (value: LeafValue<V>) => LeafValue<V>;
+  /** merges an array into one leaf; return undefined to render it as a
+   * table instead. Receives raw input order, before key stabilization. */
+  joinArrayValues?: (values: V[]) => LeafValue<V> | undefined;
+  /** proportional resize guard (default allows 100% growth) */
+  isProportionalResize?: ProportionalResizeGuard;
+  /** placeholder for content-less cells: gap filler and empty arrays */
+  emptyCellValue?: (info: EmptyCellInfo) => LeafValue<V>;
   collapseIndexes?: boolean;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
   /** lift common headers of array items into a shared band (default true) */
@@ -38,21 +56,29 @@ export interface TreeFactoryOptions<V> {
   isHeaderEqual?: (a: LeafValue<V>, b: LeafValue<V>) => boolean;
 }
 
+/** default primitive-array joining (the pre-0.5 `true` behavior): comma-joins
+ * all-primitive arrays, declines anything else so it renders as a table */
+export function joinPrimitiveArrayValues<V>(
+  values: V[],
+): LeafValue<V> | undefined {
+  return values.every((v) => isJsonPrimitive(v as JSONValue))
+    ? (values.join(", ") as LeafValue<V>)
+    : undefined;
+}
+
 export function makeTreeFactory<V>({
   cornerCellValue,
   createHeader,
   createIndex,
-  joinPrimitiveArrayValues,
-  proportionalSizeAdjustmentThreshold = 1,
-  collapseIndexes,
+  joinArrayValues,
+  createLeaf = identity,
+  isProportionalResize = makeProportionalResizeGuard(1),
+  emptyCellValue = (): LeafValue<V> => "" as LeafValue<V>,
+  collapseIndexes = false,
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
   deduplicateHeaders = true,
   isHeaderEqual = Object.is,
 }: TreeFactoryOptions<V>) {
-  const isProportionalResize = makeProportionalResizeGuard(
-    proportionalSizeAdjustmentThreshold,
-  );
-
   /** extents derive from children: sequential sums, cross takes the max */
   function sizedContainer(type: "row" | "col", children: Tree<V>[]): Tree<V> {
     const isRow = type === "row";
@@ -305,7 +331,7 @@ export function makeTreeFactory<V>({
     return sizedContainer("col", [headerRow, ...bodyRows]);
   }
 
-  function makeIndexedRow(indexValue: LeafValue<V>, child: Tree<V>): Tree<V> {
+  function indexedRow(indexValue: LeafValue<V>, child: Tree<V>): Tree<V> {
     return sizedContainer("row", [
       {
         type: "index",
@@ -317,19 +343,37 @@ export function makeTreeFactory<V>({
     ]);
   }
 
+  /** blank leaf carrying the placeholder value (gap filler and empty arrays) */
+  function emptyFiller(info: EmptyCellInfo): Tree<V> {
+    return {
+      type: "leaf",
+      value: emptyCellValue(info),
+      width: info.width,
+      height: info.height,
+    };
+  }
+
+  /** data leaf honoring the createLeaf hook (structural filler, headers,
+   * indexes and corners never pass here) */
+  function dataLeaf(value: LeafValue<V>): Tree<V> {
+    return {
+      type: "leaf",
+      value: createLeaf(value),
+      width: 1,
+      height: 1,
+    };
+  }
+
   /** trailing blank filling the gap to the target height */
   function padHeightWithEmpty(node: Tree<V>, targetHeight: number): Tree<V> {
     const deficit = targetHeight - node.height;
     if (deficit <= 0) {
       return node;
     }
-    const filler: Tree<V> = {
-      type: "leaf",
-      value: "" as LeafValue<V>,
-      width: node.width,
-      height: deficit,
-    };
-    return sizedContainer("col", [node, filler]);
+    return sizedContainer("col", [
+      node,
+      emptyFiller({ type: "gap", width: node.width, height: deficit }),
+    ]);
   }
 
   /** fits a lifted result row to the target width: scalar values spanning
@@ -368,12 +412,11 @@ export function makeTreeFactory<V>({
     if (deficit <= 0) {
       return node;
     }
-    const filler: Tree<V> = {
-      type: "leaf",
-      value: "" as LeafValue<V>,
+    const filler = emptyFiller({
+      type: "gap",
       width: deficit,
       height: node.height,
-    };
+    });
     if (node.type === "row" && "children" in node) {
       node.children.push(filler);
       node.width = targetWidth;
@@ -596,9 +639,7 @@ export function makeTreeFactory<V>({
       if (!indexed) {
         return rows;
       }
-      return rows.map((child, i) =>
-        makeIndexedRow(createIndex(i, value), child),
-      );
+      return rows.map((child, i) => indexedRow(createIndex(i, value), child));
     }
 
     const commonBand = maskToBand(common);
@@ -633,7 +674,7 @@ export function makeTreeFactory<V>({
         body.height = restHeight;
       }
       equalizeBodyHeights(body);
-      out[i] = !indexed ? body : makeIndexedRow(createIndex(i, value), body);
+      out[i] = !indexed ? body : indexedRow(createIndex(i, value), body);
     }
     const result: Tree<V>[] = new Array(out.length + 1);
     result[0] = headerBlock;
@@ -671,10 +712,7 @@ export function makeTreeFactory<V>({
         collapseRows(v, `${prefix}${title}.`, rows);
       } else {
         rows.push(
-          makeIndexedRow(
-            `${prefix}${title}` as LeafValue<V>,
-            parseValue(v, true),
-          ),
+          indexedRow(`${prefix}${title}` as LeafValue<V>, parseValue(v, true)),
         );
       }
     }
@@ -683,28 +721,16 @@ export function makeTreeFactory<V>({
 
   function transformArray(value: V[]): Tree<V> {
     if (value.length === 0) {
-      return {
-        type: "leaf",
-        value: "" as LeafValue<V>,
-        width: 1,
-        height: 1,
-      };
+      return emptyFiller({ type: "empty-array", width: 1, height: 1 });
     }
     // a single-element array renders exactly as its only element:
     // an index column for one row carries no information
     if (value.length === 1) {
       return parseValue(value[0]!, true);
     }
-    if (joinPrimitiveArrayValues) {
-      const isPrimitives = value.every((v) => isJsonPrimitive(v as JSONValue));
-      if (isPrimitives) {
-        return {
-          type: "leaf",
-          value: value.join(", ") as LeafValue<V>,
-          width: 1,
-          height: 1,
-        };
-      }
+    const joined = joinArrayValues?.(value);
+    if (joined !== undefined) {
+      return dataLeaf(joined);
     }
     if (stabilizeOrderOfPropertiesInArraysOfObjects) {
       if (value.every(isPlainObject)) {
@@ -752,12 +778,7 @@ export function makeTreeFactory<V>({
         return transformArray(value);
       }
     }
-    return {
-      type: "leaf",
-      value: value as LeafValue<V>,
-      width: 1,
-      height: 1,
-    };
+    return dataLeaf(value as LeafValue<V>);
   }
 
   return parseValue;

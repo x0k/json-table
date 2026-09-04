@@ -1,4 +1,4 @@
-{
+export default {
   "name": "deduplicate headers with format in both items",
   "input": [
     {
@@ -12,4 +12,4 @@
       "targets": [{ "expr": "sum_messages", "format": "json" }]
     }
   ]
-}
+};

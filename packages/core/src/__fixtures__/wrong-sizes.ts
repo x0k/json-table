@@ -1,4 +1,4 @@
-{
+export default {
   "name": "create correct tree",
   "input": [
     {
@@ -12,4 +12,4 @@
       "targets": [{ "expr": "sum(log_messages_total)" }]
     }
   ]
-}
+};

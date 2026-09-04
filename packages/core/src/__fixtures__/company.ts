@@ -1,10 +1,19 @@
-{
-  "name": "departments and projects with primitive join",
+export default {
+  "name": "company structure",
   "options": {
-    "collapseIndexes": true,
-    "joinPrimitiveArrayValues": true
+    "collapseIndexes": true
   },
   "input": {
+    "company": "TechCorp",
+    "yearFounded": 2000,
+    "founders": [
+      "Alice",
+      "Bob"
+    ],
+    "headquarters": {
+      "city": "Silicon Valley",
+      "country": "USA"
+    },
     "departments": [
       {
         "name": "Research",
@@ -49,19 +58,31 @@
     "projects": [
       {
         "title": "Project A",
-        "team": ["Alice", "Charlie", "Eva"],
+        "team": [
+          "Alice",
+          "Charlie",
+          "Eva"
+        ],
         "progress": 75
       },
       {
         "title": "Project B",
-        "team": ["Bob", "Diana", "Frank"],
+        "team": [
+          "Bob",
+          "Diana",
+          "Frank"
+        ],
         "progress": 60
       },
       {
         "title": "Project C",
-        "team": ["Charlie", "Eva", "Grace"],
+        "team": [
+          "Charlie",
+          "Eva",
+          "Grace"
+        ],
         "progress": 90
       }
     ]
   }
-}
+};

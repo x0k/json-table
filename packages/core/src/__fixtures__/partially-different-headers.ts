@@ -1,4 +1,4 @@
-{
+export default {
   "name": "partially deduplicate objects with different headers",
   "input": [
     { "character_id": "5428010618020694593", "item_id": "95" },
@@ -8,4 +8,4 @@
       "stack_count": "4"
     }
   ]
-}
+};

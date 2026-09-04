@@ -1,6 +1,8 @@
 import { type JSONPrimitive } from "@json-table/core/lib/json";
 import {
   ASCIITableFormat,
+  joinPrimitiveArrayValues,
+  makeProportionalResizeGuard,
   type Tree,
   type TreeFactoryOptions,
   horizontalMirrorInPlace,
@@ -36,7 +38,12 @@ export type TransformConfig = {
     | { preset: TransformPreset.Default }
     | ({
         preset: TransformPreset.Manual;
-      } & TreeFactoryOptions<JSONPrimitive>)
+        joinPrimitiveArrayValues?: boolean;
+        proportionalSizeAdjustmentThreshold?: number;
+      } & Omit<
+        TreeFactoryOptions<JSONPrimitive>,
+        "joinPrimitiveArrayValues" | "isProportionalResize"
+      >)
   ) &
   (
     | { transform: false }
@@ -60,8 +67,8 @@ export function extractTableFactoryOptions(
         cornerCellValue: "№",
         createHeader: TREE_FACTORY_HEADER,
         createIndex: TREE_FACTORY_INDEX,
-        joinPrimitiveArrayValues: true,
-        proportionalSizeAdjustmentThreshold: 1,
+        joinArrayValues: joinPrimitiveArrayValues,
+        isProportionalResize: makeProportionalResizeGuard(1),
         collapseIndexes: true,
         stabilizeOrderOfPropertiesInArraysOfObjects: true,
         deduplicateHeaders: true,
@@ -69,21 +76,27 @@ export function extractTableFactoryOptions(
     case TransformPreset.Manual: {
       const {
         collapseIndexes,
-        joinPrimitiveArrayValues,
+        joinPrimitiveArrayValues: joinToggle,
         stabilizeOrderOfPropertiesInArraysOfObjects,
-        proportionalSizeAdjustmentThreshold,
+        proportionalSizeAdjustmentThreshold: threshold,
         cornerCellValue,
         deduplicateHeaders,
+        createLeaf,
+        emptyCellValue,
+        isHeaderEqual,
       } = config;
       return {
         collapseIndexes,
-        joinPrimitiveArrayValues,
+        joinArrayValues: joinToggle ? joinPrimitiveArrayValues : undefined,
         stabilizeOrderOfPropertiesInArraysOfObjects,
-        proportionalSizeAdjustmentThreshold,
+        isProportionalResize: makeProportionalResizeGuard(threshold ?? 1),
         cornerCellValue: cornerCellValue ?? "",
         deduplicateHeaders,
         createHeader: TREE_FACTORY_HEADER,
         createIndex: TREE_FACTORY_INDEX,
+        createLeaf,
+        emptyCellValue,
+        isHeaderEqual,
       };
     }
     default: {

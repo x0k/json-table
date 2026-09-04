@@ -1,19 +1,12 @@
-{
-  "name": "company structure",
+import { joinPrimitiveArrayValues } from "../json-to-tree.js";
+
+export default {
+  "name": "departments and projects with primitive join",
   "options": {
-    "collapseIndexes": true
+    "collapseIndexes": true,
+    "joinArrayValues": joinPrimitiveArrayValues,
   },
   "input": {
-    "company": "TechCorp",
-    "yearFounded": 2000,
-    "founders": [
-      "Alice",
-      "Bob"
-    ],
-    "headquarters": {
-      "city": "Silicon Valley",
-      "country": "USA"
-    },
     "departments": [
       {
         "name": "Research",
@@ -85,4 +78,4 @@
       }
     ]
   }
-}
+};

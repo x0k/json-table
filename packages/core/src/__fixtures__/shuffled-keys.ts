@@ -1,8 +1,8 @@
-{
+export default {
   "name": "stabilize order of properties in arrays of objects",
   "options": {
     "cornerCellValue": "#",
     "stabilizeOrderOfPropertiesInArraysOfObjects": true
   },
   "input": [{ "b": 2, "a": 1 }, { "c": 3, "a": 4 }]
-}
+};

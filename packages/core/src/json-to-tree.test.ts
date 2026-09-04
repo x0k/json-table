@@ -11,7 +11,7 @@ import {
   stretchLeavesDimensionInPlace,
   Tree,
 } from "./model";
-import { makeTreeFactory } from "./json-to-tree";
+import { joinPrimitiveArrayValues, makeTreeFactory } from "./json-to-tree";
 import { makePropertiesStabilizer } from "./properties-stabilizer";
 
 const makeTree = makeTreeFactory<JSONValue>({
@@ -61,10 +61,7 @@ describe("rows", () => {
       result.map((row) =>
         row.map((c) => `${c.node.value}@${c.x},${c.y} ${c.width}x${c.height}`),
       ),
-    ).toEqual([
-      ["h@0,0 1x1", "tall@1,0 1x2"],
-      ["v@0,1 1x1"],
-    ]);
+    ).toEqual([["h@0,0 1x1", "tall@1,0 1x2"], ["v@0,1 1x1"]]);
   });
 
   it("yields an empty row when it is fully covered by rowspans", () => {
@@ -539,5 +536,154 @@ describe("isHeaderEqual", () => {
       { name: "X", employees: { a: 1 } },
     ]);
     expect(bandCounts(tree)).toEqual({ header: 9 });
+  });
+});
+
+describe("factory options", () => {
+  const baseOptions = {
+    cornerCellValue: "#",
+    createHeader: (k: string) => k,
+    createIndex: (i: number) => `${i + 1}`,
+  } as const;
+
+  function leafValues(tree: Tree<JSONValue>): unknown[] {
+    const out: unknown[] = [];
+    for (const { node } of cells(tree)) {
+      if (node.type === "leaf") {
+        out.push(node.value);
+      }
+    }
+    return out;
+  }
+
+  it("createLeaf formats data leaves, headers and indexes pass through", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      createLeaf: (v) => (typeof v === "number" ? `#${v}` : v),
+    });
+    expect(leafValues(createTree({ n: 42, s: "x" }))).toEqual(["#42", "x"]);
+  });
+
+  it("joinArrayValues joins with a custom function", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      joinArrayValues: (values) => values.join(" | "),
+    });
+    expect(leafValues(createTree({ a: [1, 2] }))).toEqual(["1 | 2"]);
+  });
+
+  it("joinArrayValues then createLeaf see the joined string", () => {
+    const seen: unknown[] = [];
+    const createTree = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      joinArrayValues: (values) => values.join(", "),
+      createLeaf: (v) => {
+        seen.push(v);
+        return v;
+      },
+    });
+    expect(leafValues(createTree({ a: [1, 2] }))).toEqual(["1, 2"]);
+    expect(seen).toEqual(["1, 2"]);
+  });
+
+  it("joinArrayValues merges object arrays, declining renders a table", () => {
+    const merged = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      joinArrayValues: (values) => `${values.length} objects`,
+    })({ a: [{ x: 1 }, { x: 2 }] });
+    expect(leafValues(merged)).toEqual(["2 objects"]);
+    const declined = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      joinArrayValues: () => undefined,
+    })({ a: [{ x: 1 }, { x: 2 }] });
+    const declinedLeaves = leafValues(declined);
+    expect(declinedLeaves).toContain(1);
+    expect(declinedLeaves).toContain(2);
+    expect(declined.height).toBeGreaterThan(1);
+  });
+
+  it("joinPrimitiveArrayValues joins primitives and declines the rest", () => {
+    const join = joinPrimitiveArrayValues as (values: JSONValue[]) => unknown;
+    expect(join([1, "two", false])).toBe("1, two, false");
+    expect(join([{ x: 1 }])).toBeUndefined();
+  });
+
+  it("isProportionalResize guard selects scaling versus padding", () => {
+    // Short body (2 rows) against a target of 5: allowed scaling doubles
+    // it with a 1-row remainder, rejection pads the whole deficit of 3.
+    // (Band heights cancel out, so only these numbers can result.)
+    const input = {
+      tall: [{ n: "a" }, { n: "b" }, { n: "c" }, { n: "d" }, { n: "e" }],
+      short: [{ t: 1 }, { t: 2 }],
+    } as unknown as JSONValue;
+    const fillerHeights = (tree: Tree<JSONValue>): number[] => {
+      const out: number[] = [];
+      for (const { node } of cells(tree)) {
+        if (node.type === "leaf" && node.value === "") {
+          out.push(node.height);
+        }
+      }
+      return out;
+    };
+    const scaled = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      collapseIndexes: true,
+      isProportionalResize: () => true,
+    })(input);
+    const padded = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      collapseIndexes: true,
+      isProportionalResize: () => false,
+    })(input);
+    expect(fillerHeights(scaled)).toEqual([1]);
+    expect(fillerHeights(padded)).toEqual([3]);
+  });
+
+  it("emptyCellValue customizes gap filler", () => {
+    // Deficit (1) smaller than the short body (3 rows): no scaling either
+    // way, the remainder is the only filler in the tree.
+    const createTree = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      collapseIndexes: true,
+      emptyCellValue: () => "—",
+    });
+    const tree = createTree({
+      tall: [{ n: "a" }, { n: "b" }, { n: "c" }, { n: "d" }],
+      short: [{ t: 1 }, { t: 2 }, { t: 3 }],
+    } as unknown as JSONValue);
+    expect(leafValues(tree)).toContain("—");
+    expect(leafValues(tree)).not.toContain("");
+  });
+
+  it("emptyCellValue covers empty arrays verbatim, bypassing createLeaf", () => {
+    const seen: unknown[] = [];
+    const createTree = makeTreeFactory<JSONValue>({
+      cornerCellValue: "#",
+      createHeader: (k: string) => k,
+      createIndex: (i: number) => `${i + 1}`,
+      emptyCellValue: () => "—",
+      createLeaf: (v) => {
+        seen.push(v);
+        return v;
+      },
+    });
+    expect(leafValues(createTree({ a: [] }))).toEqual(["—"]);
+    expect(seen).toEqual([]);
+  });
+
+  it("emptyCellValue distinguishes gap filler from empty arrays", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...baseOptions,
+      collapseIndexes: true,
+      emptyCellValue: ({ type }) => (type === "empty-array" ? "∅" : "—"),
+    });
+    const tree = createTree({
+      tall: [{ n: "a" }, { n: "b" }, { n: "c" }, { n: "d" }],
+      short: [{ t: 1 }, { t: 2 }, { t: 3 }],
+      e: [],
+    });
+    const values = leafValues(tree);
+    expect(values).toContain("—");
+    expect(values).toContain("∅");
   });
 });

@@ -5,7 +5,11 @@
     type JSONObject,
     type JSONValue,
   } from "@json-table/core/lib/json";
-  import { makeTreeFactory, rows } from "@json-table/core";
+  import {
+    makeTreeFactory,
+    joinPrimitiveArrayValues,
+    rows,
+  } from "@json-table/core";
 
   const collapsed = new SvelteSet<Collapsible>();
 
@@ -41,7 +45,7 @@
 
   const createTree = makeTreeFactory<unknown>({
     cornerCellValue: "№",
-    joinPrimitiveArrayValues: true,
+    joinArrayValues: joinPrimitiveArrayValues,
     createHeader(key, record) {
       const value = record[key];
       if (value instanceof Collapsible) {

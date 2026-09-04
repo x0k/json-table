@@ -1,4 +1,4 @@
-{
+export default {
   "name": "deduplicate tree indexes",
   "input": { "a": [1, 4, 7], "b": [2, 5, 8], "c": [3, 6, 9] }
-}
+};

@@ -29,13 +29,18 @@ Rendering then just traces this layout into whatever output you need — ASCII, 
 ## Usage
 
 ```typescript
-import { makeTreeFactory, toASCII, toHTML } from "@json-table/core";
+import {
+  makeTreeFactory,
+  joinPrimitiveArrayValues,
+  toASCII,
+  toHTML,
+} from "@json-table/core";
 
 const createTree = makeTreeFactory({
   cornerCellValue: "№",
   createHeader: (key) => key,
   createIndex: (i) => i + 1,
-  joinPrimitiveArrayValues: true,
+  joinArrayValues: joinPrimitiveArrayValues,
 });
 
 const tree = createTree(data);

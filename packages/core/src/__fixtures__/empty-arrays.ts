@@ -1,4 +1,4 @@
-{
+export default {
   "name": "handle empty arrays",
   "input": [
     {
@@ -16,4 +16,4 @@
       }
     }
   ]
-}
+};

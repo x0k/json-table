@@ -1,7 +1,7 @@
-{
+export default {
   "name": "deduplicate multiline tree headers",
   "input": [
     { "a": { "x": 1 }, "b": { "y": 2 } },
     { "a": { "x": 3 }, "b": { "y": 4 } }
   ]
-}
+};
