@@ -134,25 +134,6 @@ export type OptionalNode<V> =
 
 export type OptionalTree<V> = OptionalNode<LeafValue<V>>;
 
-export function isTreeStructurallyEquals<V>(
-  a: OptionalTree<V>,
-  b: OptionalTree<V>,
-): boolean {
-  if (a === b) {
-    return true;
-  }
-  if (a === undefined || b === undefined || a.type !== b.type) {
-    return false;
-  }
-  if ("children" in a && "children" in b) {
-    return (
-      a.children.length === b.children.length &&
-      a.children.every((c, i) => isTreeStructurallyEquals(c, b.children[i]))
-    );
-  }
-  return "value" in a && "value" in b && a.value === b.value;
-}
-
 export type ComponentKind = "header" | "index" | "corner";
 
 /** every possible node discriminant, including `"leaf"`; kind sets used for
@@ -186,13 +167,12 @@ export function extractComponentTree<V>(
 export const HEAD_KINDS: ReadonlySet<ComponentKind> = new Set(["header"]);
 export const INDEX_KINDS: ReadonlySet<ComponentKind> = new Set(["index"]);
 
-export function extractHeadersTree<V>(tree: Tree<V>): OptionalTree<V> {
-  return extractComponentTree(tree, HEAD_KINDS);
-}
-
-export function extractSubtree<V>(
+/** structural intersection: keeps the parts of `tree` matching the mask's
+ * shape and values, yielding `undefined` holes elsewhere */
+export function intersectTrees<V>(
   tree: Tree<V>,
   mask: OptionalTree<V>,
+  isHeaderEqual: (a: LeafValue<V>, b: LeafValue<V>) => boolean,
 ): OptionalTree<V> {
   if (mask === undefined || tree.type !== mask.type) {
     return undefined;
@@ -205,7 +185,11 @@ export function extractSubtree<V>(
     const children: OptionalTree<V>[] = new Array(tree.children.length);
     let isUndefined = true;
     for (let i = 0; i < tree.children.length; i++) {
-      const child = extractSubtree(tree.children[i]!, maskChildren[i]);
+      const child = intersectTrees(
+        tree.children[i]!,
+        maskChildren[i],
+        isHeaderEqual,
+      );
       children[i] = child;
       isUndefined &&= child === undefined;
     }
@@ -216,9 +200,17 @@ export function extractSubtree<V>(
           children,
         };
   }
-  return "value" in tree && "value" in mask && tree.value === mask.value
-    ? tree
-    : undefined;
+  if ("value" in tree && "value" in mask) {
+    // Both are leaves of the same kind here (types were forced equal
+    // above). Custom equality applies to band cells only; index and data
+    // leaves always compare strictly so distinct rows can never merge.
+    const equal =
+      tree.type === "header" || tree.type === "corner"
+        ? isHeaderEqual(tree.value, mask.value)
+        : tree.value === mask.value;
+    return equal ? tree : undefined;
+  }
+  return undefined;
 }
 
 export function decapitateTree<V>(

@@ -2,7 +2,7 @@ import {
   type ComponentKind,
   decapitateTree,
   extractComponentTree,
-  extractSubtree,
+  intersectTrees,
   stretchLeavesDimensionInPlace,
   type LeafValue,
   type OptionalTree,
@@ -32,6 +32,10 @@ export interface TreeFactoryOptions<V> {
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
   /** lift common headers of array items into a shared band (default true) */
   deduplicateHeaders?: boolean;
+  /** custom equality for header values during band lifting (default
+   * Object.is). Needed when headers carry objects: bands whose headers
+   * differ by identity alone would otherwise never lift and repeat per row. */
+  isHeaderEqual?: (a: LeafValue<V>, b: LeafValue<V>) => boolean;
 }
 
 export function makeTreeFactory<V>({
@@ -43,6 +47,7 @@ export function makeTreeFactory<V>({
   collapseIndexes,
   stabilizeOrderOfPropertiesInArraysOfObjects = true,
   deduplicateHeaders = true,
+  isHeaderEqual = Object.is,
 }: TreeFactoryOptions<V>) {
   const isProportionalResize = makeProportionalResizeGuard(
     proportionalSizeAdjustmentThreshold,
@@ -229,7 +234,7 @@ export function makeTreeFactory<V>({
     }
     let mask: OptionalTree<V> = extractComponentTree(bodies[0]!, INDEX_KINDS);
     for (let i = 1; i < bodies.length; i++) {
-      mask = extractSubtree(bodies[i]!, mask);
+      mask = intersectTrees(bodies[i]!, mask, isHeaderEqual);
     }
     if (mask === undefined) {
       return undefined;
@@ -568,7 +573,7 @@ export function makeTreeFactory<V>({
         : extractComponentTree(rows[0]!, DEDUP_KINDS);
     let common: OptionalTree<V> = seed;
     for (let i = 1; i < rows.length; i++) {
-      common = extractSubtree(rows[i]!, common);
+      common = intersectTrees(rows[i]!, common, isHeaderEqual);
       if (common === undefined) {
         break;
       }

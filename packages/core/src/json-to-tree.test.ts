@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { JSONValue } from "./lib/json";
 import {
+  cells,
   decapitateTree,
-  extractHeadersTree,
-  extractSubtree,
+  extractComponentTree,
+  intersectTrees,
+  HEAD_KINDS,
   rows,
   stretchLeavesDimensionInPlace,
   Tree,
@@ -183,10 +185,13 @@ describe("makeTreeFactory", () => {
   });
 });
 
-describe("extractHeadersTree", () => {
+describe("extractComponentTree", () => {
   it("should extract headers tree", () => {
     expect(
-      extractHeadersTree(makeTree({ foo: "bar", baz: { a: "b" } })),
+      extractComponentTree(
+        makeTree({ foo: "bar", baz: { a: "b" } }),
+        HEAD_KINDS,
+      ),
     ).toEqual({
       children: [
         {
@@ -238,11 +243,14 @@ describe("extractHeadersTree", () => {
   });
 });
 
-describe("extractSubtree", () => {
+describe("intersectTrees", () => {
   it("should extract subtree", () => {
     const tree = makeTree({ foo: "bar", baz: { a: "b" } });
-    const mask = extractHeadersTree(makeTree({ foo: "bar", baz: "ddd" }));
-    expect(extractSubtree(tree, mask)).toEqual({
+    const mask = extractComponentTree(
+      makeTree({ foo: "bar", baz: "ddd" }),
+      HEAD_KINDS,
+    );
+    expect(intersectTrees(tree, mask, (a, b) => a === b)).toEqual({
       children: [
         {
           children: [
@@ -283,7 +291,7 @@ describe("extractSubtree", () => {
 describe("decapitateTree", () => {
   it("should omit header nodes", () => {
     const tree = makeTree({ foo: "bar", baz: { a: "b" } });
-    const mask = extractHeadersTree(tree);
+    const mask = extractComponentTree(tree, HEAD_KINDS);
     expect(decapitateTree(tree, mask, new Set(["header"]))).toEqual({
       children: [
         {
@@ -463,5 +471,73 @@ describe("stretchLeavesHeight", () => {
       type: "row",
       width: 3,
     });
+  });
+});
+
+describe("isHeaderEqual", () => {
+  interface LabeledHeader {
+    label: string;
+  }
+
+  const createLabeledHeader = (k: string): LabeledHeader => ({ label: k });
+  const isLabeledHeaderEqual = (a: unknown, b: unknown): boolean =>
+    typeof a === "object" &&
+    a !== null &&
+    typeof b === "object" &&
+    b !== null &&
+    (a as LabeledHeader).label === (b as LabeledHeader).label;
+
+  const collapsedDepartments = [
+    { name: "Research", employees: "2 items" },
+    { name: "Development", employees: "2 items" },
+    { name: "Marketing", employees: "2 items" },
+  ];
+
+  function bandCounts(tree: Tree<unknown>): Record<string, number> {
+    const counts: Record<string, number> = {};
+    for (const { node } of cells(tree)) {
+      if (node.type === "header" || node.type === "corner") {
+        counts[node.type] = (counts[node.type] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  it("lifts bands whose headers match by custom equality", () => {
+    const createTree = makeTreeFactory<unknown>({
+      cornerCellValue: "#",
+      createHeader: createLabeledHeader,
+      createIndex: (i) => `${i + 1}`,
+      isHeaderEqual: isLabeledHeaderEqual,
+    });
+    expect(bandCounts(createTree(collapsedDepartments))).toEqual({
+      corner: 1,
+      header: 2,
+    });
+  });
+
+  it("keeps per-row bands without it", () => {
+    const createTree = makeTreeFactory<unknown>({
+      cornerCellValue: "#",
+      createHeader: createLabeledHeader,
+      createIndex: (i) => `${i + 1}`,
+    });
+    expect(bandCounts(createTree(collapsedDepartments))).toEqual({
+      header: 6,
+    });
+  });
+
+  it("still splits on structural mismatch", () => {
+    const createTree = makeTreeFactory<unknown>({
+      cornerCellValue: "#",
+      createHeader: createLabeledHeader,
+      createIndex: (i) => `${i + 1}`,
+      isHeaderEqual: isLabeledHeaderEqual,
+    });
+    const tree = createTree([
+      ...collapsedDepartments,
+      { name: "X", employees: { a: 1 } },
+    ]);
+    expect(bandCounts(tree)).toEqual({ header: 9 });
   });
 });
