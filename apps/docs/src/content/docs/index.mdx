@@ -66,20 +66,6 @@ const asciiTable = toASCII(tree);
 const htmlTable = toHTML(tree);
 ```
 
-:::tip
-Writing your own renderer is easy — `cells()` walks the tree and yields
-every cell with its position and span, `rows()` groups cells into visual
-rows:
-
-```typescript
-import { cells, rows } from "@json-table/core";
-```
-
-See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts) source code to create your own renderer.
-
-[Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
-:::
-
 Input data:
 
 ```json
@@ -122,6 +108,13 @@ Output:
 |     |               |        |      | nestedVal | 2 | Alice |  25 | true   |
 +-----+---------------+--------+------+-----------+---+-------+-----+--------+
 ```
+
+## Next steps
+
+- [Factory options](/json-table/docs/factory-options/) — all `makeTreeFactory` options and input handling (`toJSON`, `TO_TABLE`, empty/single-element arrays, `isHeaderEqual`).
+- [Renderers](/json-table/docs/renderers/) — `toASCII` formats, `toHTML`, and writing your own renderer with `cells()` / `rows()`.
+- [Layout transforms](/json-table/docs/transforms/) — transpose, mirror, and re-normalize trees before rendering.
+- [XLSX](/json-table/docs/xlsx/) — render trees to XLSX workbooks.
 
 ## License
 

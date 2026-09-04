@@ -52,34 +52,6 @@ const asciiTable = toASCII(tree);
 const htmlTable = toHTML(tree);
 ```
 
-> [!TIP]
-> Writing your own renderer is easy — `cells()` walks the tree and yields
-> every cell with its position and span:
->
-> ```typescript
-> import { cells } from "@json-table/core";
->
-> for (const { node, x, y, width, height } of cells(tree)) {
->   // node.type: "header" | "index" | "corner" | "leaf"
-> }
-> ```
->
-> For HTML-like renderers, `rows()` groups cells into visual rows
-> (one array per `<tr>`, ordered left-to-right):
->
-> ```typescript
-> import { rows } from "@json-table/core";
->
-> for (const row of rows(tree)) {
->   // each row: cells starting in it, sorted by x
-> }
-> ```
->
-> See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts)
-> for a complete minimal renderer.
->
-> [Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
-
 Input data:
 
 ```json
@@ -121,6 +93,85 @@ Output:
 |     |               |        |      | nestedVal | 2 | Alice |  25 | true   |
 +-----+---------------+--------+------+-----------+---+-------+-----+--------+
 ```
+
+## Factory options
+
+`makeTreeFactory<V>(options)` accepts:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `cornerCellValue` | — (required) | Value of the top-left corner cell above lifted header bands. |
+| `createHeader` | — (required) | `(key, record) => leaf` — header cell for an object key. |
+| `createIndex` | — (required) | `(i, array) => leaf` — index cell for array item `i`. |
+| `createLeaf` | `identity` | `(value) => leaf` — formats data leaves (joined arrays included). Headers, indexes, corners and filler never pass here. |
+| `joinArrayValues` | `undefined` | `(values) => leaf \| undefined` — merges an array into one leaf; return `undefined` to render it as a table. Receives raw input order, before key stabilization. Use `joinPrimitiveArrayValues` to comma-join all-primitive arrays (the pre-0.5 behavior). |
+| `emptyCellValue` | `() => ""` | `({ type, width, height }) => leaf` — placeholder for content-less cells. `type` is `"gap"` (sizing filler) or `"empty-array"`. |
+| `isProportionalResize` | allows 100% growth | `(lcm, max) => boolean` — guards LCM-scaling of sibling heights. Use `makeProportionalResizeGuard(threshold)`; when it rejects, short columns are padded with filler instead. |
+| `collapseIndexes` | `false` | Flatten nested arrays into dotted index paths (`1.2`, …) instead of nested index columns. |
+| `stabilizeOrderOfPropertiesInArraysOfObjects` | `true` | Reorder keys of objects inside an array by stable first-seen position, so columns line up. |
+| `deduplicateHeaders` | `true` | Lift the header band common to all array items on top of the table. Set `false` to keep per-row headers. |
+| `isHeaderEqual` | `Object.is` | `(a, b) => boolean` — custom equality for header values during band lifting. Needed when headers carry objects (see below). |
+
+## Input handling
+
+- Objects with a `toJSON()` method are unwrapped via `toJSON()` first.
+- Objects exposing a `[TO_TABLE]()` method (import `TO_TABLE` from `@json-table/core`) bypass parsing with their prebuilt `Tree`.
+- Single-element arrays render as their only element (an index column for one row carries no information).
+- Empty arrays render as one `empty-array` filler cell (see `emptyCellValue`).
+- Headers carrying objects never lift by identity alone: pass `isHeaderEqual` to compare them (e.g. by label). See the [interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
+
+## Renderers
+
+- `toASCII(tree, { format })` — `format` is `ASCIITableFormat.MySQL` (default) or `ASCIITableFormat.MarkdownLike`.
+- `toHTML(tree)` — `<table>` with `colspan`/`rowspan`; header, index and corner cells are wrapped in `<b>`.
+- XLSX — see [@json-table/xlsx](https://github.com/x0k/json-table/tree/main/packages/xlsx).
+
+> [!TIP]
+> Writing your own renderer is easy — `cells()` walks the tree and yields
+> every cell with its position and span:
+>
+> ```typescript
+> import { cells } from "@json-table/core";
+>
+> for (const { node, x, y, width, height } of cells(tree)) {
+>   // node.type: "header" | "index" | "corner" | "leaf"
+> }
+> ```
+>
+> For HTML-like renderers, `rows()` groups cells into visual rows
+> (one array per `<tr>`, ordered left-to-right; rows fully covered by
+> rowspans are present but empty):
+>
+> ```typescript
+> import { rows } from "@json-table/core";
+>
+> for (const row of rows(tree)) {
+>   // each row: cells starting in it, sorted by x
+> }
+> ```
+>
+> See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts)
+> for a complete minimal renderer.
+>
+> [Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
+
+## Layout transforms
+
+Trees can be transformed in place (or structurally) before rendering:
+
+```typescript
+import {
+  transposeTree,
+  horizontalMirrorInPlace,
+  verticalMirrorInPlace,
+  normalizeExtentsInPlace,
+} from "@json-table/core";
+```
+
+- `transposeTree(tree)` — reflect over the main diagonal (rows become columns). Returns a new tree.
+- `horizontalMirrorInPlace(tree)` — reverse column order.
+- `verticalMirrorInPlace(tree)` — reverse row order.
+- `normalizeExtentsInPlace(tree)` — recompute container extents bottom-up (sum along / max across). Useful after manual tree surgery.
 
 ## License
 
