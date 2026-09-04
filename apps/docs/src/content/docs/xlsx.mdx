@@ -6,17 +6,19 @@ import { Code, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 import Npm from '@/components/npm.astro';
 
-Library for rendering [JSON Table](/core/) trees to XLSX workbooks.
+Library for rendering [JSON Table](/json-table/docs/) trees to XLSX workbooks.
 
 ## Installation
 
-<Npm pkg='@json-table/xlsx @office-kit/xlsx' />
+<Npm pkg='@json-table/core @json-table/xlsx' />
+
+`@office-kit/xlsx` is a peer dependency and is installed automatically as such.
 
 ## Usage
 
 ```typescript
 import { makeTreeFactory } from "@json-table/core";
-import { treesToWorkbook } from "@json-table/xlsx";
+import { treesToWorkbook, treesToXlsxBytes } from "@json-table/xlsx";
 
 const createTree = makeTreeFactory({
   cornerCellValue: "№",
@@ -24,11 +26,21 @@ const createTree = makeTreeFactory({
   createIndex: (i) => i + 1,
 });
 
+const tree = createTree(data);
+
 /* Create a workbook with a `Table` sheet */
-const wb = treesToWorkbook([["Table", createTree(data)]]);
+const wb = treesToWorkbook([["Table", tree]]);
+
+/* Or serialize directly to bytes (browser-safe) */
+const bytes = await treesToXlsxBytes([["Table", tree]]);
 ```
 
-Every cell of the tree is placed on the worksheet with `rowspan`/`colspan`-equivalent merges; header, index and corner cells are rendered in bold.
+Every cell of the tree is placed on the worksheet with `rowspan`/`colspan`-equivalent merges; header, index and corner cells are rendered in bold (centered, wrapped).
+
+Lower-level helpers are also exported:
+
+- `renderOnWorksheet(ws, wb, tree, options)` — render one tree onto an existing worksheet.
+- `calculateSheetData(tree, options)` — compute `{ widths, heights, cells }` without writing anything.
 
 ### Sizing
 

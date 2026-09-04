@@ -44,8 +44,25 @@ export default defineConfig({
           label: "Packages",
           items: [
             {
-              label: "@json-table/core",
-              link: "/",
+              label: "Core",
+              items: [
+                {
+                  label: "Overview",
+                  link: "/",
+                },
+                {
+                  label: "Factory options",
+                  link: "/factory-options/",
+                },
+                {
+                  label: "Renderers",
+                  link: "/renderers/",
+                },
+                {
+                  label: "Layout transforms",
+                  link: "/transforms/",
+                },
+              ],
             },
             {
               label: "@json-table/xlsx",

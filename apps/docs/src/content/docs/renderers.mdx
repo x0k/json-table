@@ -1,0 +1,22 @@
+---
+title: Renderers
+---
+
+- `toASCII(tree, { format })` — `format` is `ASCIITableFormat.MySQL` (default) or `ASCIITableFormat.MarkdownLike`.
+- `toHTML(tree)` — `<table>` with `colspan`/`rowspan`; header, index and corner cells are wrapped in `<b>`.
+- XLSX — see the [XLSX page](/json-table/docs/xlsx/).
+
+:::tip
+Writing your own renderer is easy — `cells()` walks the tree and yields
+every cell with its position and span, `rows()` groups cells into visual
+rows (one array per `<tr>`, ordered left-to-right; rows fully covered by
+rowspans are present but empty):
+
+```typescript
+import { cells, rows } from "@json-table/core";
+```
+
+See [tree-to-html](https://github.com/x0k/json-table/blob/main/packages/core/src/tree-to-html.ts) source code to create your own renderer.
+
+[Interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
+:::

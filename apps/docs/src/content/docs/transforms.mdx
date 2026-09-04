@@ -1,0 +1,19 @@
+---
+title: Layout transforms
+---
+
+Trees can be transformed in place (or structurally) before rendering:
+
+```typescript
+import {
+  transposeTree,
+  horizontalMirrorInPlace,
+  verticalMirrorInPlace,
+  normalizeExtentsInPlace,
+} from "@json-table/core";
+```
+
+- `transposeTree(tree)` — reflect over the main diagonal (rows become columns). Returns a new tree.
+- `horizontalMirrorInPlace(tree)` — reverse column order.
+- `verticalMirrorInPlace(tree)` — reverse row order.
+- `normalizeExtentsInPlace(tree)` — recompute container extents bottom-up. Useful after manual tree surgery.
