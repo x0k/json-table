@@ -16,8 +16,3 @@ export function isPlainObject(
 ): value is Record<PropertyKey, unknown> {
   return isObject(value) && isRecordProto(value);
 }
-
-/** @deprecated use `isPlainObject` */
-export const isRecord = isPlainObject as <T = unknown>(
-  value: unknown,
-) => value is Record<string, T>;
