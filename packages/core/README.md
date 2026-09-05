@@ -186,6 +186,26 @@ lifting-pipeline stress, wide records, deep nesting), and `toASCII`/`toHTML`
 over prebuilt trees. Deliberately outside the turbo pipeline and CI —
 perf PRs must quote before/after numbers from it.
 
+## Legacy Block API
+
+The pre-0.4 `Block`/`Table` pipeline (as published in
+`@json-table/core@0.3.0`) remains available unmodified under a subpath
+export:
+
+```typescript
+import {
+  makeTableFactory,
+  makeBlockFactory,
+  blockToASCII,
+  blockToHTML,
+} from "@json-table/core/legacy";
+```
+
+It mirrors the 0.3.0 export surface (root model plus `block`,
+`block-matrix`, `block-to-ascii`, `block-to-html` and `json-to-table`
+modules) in a single entry point. Prefer the root Tree-based API for new
+code.
+
 ## License
 
 MIT

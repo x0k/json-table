@@ -1,0 +1,46 @@
+---
+title: Legacy
+---
+
+import { Code, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+import Npm from '@/components/npm.astro';
+
+Frozen `0.3.0` `Block`/`Table` pipeline, exposed as the `@json-table/core/legacy` submodule. Prefer the [root API](/json-table/docs/) for new code.
+
+## Installation
+
+<Npm pkg='@json-table/core' />
+
+No extra dependencies — it ships inside `@json-table/core`.
+
+## Usage
+
+```typescript
+import {
+  makeTableFactory,
+  makeBlockFactory,
+  blockToASCII,
+  blockToHTML,
+} from "@json-table/core/legacy";
+
+const bake = makeBlockFactory({
+  cornerCellValue: "№",
+});
+
+const asciiTable = blockToASCII(bake(data));
+
+/* Or */
+
+const htmlTable = blockToHTML(bake(data));
+```
+
+The single entry point mirrors the 0.3.0 export surface: the root model
+(`Block`, `Table`, `Cell`, `CellType`, …) plus the `block`, `block-matrix`,
+`block-to-ascii`, `block-to-html` and `json-to-table` modules. Unlike the
+current API, there is no `emptyCellValue` option — empty arrays and objects
+render as empty strings.
+
+## License
+
+MIT
