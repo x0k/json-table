@@ -105,7 +105,7 @@ Output:
 | `createIndex` | — (required) | `(i, array) => leaf` — index cell for array item `i`. |
 | `createLeaf` | `identity` | `(value) => leaf` — formats data leaves (joined arrays included). Headers, indexes, corners and filler never pass here. |
 | `joinArrayValues` | `undefined` | `(values) => leaf \| undefined` — merges an array into one leaf; return `undefined` to render it as a table. Receives raw input order, before key stabilization. Use `joinPrimitiveArrayValues` to comma-join all-primitive arrays (the pre-0.5 behavior). |
-| `emptyCellValue` | `() => ""` | `({ type, width, height }) => leaf` — placeholder for content-less cells. `type` is `"gap"` (sizing filler) or `"empty-array"`. |
+| `emptyCellValue` | `() => ""` | `({ type, width, height }) => leaf` — placeholder for content-less cells. `type` is `"gap"` (sizing filler), `"empty-array"` or `"empty-object"`. |
 | `isProportionalResize` | allows 100% growth | `(lcm, max) => boolean` — guards LCM-scaling of sibling heights. Use `makeProportionalResizeGuard(threshold)`; when it rejects, short columns are padded with filler instead. |
 | `collapseIndexes` | `false` | Flatten nested arrays into dotted index paths (`1.2`, …) instead of nested index columns. |
 | `stabilizeOrderOfPropertiesInArraysOfObjects` | `true` | Reorder keys of objects inside an array by stable first-seen position, so columns line up. |
@@ -116,8 +116,8 @@ Output:
 
 - Objects with a `toJSON()` method are unwrapped via `toJSON()` first.
 - Objects exposing a `[TO_TABLE]()` method (import `TO_TABLE` from `@json-table/core`) bypass parsing with their prebuilt `Tree`.
-- Single-element arrays render as their only element (an index column for one row carries no information).
-- Empty arrays render as one `empty-array` filler cell (see `emptyCellValue`).
+- Every array level renders its index column — no special cases, so `[x]` stays distinguishable from `x` and `[{ ... }]` from `{ ... }`. `joinArrayValues` runs before that, uniformly (empty arrays never reach it: they render as the `emptyCellValue` filler). In `collapseIndexes` mode nested levels flatten into dotted paths (`[[123]]` → `1.1 | 123`); a flat singleton (`[x]`) flattened nothing and renders bare, as do empty arrays.
+- Empty arrays render as one `empty-array` filler cell, empty objects as one `empty-object` filler cell (see `emptyCellValue`).
 - Headers carrying objects never lift by identity alone: pass `isHeaderEqual` to compare them (e.g. by label). See the [interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
 
 ## Renderers
@@ -172,6 +172,39 @@ import {
 - `horizontalMirrorInPlace(tree)` — reverse column order.
 - `verticalMirrorInPlace(tree)` — reverse row order.
 - `normalizeExtentsInPlace(tree)` — recompute container extents bottom-up (sum along / max across). Useful after manual tree surgery.
+
+## Benchmarks
+
+```shell
+pnpm --filter @json-table/core bench
+```
+
+Runs the `vitest bench` harness (`packages/core/src/*.bench.ts`, excluded
+from tests, builds and publishes): factory presets (default,
+`collapseIndexes`, `joinPrimitiveArrayValues`) over fixtures plus synthetic
+large inputs (5k-row lifting-pipeline stress, wide records, deep nesting),
+and `toASCII`/`toHTML` over prebuilt trees. Deliberately outside the turbo
+pipeline and CI — perf PRs must quote before/after numbers from it.
+
+## Legacy Block API
+
+The pre-0.4 `Block`/`Table` pipeline (as published in
+`@json-table/core@0.3.0`) remains available unmodified under a subpath
+export:
+
+```typescript
+import {
+  makeTableFactory,
+  makeBlockFactory,
+  blockToASCII,
+  blockToHTML,
+} from "@json-table/core/legacy";
+```
+
+It mirrors the 0.3.0 export surface (root model plus `block`,
+`block-matrix`, `block-to-ascii`, `block-to-html` and `json-to-table`
+modules) in a single entry point. Prefer the root Tree-based API for new
+code.
 
 ## License
 

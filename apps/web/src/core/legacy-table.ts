@@ -1,24 +1,33 @@
 import { escapeHtml } from "@json-table/core/lib/html";
+import { type JSONValue, isJsonPrimitive } from "@json-table/core/lib/json";
 import {
-  type JSONPrimitive,
-  type JSONValue,
-  isJsonPrimitive,
-} from "@json-table/core/lib/json";
-import { type Tree, type TreeFactoryOptions, makeTreeFactory, toASCII } from "@json-table/core";
+  ASCIITableFormat,
+  type Block,
+  blockToASCII,
+  blockToHTML,
+  makeBlockFactory,
+  ASCIITableFormat as LegacyASCIITableFormat,
+} from "@json-table/core/legacy";
 
 import { type Entry, transformValue } from "@/lib/entry";
 import { JSONParseStatus, jsonTryParse } from "@/lib/json-parser";
 
-import { renderHTMLPage, HTML_TABLE_STYLES, makeHTMLPageContent } from "./html";
-import { makeWorkBook } from "./xlsx";
-import { createLegacyTable } from "./legacy-table";
+import { renderHTMLPage, HTML_TABLE_STYLES } from "./html";
 import {
   OutputFormat,
   TableImplementation,
   type TransformConfig,
-  extractTableFactoryOptions,
-  makeTransformApplicator,
+  extractLegacyTableFactoryOptions,
 } from "./model";
+
+function toLegacyASCIIFormat(format: ASCIITableFormat): LegacyASCIITableFormat {
+  switch (format) {
+    case ASCIITableFormat.MySQL:
+      return LegacyASCIITableFormat.MySQL;
+    case ASCIITableFormat.MarkdownLike:
+      return LegacyASCIITableFormat.MarkdownLike;
+  }
+}
 
 function parseTableData(data: string): JSONValue {
   const dataParseResult = jsonTryParse<JSONValue>(data);
@@ -29,21 +38,21 @@ function parseTableData(data: string): JSONValue {
       };
 }
 
-export async function createTable(
+export async function createLegacyTable(
   data: string,
   transformConfig: TransformConfig
 ) {
   if (
-    (transformConfig.implementation ?? TableImplementation.Core) ===
+    (transformConfig.implementation ?? TableImplementation.Core) !==
     TableImplementation.Legacy
   ) {
-    return createLegacyTable(data, transformConfig);
+    throw new Error(`Unexpected implementation`);
   }
-  const options = extractTableFactoryOptions(transformConfig);
-  const makeTree = makeTreeFactory<JSONValue>(
-    options as unknown as TreeFactoryOptions<JSONValue>
+  // NOTE: mirror/reflect/transpose applicators operate on Trees and have no
+  // Block counterparts, so `transform` settings are ignored here.
+  const bake = makeBlockFactory<JSONValue>(
+    extractLegacyTableFactoryOptions(transformConfig)
   );
-  const transformApplicator = makeTransformApplicator(transformConfig);
   const tableData = parseTableData(data);
   const pagesData: Entry<JSONValue>[] =
     isJsonPrimitive(tableData) || !transformConfig.paginate
@@ -53,25 +62,25 @@ export async function createTable(
       : Object.keys(tableData).map(
           (key) => [key, tableData[key]] as Entry<JSONValue>
         );
-  const pagesTables = pagesData
-    .map(transformValue(makeTree))
-    .map(
-      transformValue(
-        transformApplicator as (t: Tree<JSONValue>) => Tree<JSONValue>
-      )
-    );
+  const pagesTables: Entry<Block>[] = pagesData.map(transformValue(bake));
   switch (transformConfig.format) {
     case OutputFormat.HTML: {
       return renderHTMLPage(
         "Table",
-        makeHTMLPageContent(pagesTables),
+        pagesTables.length > 1
+          ? pagesTables
+              .map(([title, table]) => `<h2>${title}</h2>${blockToHTML(table)}`)
+              .join("<br />")
+          : blockToHTML(pagesTables[0]![1]),
         HTML_TABLE_STYLES
       );
     }
     case OutputFormat.ASCII: {
-      const renderTable = (t: Tree<JSONValue>) =>
+      const renderTable = (t: Block) =>
         `<pre><code>${escapeHtml(
-          toASCII(t, { format: transformConfig.asciiFormat })
+          blockToASCII(t, {
+            format: toLegacyASCIIFormat(transformConfig.asciiFormat),
+          })
         )}</code></pre>`;
       return renderHTMLPage(
         "Table",
@@ -83,7 +92,9 @@ export async function createTable(
       );
     }
     case OutputFormat.XLSX:
-      return makeWorkBook(pagesTables);
+      throw new Error(
+        `XLSX output is not available for the legacy implementation`
+      );
     default:
       throw new Error(`Unexpected output format`);
   }

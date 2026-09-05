@@ -26,8 +26,9 @@ const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
 ] as const);
 
 export interface EmptyCellInfo {
-  /** why the blank exists: sizing gap filler or an empty array */
-  type: "gap" | "empty-array";
+  /** why the blank exists: sizing gap filler, an empty array, or an
+   * empty object */
+  type: "gap" | "empty-array" | "empty-object";
   width: number;
   height: number;
 }
@@ -37,14 +38,15 @@ export interface TreeFactoryOptions<V> {
   createHeader: (k: string, record: Record<PropertyKey, V>) => LeafValue<V>;
   createIndex: (i: number, array: V[]) => LeafValue<V>;
   /** formats a data leaf value, joined strings included; headers, indexes,
-   * corners, gap filler and empty arrays never pass here */
+   * corners, gap filler, empty arrays and empty objects never pass here */
   createLeaf?: (value: LeafValue<V>) => LeafValue<V>;
   /** merges an array into one leaf; return undefined to render it as a
    * table instead. Receives raw input order, before key stabilization. */
   joinArrayValues?: (values: V[]) => LeafValue<V> | undefined;
   /** proportional resize guard (default allows 100% growth) */
   isProportionalResize?: ProportionalResizeGuard;
-  /** placeholder for content-less cells: gap filler and empty arrays */
+  /** placeholder for content-less cells: gap filler, empty arrays and
+   * empty objects */
   emptyCellValue?: (info: EmptyCellInfo) => LeafValue<V>;
   collapseIndexes?: boolean;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
@@ -143,6 +145,9 @@ export function makeTreeFactory<V>({
     insideArrayItem: boolean,
   ): Tree<V> {
     const keys = Object.keys(value);
+    if (keys.length === 0) {
+      return emptyFiller({ type: "empty-object", width: 1, height: 1 });
+    }
     const bodies: Tree<V>[] = new Array(keys.length);
     const headers: Tree<V>[] = new Array(keys.length);
     for (let i = 0; i < keys.length; i++) {
@@ -602,14 +607,13 @@ export function makeTreeFactory<V>({
     return count > 0 ? 1 + count : 0;
   }
 
-  /** lifts the header band common to all rows on top of the table; with
-   * `indexed`, each body gets a fresh index cell, otherwise rows carry
-   * their own (collapsed) indexes */
-  function stackRowsWithHeaders(
+  /** folds the rows' header components into their common band (adopting
+   * the seed row's extents), or returns undefined when there is no liftable
+   * band — heterogeneous rows keep per-row headers instead, since lifting
+   * only part of the band would mislead. */
+  function commonBandOf(
     rows: Tree<V>[],
-    value: V[],
-    indexed: boolean,
-  ): Tree<V>[] {
+  ): { band: Tree<V>; mask: OptionalTree<V> } | undefined {
     const seed =
       deduplicateHeaders === false || rows.length === 0
         ? undefined
@@ -621,8 +625,6 @@ export function makeTreeFactory<V>({
         break;
       }
     }
-    // Heterogeneous rows share only part of the band: lifting it would
-    // mislead, so keep per-row headers instead.
     if (common !== undefined) {
       let fullest = seed === undefined ? 0 : countKindNodes(rows[0]!);
       for (let i = 1; i < rows.length; i++) {
@@ -632,21 +634,34 @@ export function makeTreeFactory<V>({
         common = undefined;
       }
     }
-    if (common !== undefined) {
-      adoptExtents(common, rows[0]);
-    }
     if (common === undefined) {
+      return undefined;
+    }
+    adoptExtents(common, rows[0]);
+    const band = maskToBand(common);
+    if (band === undefined) {
+      // unreachable when `common` is defined
+      throw new Error("empty common header band");
+    }
+    return { band, mask: common };
+  }
+
+  /** lifts the header band common to all rows on top of the table; with
+   * `indexed`, each body gets a fresh index cell, otherwise rows carry
+   * their own (collapsed) indexes */
+  function stackRowsWithHeaders(
+    rows: Tree<V>[],
+    value: V[],
+    indexed: boolean,
+  ): Tree<V>[] {
+    const lifted = commonBandOf(rows);
+    if (lifted === undefined) {
       if (!indexed) {
         return rows;
       }
       return rows.map((child, i) => indexedRow(createIndex(i, value), child));
     }
-
-    const commonBand = maskToBand(common);
-    if (commonBand === undefined) {
-      // unreachable when `common` is defined
-      throw new Error("empty common header band");
-    }
+    const { band: commonBand, mask: common } = lifted;
     const bandHeight = commonBand.height;
     const corner: Tree<V> = {
       type: "corner",
@@ -657,7 +672,7 @@ export function makeTreeFactory<V>({
     const headerBlock = sizedContainer("row", [corner, commonBand]);
     const out: Tree<V>[] = new Array(rows.length);
     for (let i = 0; i < rows.length; i++) {
-      const body = decapitateTree(rows[i]!, common, DEDUP_KINDS);
+      const body = decapitateTree(rows[i]!, common, DEDUP_KINDS, true);
       if (
         !indexed &&
         "children" in body &&
@@ -700,20 +715,39 @@ export function makeTreeFactory<V>({
     return rows;
   }
 
-  function collapseRows(
+  interface CollapsePair {
+    title?: LeafValue<V>;
+    body: Tree<V>;
+    depth: number;
+  }
+
+  function collapsePairs(
     value: V[],
     prefix: string,
-    rows: Tree<V>[] = [],
-  ): Tree<V>[] {
+    rows: CollapsePair[] = [],
+    depth = 0,
+  ): CollapsePair[] {
     for (let i = 0; i < value.length; i++) {
       const v = value[i]!;
-      const title = String(createIndex(i, value));
-      if (Array.isArray(v) && v.length > 0) {
-        collapseRows(v, `${prefix}${title}.`, rows);
+      if (Array.isArray(v)) {
+        if (v.length > 0) {
+          collapsePairs(
+            v,
+            `${prefix}${createIndex(i, value)}.`,
+            rows,
+            depth + 1,
+          );
+        } else {
+          // Empty arrays are owned by `emptyCellValue`: bare filler body,
+          // never a dotted index cell.
+          rows.push({ body: parseValue(v, true), depth });
+        }
       } else {
-        rows.push(
-          indexedRow(`${prefix}${title}` as LeafValue<V>, parseValue(v, true)),
-        );
+        rows.push({
+          title: `${prefix}${createIndex(i, value)}` as LeafValue<V>,
+          body: parseValue(v, true),
+          depth,
+        });
       }
     }
     return rows;
@@ -722,11 +756,6 @@ export function makeTreeFactory<V>({
   function transformArray(value: V[]): Tree<V> {
     if (value.length === 0) {
       return emptyFiller({ type: "empty-array", width: 1, height: 1 });
-    }
-    // a single-element array renders exactly as its only element:
-    // an index column for one row carries no information
-    if (value.length === 1) {
-      return parseValue(value[0]!, true);
     }
     const joined = joinArrayValues?.(value);
     if (joined !== undefined) {
@@ -748,9 +777,27 @@ export function makeTreeFactory<V>({
         });
       }
     }
-    const children: Tree<V>[] = collapseIndexes
-      ? stackRowsWithHeaders(collapseRows(value, ""), value, false)
-      : dedupIndexedRows(value);
+    let children: Tree<V>[];
+    if (collapseIndexes) {
+      const pairs = collapsePairs(value, "");
+      // A sole depth-0 pair flattened nothing: no dotted index cell, just
+      // the bare body. Anything actually flattened — nested paths at any
+      // depth, or several rows — renders its index cells uniformly, and
+      // the header band still lifts. Title-less empty fillers stay bare.
+      const sole = pairs.length === 1 && pairs[0]!.depth === 0;
+      if (sole) {
+        return pairs[0]!.body;
+      }
+      children = stackRowsWithHeaders(
+        pairs.map((p) =>
+          p.title === undefined ? p.body : indexedRow(p.title, p.body),
+        ),
+        value,
+        false,
+      );
+    } else {
+      children = dedupIndexedRows(value);
+    }
     if (children.length === 1) {
       return children[0]!;
     }

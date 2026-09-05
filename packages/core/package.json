@@ -20,14 +20,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/x0k/json-table.git",
+    "url": "git+https://github.com/x0k/json-table.git",
     "directory": "packages/core"
   },
   "bugs": "https://github.com/x0k/json-table/issues",
   "homepage": "https://x0k.github.io/json-table/",
   "scripts": {
     "build": "tsc",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "bench": "vitest bench --run"
   },
   "exports": {
     "./lib/*": {
@@ -37,6 +38,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./legacy": {
+      "types": "./dist/legacy/index.d.ts",
+      "import": "./dist/legacy/index.js"
     }
   },
   "devDependencies": {

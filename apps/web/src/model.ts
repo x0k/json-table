@@ -2,7 +2,7 @@ import type { Schema, UiSchemaRoot } from "@sjsf/form";
 
 import { ASCIITableFormat, ASCII_TABLE_FORMATS } from "@json-table/core";
 
-import { OutputFormat, TransformPreset, type TransformConfig } from "./core";
+import { OutputFormat, TransformPreset, TableImplementation, type TransformConfig } from "./core";
 
 export interface SharedData {
   data: string;
@@ -81,6 +81,14 @@ export const TRANSFORM_SCHEMA: Schema = {
   type: "object",
   title: "Options",
   properties: {
+    implementation: {
+      title: "Implementation",
+      description:
+        "Table building engine: the current tree-based pipeline or the legacy 0.3.0 block pipeline",
+      type: "string",
+      enum: Object.values(TableImplementation),
+      default: TableImplementation.Core,
+    },
     preset: {
       title: "Preset",
       type: "string",
@@ -107,7 +115,7 @@ export const TRANSFORM_SCHEMA: Schema = {
       default: false,
     },
   },
-  required: ["preset", "format"],
+  required: ["implementation", "preset", "format"],
   dependencies: {
     preset: {
       oneOf: [
@@ -240,6 +248,7 @@ export const TRANSFORM_SCHEMA: Schema = {
 export const TRANSFORM_UI_SCHEMA: UiSchemaRoot = {
   "ui:options": {
     order: [
+      "implementation",
       "preset",
       "collapseIndexes",
       "joinPrimitiveArrayValues",

@@ -41,34 +41,33 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Packages",
+          label: "@json-table/core",
           items: [
             {
-              label: "Core",
-              items: [
-                {
-                  label: "Overview",
-                  link: "/",
-                },
-                {
-                  label: "Factory options",
-                  link: "/factory-options/",
-                },
-                {
-                  label: "Renderers",
-                  link: "/renderers/",
-                },
-                {
-                  label: "Layout transforms",
-                  link: "/transforms/",
-                },
-              ],
+              label: "Overview",
+              link: "/",
             },
             {
-              label: "@json-table/xlsx",
-              link: "/xlsx/",
+              label: "Factory options",
+              link: "/factory-options/",
+            },
+            {
+              label: "Renderers",
+              link: "/renderers/",
+            },
+            {
+              label: "Layout transforms",
+              link: "/transforms/",
+            },
+            {
+              label: "Legacy",
+              link: "/legacy/",
             },
           ],
+        },
+        {
+          label: "@json-table/xlsx",
+          link: "/xlsx/",
         },
       ],
       components: {

@@ -5,7 +5,7 @@ import { isValidUrl } from "./lib/url";
 import MainPage from "./main-page.svelte";
 import DownloadTablePage from "./download-table-page.svelte";
 import HtmlTablePage from "./html-table-page.svelte";
-import { OutputFormat, type TransformConfig, TransformPreset } from "./core";
+import { OutputFormat, type TransformConfig, TransformPreset, TableImplementation } from "./core";
 import { compressor, appWorker } from "./init";
 import { fetchAsText, type SharedData } from "./model";
 import "./app.css";
@@ -15,6 +15,7 @@ const target = document.getElementById("app")!;
 function page() {
   let initialData = "";
   let initialOptions: TransformConfig = {
+    implementation: TableImplementation.Core,
     preset: TransformPreset.Default,
     transform: false,
     format: OutputFormat.HTML,
