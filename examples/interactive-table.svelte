@@ -9,6 +9,7 @@
     makeTreeFactory,
     joinPrimitiveArrayValues,
     rows,
+		makeProportionalResizeGuard,
   } from "@json-table/core";
 
   const collapsed = new SvelteSet<Collapsible>();
@@ -43,9 +44,10 @@
     }
   }
 
-  const createTree = makeTreeFactory<unknown>({
+  const createTree = makeTreeFactory({
     cornerCellValue: "№",
     joinArrayValues: joinPrimitiveArrayValues,
+		isProportionalResize: makeProportionalResizeGuard(10),
     createHeader(key, record) {
       const value = record[key];
       if (value instanceof Collapsible) {
@@ -55,12 +57,6 @@
       return key;
     },
     createIndex: (i) => `${i + 1}`,
-    // Headers carrying distinct Collapsible instances still denote the same
-    // key: compare by label so identical bands lift instead of repeating.
-    isHeaderEqual: (a, b) =>
-      a instanceof Collapsible && b instanceof Collapsible
-        ? a.label === b.label
-        : a === b,
   });
 
   const data = {
@@ -132,7 +128,6 @@
   };
 
   const tableData = new Collapsible(data);
-
 </script>
 
 <table>
