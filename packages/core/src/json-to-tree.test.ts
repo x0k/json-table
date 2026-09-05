@@ -724,6 +724,59 @@ describe("factory options", () => {
   });
 });
 
+describe("empty objects", () => {
+  const emptyBaseOptions = {
+    cornerCellValue: "#",
+    createHeader: (k: string) => k,
+    createIndex: (i: number) => `${i + 1}`,
+  } as const;
+
+  it("renders a top-level empty object as filler", () => {
+    const createTree = makeTreeFactory<JSONValue>({ ...emptyBaseOptions });
+    const tree = createTree({});
+    expect(valuesOf(tree, "leaf")).toEqual([""]);
+    expect(tree).toEqual({ type: "leaf", value: "", width: 1, height: 1 });
+  });
+
+  it("renders a nested empty object under its header", () => {
+    const createTree = makeTreeFactory<JSONValue>({ ...emptyBaseOptions });
+    const tree = createTree({ a: {} });
+    expect(valuesOf(tree, "header")).toEqual(["a"]);
+    expect(valuesOf(tree, "leaf")).toEqual([""]);
+  });
+
+  it("emptyCellValue covers empty objects verbatim, bypassing createLeaf", () => {
+    const seen: unknown[] = [];
+    const createTree = makeTreeFactory<JSONValue>({
+      ...emptyBaseOptions,
+      emptyCellValue: () => "—",
+      createLeaf: (v) => {
+        seen.push(v);
+        return v;
+      },
+    });
+    expect(valuesOf(createTree({ a: {} }), "leaf")).toEqual(["—"]);
+    expect(seen).toEqual([]);
+  });
+
+  it("emptyCellValue distinguishes empty objects from empty arrays", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...emptyBaseOptions,
+      emptyCellValue: ({ type }) =>
+        type === "empty-array" ? "∅" : type === "empty-object" ? "∅∅" : "—",
+    });
+    expect(valuesOf(createTree({ a: {} }), "leaf")).toEqual(["∅∅"]);
+    expect(valuesOf(createTree({ a: [] }), "leaf")).toEqual(["∅"]);
+  });
+
+  it("arrays of empty objects keep their indexes", () => {
+    const createTree = makeTreeFactory<JSONValue>({ ...emptyBaseOptions });
+    const tree = createTree([{}, {}]);
+    expect(valuesOf(tree, "index")).toEqual(["1", "2"]);
+    expect(valuesOf(tree, "leaf")).toEqual(["", ""]);
+  });
+});
+
 describe("single-element arrays", () => {
   const singleBaseOptions = {
     cornerCellValue: "#",

@@ -930,6 +930,37 @@ exports[`'handle empty arrays' > renders expected markdown-like ascii table > ha
 | 2 |                           |   | 1 | gwT5xfbxgkPCq_VDyoBO3 |"
 `;
 
+exports[`'handle empty objects' > renders expected ascii table > handle empty objects ascii 1`] = `
+"
++---+-------+-------+
+| # | name  | props |
++---+-------+-------+
+| 1 | Alice |       |
++---+-------+-------+
+| 2 | Bob   |       |
++---+-------+-------+"
+`;
+
+exports[`'handle empty objects' > renders expected html table > handle empty objects html 1`] = `
+"<table><tr><td colspan="1" rowspan="1"><b>#</b></td>
+<td colspan="1" rowspan="1"><b>name</b></td>
+<td colspan="1" rowspan="1"><b>props</b></td></tr>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">Alice</td>
+<td colspan="1" rowspan="1"></td></tr>
+<tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="1" rowspan="1">Bob</td>
+<td colspan="1" rowspan="1"></td></tr></table>"
+`;
+
+exports[`'handle empty objects' > renders expected markdown-like ascii table > handle empty objects markdown-like 1`] = `
+"
+| # | name  | props |
+|---|-------|-------|
+| 1 | Alice |       |
+| 2 | Bob   |       |"
+`;
+
 exports[`'partially deduplicate objects with di…' > renders expected ascii table > partially deduplicate objects with different headers ascii 1`] = `
 "
 +---+---------------------+---------+-------------+

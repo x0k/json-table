@@ -26,8 +26,9 @@ const DEDUP_KINDS: ReadonlySet<ComponentKind> = new Set([
 ] as const);
 
 export interface EmptyCellInfo {
-  /** why the blank exists: sizing gap filler or an empty array */
-  type: "gap" | "empty-array";
+  /** why the blank exists: sizing gap filler, an empty array, or an
+   * empty object */
+  type: "gap" | "empty-array" | "empty-object";
   width: number;
   height: number;
 }
@@ -37,14 +38,15 @@ export interface TreeFactoryOptions<V> {
   createHeader: (k: string, record: Record<PropertyKey, V>) => LeafValue<V>;
   createIndex: (i: number, array: V[]) => LeafValue<V>;
   /** formats a data leaf value, joined strings included; headers, indexes,
-   * corners, gap filler and empty arrays never pass here */
+   * corners, gap filler, empty arrays and empty objects never pass here */
   createLeaf?: (value: LeafValue<V>) => LeafValue<V>;
   /** merges an array into one leaf; return undefined to render it as a
    * table instead. Receives raw input order, before key stabilization. */
   joinArrayValues?: (values: V[]) => LeafValue<V> | undefined;
   /** proportional resize guard (default allows 100% growth) */
   isProportionalResize?: ProportionalResizeGuard;
-  /** placeholder for content-less cells: gap filler and empty arrays */
+  /** placeholder for content-less cells: gap filler, empty arrays and
+   * empty objects */
   emptyCellValue?: (info: EmptyCellInfo) => LeafValue<V>;
   collapseIndexes?: boolean;
   stabilizeOrderOfPropertiesInArraysOfObjects?: boolean;
@@ -143,6 +145,9 @@ export function makeTreeFactory<V>({
     insideArrayItem: boolean,
   ): Tree<V> {
     const keys = Object.keys(value);
+    if (keys.length === 0) {
+      return emptyFiller({ type: "empty-object", width: 1, height: 1 });
+    }
     const bodies: Tree<V>[] = new Array(keys.length);
     const headers: Tree<V>[] = new Array(keys.length);
     for (let i = 0; i < keys.length; i++) {

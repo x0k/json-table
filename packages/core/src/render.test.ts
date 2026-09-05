@@ -19,6 +19,7 @@ import company from "./__fixtures__/company.js";
 import companyMixedEmployees from "./__fixtures__/company-mixed-employees.js";
 import deduplication from "./__fixtures__/deduplication.js";
 import emptyArrays from "./__fixtures__/empty-arrays.js";
+import emptyObjects from "./__fixtures__/empty-objects.js";
 import formatInBothItems from "./__fixtures__/format-in-both-items.js";
 import fullyDeduplicated from "./__fixtures__/fully-deduplicated.js";
 import indexesDeduplication from "./__fixtures__/indexes-deduplication.js";
@@ -49,6 +50,7 @@ const renderFixtures = [
   departmentsProjects,
   widthNonProportional,
   emptyArrays,
+  emptyObjects,
   formatInBothItems,
   fullyDeduplicated,
   indexesDeduplication,
