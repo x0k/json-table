@@ -1,5 +1,15 @@
 # web
 
+## 0.1.4
+
+### Patch Changes
+
+- [#27](https://github.com/x0k/json-table/pull/27) [`6f42e41`](https://github.com/x0k/json-table/commit/6f42e41547346c0b436f1be0070c5d546787fcf5) Thanks [@x0k](https://github.com/x0k)! - Add an implementation picker to the options form: tables can now be built with the legacy 0.3.0 block pipeline (`@json-table/core/legacy`) instead of the current tree pipeline. Legacy supports HTML and ASCII output with the default/manual presets mapped to its flags; XLSX output and mirror/transpose transforms stay available for the current implementation only.
+
+- Updated dependencies [[`fa8d30c`](https://github.com/x0k/json-table/commit/fa8d30c32d28e9580ed837c49726a52147326715), [`9e305cf`](https://github.com/x0k/json-table/commit/9e305cf59cf3b0d954dc8259f2d3e381612e0a07), [`c16d2d0`](https://github.com/x0k/json-table/commit/c16d2d0bcfb91641b07aac189cdef39a68969ecf), [`a0bdc3c`](https://github.com/x0k/json-table/commit/a0bdc3c12080a4213692130daafcb7fbbd767e0e), [`666e50a`](https://github.com/x0k/json-table/commit/666e50a86b8c6b7ff3d1d0a1c7d929411c733e01), [`fa8d30c`](https://github.com/x0k/json-table/commit/fa8d30c32d28e9580ed837c49726a52147326715), [`4008554`](https://github.com/x0k/json-table/commit/400855416089b041693873f7573d91a45c082fb1)]:
+  - @json-table/core@0.5.0
+  - @json-table/xlsx@0.5.0
+
 ## 0.1.3
 
 ### Patch Changes

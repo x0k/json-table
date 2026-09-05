@@ -1,5 +1,36 @@
 # @json-table/core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#27](https://github.com/x0k/json-table/pull/27) [`9e305cf`](https://github.com/x0k/json-table/commit/9e305cf59cf3b0d954dc8259f2d3e381612e0a07) Thanks [@x0k](https://github.com/x0k)! - Render empty objects through `emptyCellValue`: `{}` becomes a one-cell filler (nested under its header like any other value, indexed inside arrays) instead of a degenerate zero-width table. The `EmptyCellInfo` type gains an `"empty-object"` variant alongside `"gap"` and `"empty-array"`; like other fillers it bypasses `createLeaf`.
+
+  **BREAKING CHANGE**: `EmptyCellInfo["type"]` has a third variant — exhaustive switches over it need a new branch. Previously `{}` rendered as nothing (a zero-width row); any snapshot of that output will change.
+
+- [#27](https://github.com/x0k/json-table/pull/27) [`c16d2d0`](https://github.com/x0k/json-table/commit/c16d2d0bcfb91641b07aac189cdef39a68969ecf) Thanks [@x0k](https://github.com/x0k)! - Restore the 0.3.0 `Block`/`Table` pipeline as a `legacy` submodule: `import { makeTableFactory } from "@json-table/core/legacy"`. It mirrors the 0.3.0 export surface (root model plus `block`, `block-matrix`, `block-to-ascii`, `block-to-html` and `json-to-table` modules) verbatim in a single entry point, including its original tests. Prefer the root Tree-based API for new code.
+
+- [#24](https://github.com/x0k/json-table/pull/24) [`a0bdc3c`](https://github.com/x0k/json-table/commit/a0bdc3c12080a4213692130daafcb7fbbd767e0e) Thanks [@x0k](https://github.com/x0k)! - Make layout options function-only and add value hooks: `joinPrimitiveArrayValues` is renamed to `joinArrayValues` taking `(values) => leaf | undefined` (`undefined` declines merging and renders the array as a table), `proportionalSizeAdjustmentThreshold` is renamed to `isProportionalResize` taking a `ProportionalResizeGuard`, plus new `createLeaf` (formats data leaf values) and `emptyCellValue` (`(info) => leaf`, distinguishing `"gap"` filler from `"empty-array"` via `EmptyCellInfo`) options. Also exports a `joinPrimitiveArrayValues` helper reproducing the old default join.
+
+  **BREAKING CHANGE**: boolean `joinPrimitiveArrayValues` and numeric `proportionalSizeAdjustmentThreshold` no longer exist — non-function values throw a migration error at factory construction. Migrate `joinPrimitiveArrayValues: true` to `joinArrayValues: joinPrimitiveArrayValues` (imported from `@json-table/core`) and a threshold `n` to `isProportionalResize: makeProportionalResizeGuard(n)`.
+
+- [#25](https://github.com/x0k/json-table/pull/25) [`666e50a`](https://github.com/x0k/json-table/commit/666e50a86b8c6b7ff3d1d0a1c7d929411c733e01) Thanks [@x0k](https://github.com/x0k)! - Remove dead code from `lib/`:
+  - Remove deprecated `isRecord` from `object.ts` (use `isPlainObject` instead)
+  - Remove unused `matrix.ts` (`transpose`, `horizontalMirror`, `verticalMirror`, `mapCell`)
+  - Inline `matrix` call in `tree-to-ascii.ts`
+
+- [#27](https://github.com/x0k/json-table/pull/27) [`fa8d30c`](https://github.com/x0k/json-table/commit/fa8d30c32d28e9580ed837c49726a52147326715) Thanks [@x0k](https://github.com/x0k)! - Stop silently unwrapping single-element arrays: every array level now renders its index column with no special cases, so `[x]` renders distinctly from `x` and `[{ ... }]` from `{ ... }`. `joinArrayValues` runs before that, uniformly (empty arrays never reach it: they render as the `emptyCellValue` filler). In `collapseIndexes` mode nested levels flatten into dotted paths (`[[123]]` → `1.1 | 123`); a flat singleton (`[x]`) flattened nothing and renders bare, as do empty arrays.
+
+  **BREAKING CHANGE**: tables containing single-element arrays gain an index column (and, for object elements, a corner cell with a lifted header band) where previously the element was inlined without any array marker.
+
+- [#22](https://github.com/x0k/json-table/pull/22) [`4008554`](https://github.com/x0k/json-table/commit/400855416089b041693873f7573d91a45c082fb1) Thanks [@x0k](https://github.com/x0k)! - Add `isHeaderEqual` factory option: custom equality for header values during band lifting.
+
+  **BREAKING CHANGE**: removes the unused `isTreeStructurallyEquals` utility and the `extractHeadersTree` helper from the public API, and renames `extractSubtree` to `intersectTrees`.
+
+### Patch Changes
+
+- [#27](https://github.com/x0k/json-table/pull/27) [`fa8d30c`](https://github.com/x0k/json-table/commit/fa8d30c32d28e9580ed837c49726a52147326715) Thanks [@x0k](https://github.com/x0k)! - Fix lifted band segment alignment: decapitated bodies narrower than their band segment (e.g. a bare filler where the band spans an indexed table) now span to the band width instead of leaving a trailing pad that shifted every later segment under the wrong header.
+
 ## 0.4.3
 
 ### Patch Changes
