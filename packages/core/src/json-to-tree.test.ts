@@ -20,6 +20,52 @@ const makeTree = makeTreeFactory<JSONValue>({
   createIndex: (i) => `${i + 1}`,
 });
 
+function valuesOf(tree: Tree<JSONValue>, type: string): unknown[] {
+  const out: unknown[] = [];
+  for (const { node } of cells(tree)) {
+    if (node.type === type) {
+      out.push(node.value);
+    }
+  }
+  return out;
+}
+
+describe("band segment alignment", () => {
+  it("ragged decapitated bodies conform to band segments", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      cornerCellValue: "#",
+      createHeader: (k: string) => k,
+      createIndex: (i: number) => `${i + 1}`,
+    });
+    // Row 2 bare fillers run narrower than row 1 indexed tables. Without
+    // segment conformity every later segment shifts left under the wrong
+    // header (e.g. the `a` index lands under `d`, plus a trailing filler).
+    const tree = createTree([
+      { tasks: { n: ["a"], d: [], a: ["b"] } },
+      { tasks: { n: [], d: [], a: ["c"] } },
+    ]);
+    const row = [...cells(tree)].filter((c) => c.y === 3);
+    // The `n` filler spans the whole `n` region instead of leaving the
+    // `d` filler and the `a` index shifted one column left.
+    expect(
+      row
+        .filter((c) => c.node.type === "leaf" && c.node.value === "")
+        .map((c) => [c.x, c.width]),
+    ).toEqual([
+      [1, 2],
+      [3, 1],
+    ]);
+    expect(
+      row
+        .filter((c) => c.node.type === "index")
+        .map((c) => [c.node.value, c.x]),
+    ).toEqual([
+      ["2", 0],
+      ["1", 4],
+    ]);
+  });
+});
+
 describe("makePropertiesStabilizer", () => {
   it("orders entries by stable first-seen position", () => {
     const stabilize = makePropertiesStabilizer<string>();
@@ -546,22 +592,12 @@ describe("factory options", () => {
     createIndex: (i: number) => `${i + 1}`,
   } as const;
 
-  function leafValues(tree: Tree<JSONValue>): unknown[] {
-    const out: unknown[] = [];
-    for (const { node } of cells(tree)) {
-      if (node.type === "leaf") {
-        out.push(node.value);
-      }
-    }
-    return out;
-  }
-
   it("createLeaf formats data leaves, headers and indexes pass through", () => {
     const createTree = makeTreeFactory<JSONValue>({
       ...baseOptions,
       createLeaf: (v) => (typeof v === "number" ? `#${v}` : v),
     });
-    expect(leafValues(createTree({ n: 42, s: "x" }))).toEqual(["#42", "x"]);
+    expect(valuesOf(createTree({ n: 42, s: "x" }), "leaf")).toEqual(["#42", "x"]);
   });
 
   it("joinArrayValues joins with a custom function", () => {
@@ -569,7 +605,7 @@ describe("factory options", () => {
       ...baseOptions,
       joinArrayValues: (values) => values.join(" | "),
     });
-    expect(leafValues(createTree({ a: [1, 2] }))).toEqual(["1 | 2"]);
+    expect(valuesOf(createTree({ a: [1, 2] }), "leaf")).toEqual(["1 | 2"]);
   });
 
   it("joinArrayValues then createLeaf see the joined string", () => {
@@ -582,7 +618,7 @@ describe("factory options", () => {
         return v;
       },
     });
-    expect(leafValues(createTree({ a: [1, 2] }))).toEqual(["1, 2"]);
+    expect(valuesOf(createTree({ a: [1, 2] }), "leaf")).toEqual(["1, 2"]);
     expect(seen).toEqual(["1, 2"]);
   });
 
@@ -591,12 +627,12 @@ describe("factory options", () => {
       ...baseOptions,
       joinArrayValues: (values) => `${values.length} objects`,
     })({ a: [{ x: 1 }, { x: 2 }] });
-    expect(leafValues(merged)).toEqual(["2 objects"]);
+    expect(valuesOf(merged, "leaf")).toEqual(["2 objects"]);
     const declined = makeTreeFactory<JSONValue>({
       ...baseOptions,
       joinArrayValues: () => undefined,
     })({ a: [{ x: 1 }, { x: 2 }] });
-    const declinedLeaves = leafValues(declined);
+    const declinedLeaves = valuesOf(declined, "leaf");
     expect(declinedLeaves).toContain(1);
     expect(declinedLeaves).toContain(2);
     expect(declined.height).toBeGreaterThan(1);
@@ -651,8 +687,8 @@ describe("factory options", () => {
       tall: [{ n: "a" }, { n: "b" }, { n: "c" }, { n: "d" }],
       short: [{ t: 1 }, { t: 2 }, { t: 3 }],
     } as unknown as JSONValue);
-    expect(leafValues(tree)).toContain("—");
-    expect(leafValues(tree)).not.toContain("");
+    expect(valuesOf(tree, "leaf")).toContain("—");
+    expect(valuesOf(tree, "leaf")).not.toContain("");
   });
 
   it("emptyCellValue covers empty arrays verbatim, bypassing createLeaf", () => {
@@ -667,7 +703,7 @@ describe("factory options", () => {
         return v;
       },
     });
-    expect(leafValues(createTree({ a: [] }))).toEqual(["—"]);
+    expect(valuesOf(createTree({ a: [] }), "leaf")).toEqual(["—"]);
     expect(seen).toEqual([]);
   });
 
@@ -682,8 +718,109 @@ describe("factory options", () => {
       short: [{ t: 1 }, { t: 2 }, { t: 3 }],
       e: [],
     });
-    const values = leafValues(tree);
+    const values = valuesOf(tree, "leaf");
     expect(values).toContain("—");
     expect(values).toContain("∅");
+  });
+});
+
+describe("single-element arrays", () => {
+  const singleBaseOptions = {
+    cornerCellValue: "#",
+    createHeader: (k: string) => k,
+    createIndex: (i: number) => `${i + 1}`,
+  } as const;
+
+  it("renders a single object array as a one-row table with index", () => {
+    const createTree = makeTreeFactory<JSONValue>({ ...singleBaseOptions });
+    const tree = createTree([{ a: 1 }]);
+    expect(valuesOf(tree, "corner")).toEqual(["#"]);
+    expect(valuesOf(tree, "header")).toEqual(["a"]);
+    expect(valuesOf(tree, "index")).toEqual(["1"]);
+    expect(valuesOf(tree, "leaf")).toEqual([1]);
+    // array-ness is preserved: distinct from the bare object
+    expect(JSON.stringify(tree)).not.toBe(
+      JSON.stringify(createTree({ a: 1 })),
+    );
+  });
+
+  it("renders a single primitive array as an indexed row", () => {
+    const createTree = makeTreeFactory<JSONValue>({ ...singleBaseOptions });
+    const table = createTree([1]);
+    expect(valuesOf(table, "index")).toEqual(["1"]);
+    expect(valuesOf(table, "leaf")).toEqual([1]);
+    expect(JSON.stringify(table)).not.toBe(JSON.stringify(createTree(1)));
+  });
+
+  it("joinArrayValues applies to single-element arrays", () => {
+    const seen: unknown[] = [];
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      joinArrayValues: (values) => values.join(" | "),
+      createLeaf: (v) => {
+        seen.push(v);
+        return v;
+      },
+    });
+    const tree = createTree({ a: [1] });
+    expect(valuesOf(tree, "leaf")).toEqual(["1"]);
+    expect(valuesOf(tree, "index")).toEqual([]);
+    expect(seen).toEqual(["1"]);
+  });
+
+  it("collapseIndexes keeps varying dotted paths", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      collapseIndexes: true,
+    });
+    const tree = createTree({ a: [[1, 2]] });
+    expect(valuesOf(tree, "index")).toEqual(["1.1", "1.2"]);
+  });
+
+  it("collapseIndexes keeps nesting depth as dotted path text", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      collapseIndexes: true,
+    });
+    // Constant or not, every titled row renders its dotted index cell.
+    const tree = createTree([[123]]);
+    expect(valuesOf(tree, "index")).toEqual(["1.1"]);
+    expect(valuesOf(tree, "leaf")).toEqual([123]);
+  });
+
+  it("collapseIndexes leaves a flat singleton bare", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      collapseIndexes: true,
+    });
+    // A sole depth-0 pair flattened nothing: no dotted index cell.
+    const tree = createTree([1]);
+    expect(valuesOf(tree, "index")).toEqual([]);
+    expect(valuesOf(tree, "leaf")).toEqual([1]);
+  });
+
+  it("renders the index uniformly, even when constant", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      createIndex: () => "•",
+    });
+    // No special-casing by value: every level gets its index column.
+    const tree = createTree([{ a: 1 }, { a: 2 }]);
+    expect(valuesOf(tree, "index")).toEqual(["•", "•"]);
+    expect(valuesOf(tree, "corner")).toEqual(["#"]);
+    expect(valuesOf(tree, "header")).toEqual(["a"]);
+    expect(valuesOf(tree, "leaf")).toEqual([1, 2]);
+  });
+
+  it("renders empty arrays under collapseIndexes as bare filler", () => {
+    const createTree = makeTreeFactory<JSONValue>({
+      ...singleBaseOptions,
+      collapseIndexes: true,
+      emptyCellValue: () => "∅",
+    });
+    // No dotted index for the empty array itself — only the value row one.
+    const tree = createTree([[], [1]]);
+    expect(valuesOf(tree, "index")).toEqual(["2.1"]);
+    expect(valuesOf(tree, "leaf")).toEqual(["∅", 1]);
   });
 });

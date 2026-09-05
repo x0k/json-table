@@ -45,6 +45,43 @@ function neverError(value: never, message: string) {
   return new Error(`${message}: ${value}`);
 }
 
+/** spreads a width deficit over hole leaves, proportionally to their
+ * current widths (equally when all are zero-width); the last leaf absorbs
+ * rounding remainder so the deficit is always covered exactly. */
+function distributeResidualWidth<V>(
+  holeLeaves: Tree<V>[],
+  residual: number,
+): void {
+  let basis = 0;
+  for (const leaf of holeLeaves) {
+    basis += leaf.width;
+  }
+  if (basis === 0) {
+    const share = Math.floor(residual / holeLeaves.length);
+    let rest = residual - share * holeLeaves.length;
+    for (const leaf of holeLeaves) {
+      stretchLeavesDimensionInPlace(leaf, "width", leaf.width + share);
+      if (rest > 0) {
+        stretchLeavesDimensionInPlace(leaf, "width", leaf.width + 1);
+        rest--;
+      }
+    }
+    return;
+  }
+  let distributed = 0;
+  for (let k = 0; k < holeLeaves.length; k++) {
+    const leaf = holeLeaves[k]!;
+    const share =
+      k === holeLeaves.length - 1
+        ? residual - distributed
+        : Math.floor((residual * leaf.width) / basis);
+    distributed += share;
+    if (share > 0) {
+      stretchLeavesDimensionInPlace(leaf, "width", leaf.width + share);
+    }
+  }
+}
+
 export function* cells<V>(
   node: Tree<V>,
   startRow = 0,
@@ -217,6 +254,7 @@ export function decapitateTree<V>(
   tree: Tree<V>,
   mask: OptionalTree<V>,
   kinds: ReadonlySet<NodeKind>,
+  spanHoles = false,
 ): Tree<V> {
   if (
     mask === undefined ||
@@ -231,14 +269,20 @@ export function decapitateTree<V>(
   let hasNonCorner = false;
   const isRow = tree.type === "row";
   const tc = tree.children;
+  const mc = mask.children;
   const children: Tree<V>[] = new Array(tc.length);
+  // Allocated only for spanning passes: the common no-span path (index
+  // dedup, tests) must not pay per-call allocation for tracking it skips.
+  const holeLeaves: Tree<V>[] | undefined = spanHoles ? [] : undefined;
+  let droppedBandCell = false;
   let count = 0;
   for (let i = 0; i < tc.length; i++) {
-    const m = mask.children[i];
+    const m = mc[i];
     if (m !== undefined && !("children" in m) && kinds.has(m.type)) {
+      droppedBandCell = true;
       continue;
     }
-    const child = decapitateTree(tc[i]!, m, kinds);
+    const child = decapitateTree(tc[i]!, m, kinds, spanHoles);
     // containers emptied by stripping and zero-size vanish markers
     if (
       ("children" in child && child.children.length === 0) ||
@@ -247,12 +291,49 @@ export function decapitateTree<V>(
       continue;
     }
     children[count++] = child;
+    if (
+      holeLeaves !== undefined &&
+      m === undefined &&
+      !("children" in child) &&
+      child.height > 0
+    ) {
+      holeLeaves.push(child);
+    }
     if (child.type !== "corner") {
       hasNonCorner = true;
       contentMax = max(contentMax, isRow ? child.height : child.width);
     }
   }
   children.length = count;
+  if (
+    spanHoles &&
+    droppedBandCell &&
+    holeLeaves !== undefined &&
+    holeLeaves.length > 0
+  ) {
+    // Hole survivors leave their dropped band siblings' region uncovered:
+    // padding the deficit at the end would shift every later segment under
+    // the wrong header, so span them to the band width instead (a span
+    // misattributes nothing). Widths only — heights stay owned by the
+    // equalization passes.
+    let survivors = 0;
+    for (let i = 0; i < count; i++) {
+      survivors += children[i]!.width;
+    }
+    const residual = mask.width - survivors;
+    if (residual > 0) {
+      distributeResidualWidth(holeLeaves, residual);
+      contentMax = 1;
+      hasNonCorner = false;
+      for (let i = 0; i < count; i++) {
+        const child = children[i]!;
+        if (child.type !== "corner") {
+          hasNonCorner = true;
+          contentMax = max(contentMax, child.width);
+        }
+      }
+    }
+  }
   // a row of nothing but corners has no remaining content
   if (count > 0 && !hasNonCorner) {
     return { ...tree, width: 0, height: 0 };

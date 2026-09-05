@@ -27,7 +27,8 @@
   "homepage": "https://x0k.github.io/json-table/",
   "scripts": {
     "build": "tsc",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "bench": "vitest bench --run"
   },
   "exports": {
     "./lib/*": {

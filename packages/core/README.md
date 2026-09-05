@@ -116,7 +116,7 @@ Output:
 
 - Objects with a `toJSON()` method are unwrapped via `toJSON()` first.
 - Objects exposing a `[TO_TABLE]()` method (import `TO_TABLE` from `@json-table/core`) bypass parsing with their prebuilt `Tree`.
-- Single-element arrays render as their only element (an index column for one row carries no information).
+- Every array level renders its index column — no special cases, so `[x]` stays distinguishable from `x` and `[{ ... }]` from `{ ... }`. `joinArrayValues` runs before that, uniformly (empty arrays never reach it: they render as the `emptyCellValue` filler). In `collapseIndexes` mode nested levels flatten into dotted paths (`[[123]]` → `1.1 | 123`); a flat singleton (`[x]`) flattened nothing and renders bare, as do empty arrays.
 - Empty arrays render as one `empty-array` filler cell (see `emptyCellValue`).
 - Headers carrying objects never lift by identity alone: pass `isHeaderEqual` to compare them (e.g. by label). See the [interactive table example](https://svelte.dev/playground/2b3654db352247e8a2a4fea42d9621cc).
 
@@ -172,6 +172,19 @@ import {
 - `horizontalMirrorInPlace(tree)` — reverse column order.
 - `verticalMirrorInPlace(tree)` — reverse row order.
 - `normalizeExtentsInPlace(tree)` — recompute container extents bottom-up (sum along / max across). Useful after manual tree surgery.
+
+## Benchmarks
+
+```shell
+pnpm --filter @json-table/core bench
+```
+
+Runs the `vitest bench` harness (`src/*.bench.ts`, excluded from tests,
+builds and publishes): factory presets (default, `collapseIndexes`,
+`joinPrimitiveArrayValues`) over fixtures plus synthetic large inputs (5k-row
+lifting-pipeline stress, wide records, deep nesting), and `toASCII`/`toHTML`
+over prebuilt trees. Deliberately outside the turbo pipeline and CI —
+perf PRs must quote before/after numbers from it.
 
 ## License
 

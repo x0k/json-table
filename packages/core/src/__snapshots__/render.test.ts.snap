@@ -2,22 +2,24 @@
 
 exports[`'combine simple values without affecti…' > renders expected ascii table > combine simple values without affecting object values ascii 1`] = `
 "
-+-----------------------------------+
-|              weather              |
-+------+-------+-------------+------+
-|  id  | main  | description | icon |
-+------+-------+-------------+------+
-|  800 | Clear | clear sky   | 01n  |
-+------+-------+-------------+------+"
++---+-----------------------------------+
+|   |              weather              |
+| # +------+-------+-------------+------+
+|   |  id  | main  | description | icon |
++---+------+-------+-------------+------+
+| 1 |  800 | Clear | clear sky   | 01n  |
++---+------+-------+-------------+------+"
 `;
 
 exports[`'combine simple values without affecti…' > renders expected html table > combine simple values without affecting object values html 1`] = `
-"<table><tr><td colspan="4" rowspan="1"><b>weather</b></td></tr>
+"<table><tr><td colspan="1" rowspan="2"><b>#</b></td>
+<td colspan="4" rowspan="1"><b>weather</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>id</b></td>
 <td colspan="1" rowspan="1"><b>main</b></td>
 <td colspan="1" rowspan="1"><b>description</b></td>
 <td colspan="1" rowspan="1"><b>icon</b></td></tr>
-<tr><td colspan="1" rowspan="1">800</td>
+<tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1">800</td>
 <td colspan="1" rowspan="1">Clear</td>
 <td colspan="1" rowspan="1">clear sky</td>
 <td colspan="1" rowspan="1">01n</td></tr></table>"
@@ -25,10 +27,10 @@ exports[`'combine simple values without affecti…' > renders expected html tabl
 
 exports[`'combine simple values without affecti…' > renders expected markdown-like ascii table > combine simple values without affecting object values markdown-like 1`] = `
 "
-|              weather              |
-|-----------------------------------|
-|  id  | main  | description | icon |
-|  800 | Clear | clear sky   | 01n  |"
+| # |              weather              |
+|   |-----------------------------------|
+|---|  id  | main  | description | icon |
+| 1 |  800 | Clear | clear sky   | 01n  |"
 `;
 
 exports[`'company mixed employees' > renders expected ascii table > company mixed employees ascii 1`] = `
@@ -374,62 +376,66 @@ exports[`'company structure' transformations > renders expected vertically mirro
 
 exports[`'create correct tree' > renders expected ascii table > create correct tree ascii 1`] = `
 "
-+---+---------------+---------------+----------------------------------+
-|   |    options    | pluginVersion |             targets              |
-|   +---------------+---------------+-------------------------+--------+
-|   | reduceOptions |               |          expr           | format |
-| 1 +---------------+               +-------------------------+--------+
-|   |    values     | 7.3.1         |                         |        |
-|   +---------------+               | loki_build_info         | table  |
-|   | false         |               |                         |        |
-+---+---------------+---------------+-------------------------+--------+
-|   |    options    | pluginVersion |         targets         |        |
-|   +---------------+---------------+-------------------------+        |
-|   | reduceOptions |               |          expr           |        |
-| 2 +---------------+               +-------------------------+        |
-|   |    values     | 7.3.1         |                         |        |
-|   +---------------+               | sum(log_messages_total) |        |
-|   | false         |               |                         |        |
-+---+---------------+---------------+-------------------------+--------+"
++---+---------------+---------------+---+----------------------------------+
+|   |    options    | pluginVersion |   |             targets              |
+|   +---------------+---------------+ # +-------------------------+--------+
+|   | reduceOptions |               |   |          expr           | format |
+| 1 +---------------+               +---+-------------------------+--------+
+|   |    values     | 7.3.1         |   |                         |        |
+|   +---------------+               | 1 | loki_build_info         | table  |
+|   | false         |               |   |                         |        |
++---+---------------+---------------+---+-------------------------+--------+
+|   |    options    | pluginVersion |   |         targets         |        |
+|   +---------------+---------------+ # +-------------------------+        |
+|   | reduceOptions |               |   |          expr           |        |
+| 2 +---------------+               +---+-------------------------+        |
+|   |    values     | 7.3.1         |   |                         |        |
+|   +---------------+               | 1 | sum(log_messages_total) |        |
+|   | false         |               |   |                         |        |
++---+---------------+---------------+---+-------------------------+--------+"
 `;
 
 exports[`'create correct tree' > renders expected html table > create correct tree html 1`] = `
 "<table><tr><td colspan="1" rowspan="4"><b>1</b></td>
 <td colspan="1" rowspan="1"><b>options</b></td>
 <td colspan="1" rowspan="1"><b>pluginVersion</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
 <td colspan="2" rowspan="1"><b>targets</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
 <td colspan="1" rowspan="3">7.3.1</td>
 <td colspan="1" rowspan="1"><b>expr</b></td>
 <td colspan="1" rowspan="1"><b>format</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>values</b></td>
+<td colspan="1" rowspan="2"><b>1</b></td>
 <td colspan="1" rowspan="2">loki_build_info</td>
 <td colspan="1" rowspan="2">table</td></tr>
 <tr><td colspan="1" rowspan="1">false</td></tr>
 <tr><td colspan="1" rowspan="4"><b>2</b></td>
 <td colspan="1" rowspan="1"><b>options</b></td>
 <td colspan="1" rowspan="1"><b>pluginVersion</b></td>
+<td colspan="1" rowspan="2"><b>#</b></td>
 <td colspan="1" rowspan="1"><b>targets</b></td>
 <td colspan="1" rowspan="4"></td></tr>
 <tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
 <td colspan="1" rowspan="3">7.3.1</td>
 <td colspan="1" rowspan="1"><b>expr</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>values</b></td>
+<td colspan="1" rowspan="2"><b>1</b></td>
 <td colspan="1" rowspan="2">sum(log_messages_total)</td></tr>
 <tr><td colspan="1" rowspan="1">false</td></tr></table>"
 `;
 
 exports[`'create correct tree' > renders expected markdown-like ascii table > create correct tree markdown-like 1`] = `
 "
-|   |    options    | pluginVersion |             targets              |
-| 1 |---------------|---------------|----------------------------------|
-|   | reduceOptions | 7.3.1         |          expr           | format |
-|   |    values     |               | loki_build_info         | table  |
-|---| false         |---------------|-------------------------|--------|
-|   |    options    | pluginVersion |         targets         |        |
-| 2 | reduceOptions |               |          expr           |        |
-|   |    values     | 7.3.1         | sum(log_messages_total) |        |
-|   | false         |               |                         |        |"
+|   |    options    | pluginVersion | # |             targets              |
+| 1 |---------------|---------------|   |----------------------------------|
+|   | reduceOptions | 7.3.1         |---|          expr           | format |
+|   |    values     |               | 1 | loki_build_info         | table  |
+|---| false         |---------------|---|-------------------------|--------|
+|   |    options    | pluginVersion | # |         targets         |        |
+| 2 | reduceOptions |               |---|          expr           |        |
+|   |    values     | 7.3.1         | 1 | sum(log_messages_total) |        |
+|   | false         |               |   |                         |        |"
 `;
 
 exports[`'create tree for arrays with indexes c…' > renders expected ascii table > create tree for arrays with indexes collapse ascii 1`] = `
@@ -532,23 +538,24 @@ exports[`'create tree for objects' > renders expected markdown-like ascii table 
 
 exports[`'deduplicate headers with format in bo…' > renders expected ascii table > deduplicate headers with format in both items ascii 1`] = `
 "
-+---+---------------+---------------+--------------------------+
-|   |    options    |               |         targets          |
-|   +---------------+               +-----------------+--------+
-| # | reduceOptions | pluginVersion |                 |        |
-|   +---------------+               |      expr       | format |
-|   |    values     |               |                 |        |
-+---+---------------+---------------+-----------------+--------+
-| 1 | false         | 7.3.1         | loki_build_info | table  |
-+---+---------------+---------------+-----------------+--------+
-| 2 | false         | 7.3.2         | sum_messages    | json   |
-+---+---------------+---------------+-----------------+--------+"
++---+---------------+---------------+---+--------------------------+
+|   |    options    |               |   |         targets          |
+|   +---------------+               |   +-----------------+--------+
+| # | reduceOptions | pluginVersion | # |                 |        |
+|   +---------------+               |   |      expr       | format |
+|   |    values     |               |   |                 |        |
++---+---------------+---------------+---+-----------------+--------+
+| 1 | false         | 7.3.1         | 1 | loki_build_info | table  |
++---+---------------+---------------+---+-----------------+--------+
+| 2 | false         | 7.3.2         | 1 | sum_messages    | json   |
++---+---------------+---------------+---+-----------------+--------+"
 `;
 
 exports[`'deduplicate headers with format in bo…' > renders expected html table > deduplicate headers with format in both items html 1`] = `
 "<table><tr><td colspan="1" rowspan="3"><b>#</b></td>
 <td colspan="1" rowspan="1"><b>options</b></td>
 <td colspan="1" rowspan="3"><b>pluginVersion</b></td>
+<td colspan="1" rowspan="3"><b>#</b></td>
 <td colspan="2" rowspan="1"><b>targets</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>reduceOptions</b></td>
 <td colspan="1" rowspan="2"><b>expr</b></td>
@@ -557,23 +564,25 @@ exports[`'deduplicate headers with format in bo…' > renders expected html tabl
 <tr><td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">false</td>
 <td colspan="1" rowspan="1">7.3.1</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">loki_build_info</td>
 <td colspan="1" rowspan="1">table</td></tr>
 <tr><td colspan="1" rowspan="1"><b>2</b></td>
 <td colspan="1" rowspan="1">false</td>
 <td colspan="1" rowspan="1">7.3.2</td>
+<td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">sum_messages</td>
 <td colspan="1" rowspan="1">json</td></tr></table>"
 `;
 
 exports[`'deduplicate headers with format in bo…' > renders expected markdown-like ascii table > deduplicate headers with format in both items markdown-like 1`] = `
 "
-|   |    options    |               |         targets          |
-| # |---------------| pluginVersion |--------------------------|
-|   | reduceOptions |               |      expr       | format |
-|---|    values     |---------------|-----------------|--------|
-| 1 | false         | 7.3.1         | loki_build_info | table  |
-| 2 | false         | 7.3.2         | sum_messages    | json   |"
+|   |    options    |               |   |         targets          |
+| # |---------------| pluginVersion | # |--------------------------|
+|   | reduceOptions |               |   |      expr       | format |
+|---|    values     |---------------|---|-----------------|--------|
+| 1 | false         | 7.3.1         | 1 | loki_build_info | table  |
+| 2 | false         | 7.3.2         | 1 | sum_messages    | json   |"
 `;
 
 exports[`'deduplicate multiline tree headers' > renders expected ascii table > deduplicate multiline tree headers ascii 1`] = `
@@ -882,40 +891,43 @@ exports[`'fully deduplicate common headers' > renders expected markdown-like asc
 
 exports[`'handle empty arrays' > renders expected ascii table > handle empty arrays ascii 1`] = `
 "
-+---+---------------------------------------------------+
-|   |                       tasks                       |
-| # +-----------------------+---+-----------------------+
-|   |           n           | d |           a           |
-+---+-----------------------+---+-----------------------+
-| 1 | UspYpi-8NwmZZR7FJprSb |   | aCx8zMrOjqW6K55TMokHD |
-+---+-----------------------+---+-----------------------+
-| 2 |                       |   | gwT5xfbxgkPCq_VDyoBO3 |
-+---+-----------------------+---+-----------------------+"
++---+-----------------------------------------------------------+
+|   |                           tasks                           |
+| # +---------------------------+---+---------------------------+
+|   |             n             | d |             a             |
++---+---+-----------------------+---+---+-----------------------+
+| 1 | 1 | UspYpi-8NwmZZR7FJprSb |   | 1 | aCx8zMrOjqW6K55TMokHD |
++---+---+-----------------------+---+---+-----------------------+
+| 2 |                           |   | 1 | gwT5xfbxgkPCq_VDyoBO3 |
++---+---------------------------+---+---+-----------------------+"
 `;
 
 exports[`'handle empty arrays' > renders expected html table > handle empty arrays html 1`] = `
 "<table><tr><td colspan="1" rowspan="2"><b>#</b></td>
-<td colspan="3" rowspan="1"><b>tasks</b></td></tr>
-<tr><td colspan="1" rowspan="1"><b>n</b></td>
+<td colspan="5" rowspan="1"><b>tasks</b></td></tr>
+<tr><td colspan="2" rowspan="1"><b>n</b></td>
 <td colspan="1" rowspan="1"><b>d</b></td>
-<td colspan="1" rowspan="1"><b>a</b></td></tr>
+<td colspan="2" rowspan="1"><b>a</b></td></tr>
 <tr><td colspan="1" rowspan="1"><b>1</b></td>
+<td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">UspYpi-8NwmZZR7FJprSb</td>
 <td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">aCx8zMrOjqW6K55TMokHD</td></tr>
 <tr><td colspan="1" rowspan="1"><b>2</b></td>
+<td colspan="2" rowspan="1"></td>
 <td colspan="1" rowspan="1"></td>
-<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"><b>1</b></td>
 <td colspan="1" rowspan="1">gwT5xfbxgkPCq_VDyoBO3</td></tr></table>"
 `;
 
 exports[`'handle empty arrays' > renders expected markdown-like ascii table > handle empty arrays markdown-like 1`] = `
 "
-| # |                       tasks                       |
-|   |---------------------------------------------------|
-|---|           n           | d |           a           |
-| 1 | UspYpi-8NwmZZR7FJprSb |   | aCx8zMrOjqW6K55TMokHD |
-| 2 |                       |   | gwT5xfbxgkPCq_VDyoBO3 |"
+| # |                           tasks                           |
+|   |-----------------------------------------------------------|
+|---|             n             | d |             a             |
+| 1 | 1 | UspYpi-8NwmZZR7FJprSb |   | 1 | aCx8zMrOjqW6K55TMokHD |
+| 2 |                           |   | 1 | gwT5xfbxgkPCq_VDyoBO3 |"
 `;
 
 exports[`'partially deduplicate objects with di…' > renders expected ascii table > partially deduplicate objects with different headers ascii 1`] = `
